@@ -1,6 +1,7 @@
-# explain-simply
-
-Explain any code snippet, file, or technical concept in plain language that a beginner can understand.
+---
+name: explain-simply
+description: Explain any code snippet, file, or technical concept in plain language for a beginner
+---
 
 ## Steps
 

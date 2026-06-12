@@ -1,6 +1,7 @@
-# commit-helper
-
-Analyze staged git changes and generate a clear, well-formatted commit message.
+---
+name: commit-helper
+description: Analyze staged git changes and generate a clear, well-formatted commit message
+---
 
 ## Steps
 
