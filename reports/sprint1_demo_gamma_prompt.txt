@@ -1,0 +1,93 @@
+GAMMA PROMPT — BT Compass AI Sprint 1 Demo
+==========================================
+Paste everything below this line into Gamma to generate the Sprint 1 demo slides.
+Target: 5 slides, 3.5-minute concept demo video.
+==========================================
+
+Create a 5-slide presentation for a 3.5-minute concept demo video.
+The product is called BT Compass AI. The audience is a bootcamp cohort
+of early-stage AI builders. The tone is professional, confident, and
+specific — not startup hype. Clean design, dark navy and white palette,
+minimal text per slide, one big idea per slide.
+
+---
+
+Slide 1 — The Problem
+Title: The Gap Nobody Is Filling
+Body: A large pull quote in the center of the slide:
+
+"Our CEO wants an AI strategy. Our board wants to know what it costs.
+Vendors are calling. And we're expected to produce an RFP —
+before we know what we actually need."
+
+Attribution below the quote: — Health System CIO
+
+No other text. Let the quote breathe.
+
+---
+
+Slide 2 — The Concept
+Title: BT Compass AI
+Subtitle: A guided AI infrastructure readiness assessment for health systems
+
+Four bullet points:
+• Structured intake across 8 readiness domains
+• Scores each domain 0–4 with a separate confidence level
+• Generates three investment scenarios tailored to this organization
+• Produces draft RFP requirement language ready for procurement
+
+One line at the bottom in bold: This is not a maturity survey.
+It is a CIO decision-prep tool.
+
+---
+
+Slide 3 — Architecture and Business Model
+Title: The Product Stays In Your House
+
+Left side of slide: A simple diagram showing a box labeled
+"Your Environment" containing three items stacked vertically:
+  - Your Documents (AI roadmap, governance charter, IT budget)
+  - BT Compass MCP Kit (scoring model, vendor library, intake workflow)
+  - Your Output (Scenario Brief, Scorecard, RFP language)
+
+An arrow exits the box pointing right, labeled "Questions only — no
+documents, no PHI." Arrow points to a small box labeled "Claude AI."
+
+Right side of slide: Three-tier business model
+  Purchase — MCP Assessment Kit
+  Subscribe — Quarterly updates to scoring rubric and vendor library
+  Advisory — Optional: BT Compass reviews findings, builds your RFP
+
+Bold callout below everything: Data sovereignty built into the architecture.
+
+---
+
+Slide 4 — Early Evidence
+Title: Two Experiments. One Clear Finding.
+
+A simple two-column table:
+Left column header: What we tested
+Right column header: What happened
+
+Row 1: Mid-size regional health system | Useful output — but too
+qualitative, no domain scores
+Row 2: Large academic medical center, fragmented governance,
+recent cyber incident | AI correctly flagged governance as a
+prerequisite before recommending enterprise investment
+
+Below the table, one bold line:
+The concept works. The scoring layer is what gets built this week.
+
+---
+
+Slide 5 — The Ask
+Title: Two Questions
+
+Display two questions large and centered, one above the other:
+
+Does this resonate?
+
+Do you know a health system CIO, VP of IT, or CISO
+wrestling with AI procurement decisions right now?
+
+Bottom of slide, smaller text: Let's talk.

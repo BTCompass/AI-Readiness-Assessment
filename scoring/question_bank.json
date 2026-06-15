@@ -1,0 +1,1388 @@
+{
+  "metadata": {
+    "product": "BT Compass AI Infrastructure Assessment",
+    "version": "1.0",
+    "last_updated": "2026-06-15",
+    "standards_covered": ["NIST AI RMF", "WHO Ethics and Governance of AI for Health", "CHAI Blueprint for Trustworthy AI", "DiMe AI in Healthcare Playbook", "BT Compass Internal Reference Design Library"],
+    "evidence_validation_note": "Every question includes a Validate with Evidence prompt. Safety attestation is required before any upload. Claude extracts metrics and flags contradictions. The n8n scoring engine assigns evidence confidence levels deterministically.",
+    "safety_attestation_text": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content.",
+    "universal_safety_reminder": "Do not upload PHI, PII, confidential patient information, proprietary contracts, credentials, or unredacted sensitive materials."
+  },
+
+  "domains": {
+
+    "domain_1": {
+      "id": "strategic_intent_use_case_scope",
+      "name": "Strategic Intent & Use Case Scope",
+      "gate_type": "strategic_adoption",
+      "questions": {
+
+        "q1_1": {
+          "signal_id": "s1_1",
+          "signal_name": "Use Case Specificity",
+          "question": "What specific AI workloads or use cases are driving this assessment? Please describe each one — we will return to assess each in depth.",
+          "follow_ups": [
+            { "trigger": "Multiple use cases listed", "question": "Which use case is the highest priority, and why?" },
+            { "trigger": "Vague or vendor-driven description", "question": "What specific clinical or operational outcome are you trying to achieve? What does success look like in 12 months?" },
+            { "trigger": "Single use case only", "question": "Are there other AI use cases under consideration, even informally?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 1.1", "rationale": "Intended purpose and context of AI deployment must be documented before risk identification can begin." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Promote responsive and sustainable AI", "rationale": "AI should address genuine, defined health needs — not be deployed in response to vendor pressure or technology trends without a specific purpose." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Purposeful AI deployment", "rationale": "Trustworthy AI begins with clearly articulated, patient-centered use cases with defined success criteria." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Use case identification and scoping", "rationale": "DiMe prioritizes specific, scoped use cases over broad AI ambition as the foundation for implementation readiness." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI strategy or roadmap document naming specific use cases", "Use case brief or business case", "AI steering committee charter or minutes referencing specific use cases", "Vendor proposal or statement of work naming the AI use case"],
+            "quantitativeFields": ["Number of AI use cases identified", "Estimated patients or encounters affected per year", "Target performance metric (e.g., reduction in documentation time, sepsis detection rate)"],
+            "confidenceImpact": "Self-reported use case description = level 1. Use case brief with defined success criteria = level 2. Board-approved use case with budget = level 3. Use case with documented performance metrics from a comparable pilot = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Use case specificity determines which Epic AI Marketplace tools apply and which App Orchard partners are relevant.",
+            "aws": "Specific use cases determine whether HealthLake data pipeline or a SageMaker custom model path is appropriate.",
+            "azure": "Use case scope drives DAX Copilot vs. Azure OpenAI vs. Health Bot selection.",
+            "google": "Use case scope determines whether HDE data layer, MedLM, or Care Studio is the right entry point."
+          }
+        },
+
+        "q1_2": {
+          "signal_id": "s1_2",
+          "signal_name": "Executive Mandate Clarity",
+          "question": "Who is driving AI investment interest — CEO, board, clinical champion, vendor pressure, or internal IT initiative? Is there a formal executive mandate?",
+          "follow_ups": [
+            { "trigger": "Board mandate mentioned", "question": "What is the board's stated success metric and timeline?" },
+            { "trigger": "Vendor-driven", "question": "Has the organization's leadership formally endorsed this initiative, or is it primarily vendor-initiated?" },
+            { "trigger": "No named sponsor", "question": "Who in the organization has the authority to allocate budget and remove roadblocks for this initiative?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 1.1", "rationale": "Organizational commitment to AI risk management must be established and endorsed at the senior leadership level." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Foster responsibility and accountability", "rationale": "Named executive accountability is a prerequisite for responsible AI deployment — diffuse accountability produces unsafe outcomes." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Organizational accountability", "rationale": "CHAI identifies executive sponsorship as a foundational requirement for deploying AI with appropriate oversight." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Leadership alignment and sponsorship", "rationale": "DiMe identifies lack of executive sponsorship as a primary cause of AI implementation failure in health systems." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Board resolution or board minutes referencing AI initiative", "CEO or C-suite communication naming the AI priority", "Strategic plan with named AI investment priority", "AI governance charter naming executive sponsor"],
+            "quantitativeFields": ["Named executive sponsor (title, not name)", "Board approval date if applicable", "Executive mandate expiration or review date"],
+            "confidenceImpact": "Verbal description of executive interest = level 1. Written communication or strategic plan reference = level 2. Board resolution or formal charter with named sponsor = level 3.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Executive mandate clarity is required before Epic AI Marketplace expansion — App Orchard activations without executive support are a leading governance failure mode.",
+            "aws": "Executive mandate drives cloud strategy commitment necessary for AWS HealthLake or SageMaker investment.",
+            "azure": "DAX Copilot adoption at scale requires executive mandate — physician adoption fails without named executive accountability.",
+            "google": "Google Cloud health AI investment requires organizational commitment at the executive level given the data platform build required."
+          }
+        },
+
+        "q1_3": {
+          "signal_id": "s1_3",
+          "signal_name": "Ambition-Capacity Alignment",
+          "question": "How would you characterize your AI ambition for the next 24 months — pilot and learn, scale within a domain, or build enterprise-wide AI infrastructure? Does that ambition match your current governance, data, and infrastructure capacity?",
+          "follow_ups": [
+            { "trigger": "Enterprise ambition stated", "question": "What is your current state on governance, data readiness, and infrastructure? Is there a gap analysis between where you are and enterprise-scale AI requirements?" },
+            { "trigger": "Pilot ambition stated", "question": "Are there board or executive expectations that exceed pilot scope?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 2.2", "rationale": "Risk categories must be prioritized in proportion to the scope and scale of AI deployment — enterprise ambition with pilot-level readiness is a material risk." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Promote responsive and sustainable AI", "rationale": "WHO calls for AI deployment that is sustainable given organizational capacity — ambition that outpaces capacity creates unsafe implementation conditions." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Phased implementation planning", "rationale": "DiMe recommends explicit alignment between stated ambition and current organizational capability before committing to implementation timelines." },
+            { "framework": "BT Compass Internal Reference Design Library", "principleOrFunction": "Vendor best-fit profile", "rationale": "Vendor reference design best-fit profiles are calibrated to organizational capacity — misalignment between ambition and capacity is the primary contraindication signal." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI maturity assessment (internal or external)", "Gap analysis document comparing current state to AI ambition", "Phased AI roadmap with capability milestones", "Strategic planning document with AI investment sequencing"],
+            "quantitativeFields": ["Current maturity level on any referenced framework (e.g., HIMSS INFRAM score)", "Number of AI tools currently in production", "Number of domains with defined governance vs. number of domains targeted for AI"],
+            "confidenceImpact": "Verbal description of ambition = level 1. Written roadmap = level 2. Formal gap analysis or maturity assessment = level 3. External maturity benchmarking = level 5.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Ambition-capacity alignment determines whether Epic native AI activation, App Orchard expansion, or DAX is the right scope for this organization's current state.",
+            "aws": "High ambition + low capacity is a primary contraindication for AWS health AI — data engineering burden requires organizational capacity to execute.",
+            "azure": "DAX Copilot is best matched to organizations with defined ambition and physician adoption capacity — enterprise ambition without change management capacity is a risk.",
+            "google": "Google Cloud health AI is best matched to data-mature, research-oriented organizations — contraindicated when ambition exceeds data and data science capacity."
+          }
+        },
+
+        "q1_4": {
+          "signal_id": "s1_4",
+          "signal_name": "Success Metrics Defined",
+          "question": "Are measurable outcomes defined for the AI initiative? Who owns measurement, and what is the review timeline?",
+          "follow_ups": [
+            { "trigger": "Qualitative outcomes only", "question": "Can those outcomes be quantified? What would you measure to know the AI tool is working?" },
+            { "trigger": "Metrics defined but no owner", "question": "Who is responsible for tracking and reporting on those metrics post-deployment?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MEASURE 2.5", "rationale": "AI system performance must be demonstrably measurable — undefined success metrics make post-deployment monitoring and accountability impossible." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Ensure transparency and explainability", "rationale": "Transparency requires that the criteria for AI success and failure be defined and visible to stakeholders before deployment." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Continuous improvement", "rationale": "CHAI requires measurable performance benchmarks as the foundation for continuous improvement and accountability." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Outcome measurement and surveillance", "rationale": "DiMe requires defined clinical and operational outcome metrics before AI deployment, not after." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Use case brief with defined success metrics", "Performance dashboard or scorecard template", "Vendor contract with performance SLAs", "AI steering committee minutes with metrics discussion"],
+            "quantitativeFields": ["Primary success metric name and target value", "Secondary metrics (up to 3)", "Measurement frequency", "Review timeline (e.g., 90-day checkpoint)"],
+            "confidenceImpact": "Described metrics with no documentation = level 1. Written metrics in a use case brief = level 2. Approved metrics in a signed contract or governance document = level 3. Active performance dashboard with historical data = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic native AI tools (deterioration index, readmission) have published performance benchmarks — defined success metrics should be benchmarked against Epic's published outcomes data.",
+            "aws": "SageMaker custom model deployments require health system-defined success metrics — no vendor-provided defaults apply.",
+            "azure": "DAX Copilot success metrics are well-established (documentation time reduction, physician satisfaction) — operator-defined metrics should be compared to DAX published benchmarks.",
+            "google": "MedLM deployments require health system-defined clinical performance thresholds — published MedLM research benchmarks exist for comparison."
+          }
+        },
+
+        "q1_5": {
+          "signal_id": "s1_5",
+          "signal_name": "Strategic Urgency and Timeline",
+          "question": "Is there a defined timeline for this AI initiative? What is driving the urgency, and does the timeline reflect realistic implementation capacity?",
+          "follow_ups": [
+            { "trigger": "Board or CEO pressure creating unrealistic timeline", "question": "What is the minimum viable milestone that could satisfy executive expectations while allowing appropriate readiness work?" },
+            { "trigger": "No defined timeline", "question": "Are there external events — contract renewals, regulatory deadlines, competitive moves — that create implicit timelines?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 1.4", "rationale": "Organizational commitment to AI risk management includes realistic planning horizons — compressed timelines are a leading cause of governance and safety gaps." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Promote responsive and sustainable AI", "rationale": "Sustainable AI deployment requires timelines that allow for adequate validation, governance, and change management." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Implementation planning and sequencing", "rationale": "DiMe calls for timelines that include governance formation, clinical validation, and change management — not just technical deployment." },
+            { "framework": "BT Compass Internal Reference Design Library", "principleOrFunction": "Integration effort estimates", "rationale": "Vendor reference designs include integration effort estimates that set minimum realistic timelines for each vendor path." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Project charter with timeline and milestones", "Board or executive communication referencing timeline", "AI roadmap with phased implementation dates", "PMO project plan excerpt (redacted)"],
+            "quantitativeFields": ["Target go-live date", "Number of defined milestones", "Current phase of implementation"],
+            "confidenceImpact": "Verbal timeline description = level 1. Written roadmap = level 2. Approved project charter with milestones = level 3. PMO-tracked project plan with resource assignments = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic AI activation timelines depend on release cycle and module configuration — validate target dates against Epic's current release roadmap.",
+            "aws": "AWS HealthLake pipeline build typically requires 3–6 months for production-quality data integration — timelines shorter than this are a contraindication signal.",
+            "azure": "DAX Copilot implementation timelines are relatively predictable with certified Epic/Cerner integration — 3–4 months from contract to pilot go-live is typical.",
+            "google": "Google Cloud HDE pipeline + MedLM integration typically requires 4–8 months for production readiness — shorter timelines indicate scope reduction is needed."
+          }
+        }
+      }
+    },
+
+    "domain_2": {
+      "id": "data_readiness_governance",
+      "name": "Data Readiness & Governance",
+      "gate_type": "critical",
+      "questions": {
+
+        "q2_1": {
+          "signal_id": "s2_1",
+          "signal_name": "Data Availability",
+          "question": "Is the data required for your defined AI use cases available and accessible today? Where does it live, who controls it, and what would it take to use it for AI?",
+          "follow_ups": [
+            { "trigger": "Data owned by vendor", "question": "Does your contract with that vendor include data portability and AI use rights?" },
+            { "trigger": "Data exists but fragmented", "question": "What systems hold the data, and is there an integration layer to bring it together?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 3.5", "rationale": "Data availability must be assessed as part of pre-deployment risk analysis — unavailable or inaccessible data is a fundamental barrier to safe AI deployment." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Data quality and governance", "rationale": "DiMe identifies data availability as a prerequisite assessment before any AI use case proceeds to design or procurement." },
+            { "framework": "BT Compass Internal Reference Design Library", "principleOrFunction": "EHR and integration dependencies", "rationale": "All four vendor reference designs have specific data availability requirements — Epic native AI requires Epic-resident data; AWS/Azure/Google require FHIR-accessible data." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Data inventory or data catalog excerpt", "EHR data model documentation", "Vendor contract data portability clause", "Data flow diagram"],
+            "quantitativeFields": ["Number of years of historical data available", "Data completeness rate for target use case domain (e.g., % of records with required fields populated)", "Number of source systems containing required data"],
+            "confidenceImpact": "Self-reported data availability = level 1. Data inventory document = level 2. Data flow diagram with source system mapping = level 3. Data quality report with completeness metrics = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic native AI operates on Epic-resident data — no separate data extraction required. Data availability question for Epic is primarily about which Epic modules are active and populated.",
+            "aws": "HealthLake requires FHIR R4 data export from EHR — data availability assessment must include FHIR API readiness and export completeness.",
+            "azure": "Azure Health Data Services requires similar FHIR export path — data availability and FHIR API maturity are prerequisites.",
+            "google": "Google Healthcare Data Engine is specifically designed for fragmented multi-system data — strongest fit when data exists across multiple sources and needs harmonization."
+          }
+        },
+
+        "q2_2": {
+          "signal_id": "s2_2",
+          "signal_name": "Data Quality",
+          "question": "How would you characterize your data quality for the domains required by your AI use cases? Have structured clinical data quality issues been formally assessed?",
+          "follow_ups": [
+            { "trigger": "Known quality issues", "question": "Which data domains have the worst quality — clinical, operational, claims, or imaging? What is the root cause?" },
+            { "trigger": "No formal assessment", "question": "Has data quality ever been formally measured, or is this based on user feedback and observation?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MEASURE 2.2", "rationale": "Data quality must be assessed as part of AI trustworthiness evaluation — poor data quality is a primary source of AI bias, unreliable outputs, and patient safety risk." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Ensure inclusiveness and equity", "rationale": "Data quality disparities across patient populations are a root cause of AI inequity — populations with incomplete records are systematically underserved by AI tools trained on biased data." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Fairness and equity", "rationale": "CHAI requires data quality assessment as a prerequisite for fairness evaluation — AI trained on incomplete or biased data cannot be evaluated for equity without first characterizing data quality." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Data quality and governance", "rationale": "DiMe defines minimum data quality thresholds that must be met before AI model training or inference at scale." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Data quality assessment report", "EHR data quality dashboard screenshot (de-identified)", "Clinical informatics data quality audit", "Vendor data quality report from EHR implementation"],
+            "quantitativeFields": ["Data completeness rate for primary AI use case domain", "Data accuracy rate if measured", "Number of data quality issues identified and resolved in past 12 months"],
+            "confidenceImpact": "Stated data quality estimate = level 1. Written data quality policy = level 2. Completed data quality audit with findings = level 3. Active data quality dashboard with trend data = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic's native AI models were trained on multi-organization Epic data — local data quality affects performance calibration; Epic provides some data quality tooling within the platform.",
+            "aws": "Comprehend Medical and HealthLake are sensitive to input data quality — low-quality source data produces unreliable clinical NLP outputs.",
+            "azure": "DAX Copilot audio quality and EHR documentation quality affect note draft quality — underlying data quality is less of a factor for ambient documentation than for analytics AI.",
+            "google": "Google HDE includes data harmonization and de-identification — best suited for organizations with known data quality issues who want the platform to help normalize data before AI use."
+          }
+        },
+
+        "q2_3": {
+          "signal_id": "s2_3",
+          "signal_name": "Interoperability",
+          "question": "Which EHR platform are you on, and what version or release cycle? Do you have FHIR R4 APIs enabled? Can data flow between your EHR, data warehouse, and AI tools?",
+          "follow_ups": [
+            { "trigger": "Epic", "question": "Which Epic AI Marketplace or App Orchard tools are you already using or have access to under your current contract?" },
+            { "trigger": "Multi-EHR environment", "question": "Which systems hold which populations, and is there a plan to integrate across them?" },
+            { "trigger": "FHIR not enabled", "question": "What is the path to enabling FHIR APIs, and who owns that work?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 3.5", "rationale": "Interoperability failures between EHR, data layer, and AI tools are a documented source of patient safety risk — incomplete data flows lead to AI inference on incomplete patient pictures." },
+            { "framework": "BT Compass Internal Reference Design Library", "principleOrFunction": "EHR and integration dependencies", "rationale": "FHIR R4 interoperability is a prerequisite for AWS, Azure, and Google Cloud health AI deployments. Epic native AI bypasses this requirement for Epic-resident data only." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Data infrastructure and interoperability", "rationale": "DiMe identifies FHIR R4 API readiness as a foundational interoperability requirement for health AI deployment." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Ensure transparency and explainability", "rationale": "Interoperability enables audit and traceability of data flows — opacity in data pipelines makes AI outputs unexplainable and unauditable." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["EHR FHIR API documentation or activation confirmation", "Integration architecture diagram", "CMDB excerpt showing integration inventory", "Vendor API documentation showing FHIR support"],
+            "quantitativeFields": ["FHIR R4 API enabled (yes/no)", "Number of active FHIR integrations", "Number of systems integrated into central data platform"],
+            "confidenceImpact": "Stated EHR platform and version = level 1. Architecture diagram = level 2. Active FHIR API documentation = level 3. Integration test results or active integration monitoring dashboard = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic FHIR R4 API is the integration foundation for all non-native AI tools in Epic environments — App Orchard partners use Epic-certified integration methods.",
+            "aws": "HealthLake ingestion requires FHIR R4 export from EHR — interoperability readiness directly determines AWS health AI feasibility.",
+            "azure": "Azure Health Data Services uses the same FHIR R4 path — interoperability readiness determines feasibility of Azure analytics AI.",
+            "google": "Google Healthcare Data Engine is the strongest choice for multi-EHR environments — designed specifically for FHIR harmonization across disparate source systems."
+          }
+        },
+
+        "q2_4": {
+          "signal_id": "s2_4",
+          "signal_name": "Data Governance Maturity",
+          "question": "Is there a formal data governance program with named data owners, policies, and enforcement? Who is accountable when AI uses organizational data in an unexpected way?",
+          "follow_ups": [
+            { "trigger": "No formal governance", "question": "When a data quality or data access issue arises today, who resolves it and how?" },
+            { "trigger": "Governance exists", "question": "Does the data governance program explicitly address AI use of clinical data — including de-identification, training data consent, and AI vendor data handling?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 6.1", "rationale": "Organizational policies and procedures must address data governance as a component of AI risk management — ungoverned data is a systemic AI risk." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Ensure transparency and explainability", "rationale": "Data governance is the organizational foundation for data lineage, audit, and explainability — without it, AI outputs cannot be traced to their data sources." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Privacy and security", "rationale": "CHAI identifies mature data governance as a prerequisite for privacy-preserving AI — informal governance produces privacy risks in AI data pipelines." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Data quality and governance", "rationale": "DiMe requires formal data governance with named ownership as a prerequisite for AI data pipeline design." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Data governance policy or charter", "Data governance committee charter or meeting minutes", "Data owner assignment matrix (redacted)", "AI-specific data use policy"],
+            "quantitativeFields": ["Number of named data domains with assigned data owners", "Frequency of data governance committee meetings", "Number of AI-specific data use policies in place"],
+            "confidenceImpact": "Verbal description of governance practices = level 1. Written data governance policy = level 2. Committee charter with meeting minutes = level 3. Data governance dashboard with policy compliance metrics = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic App Orchard governance depends on the health system's data governance maturity — weak governance allows department-level App Orchard activations without central oversight.",
+            "aws": "AWS HealthLake deployment requires data governance to define who can access, process, and analyze data in the cloud environment.",
+            "azure": "Azure Health Data Services governance overlaps with Microsoft BAA requirements — data governance must address cloud data processing of clinical data.",
+            "google": "Google HDE de-identification pipeline requires data governance to define de-identification method, validation, and downstream use rules."
+          }
+        },
+
+        "q2_5": {
+          "signal_id": "s2_5",
+          "signal_name": "EHR Platform Readiness",
+          "question": "Is your EHR platform capable of supporting your target AI workloads — through native AI tools, marketplace integrations, or API connectivity? What version are you on and what AI tools are already licensed?",
+          "follow_ups": [
+            { "trigger": "Epic — current release", "question": "Are Epic Cognitive Computing models enabled? Have you activated any App Orchard AI partners?" },
+            { "trigger": "Legacy EHR version", "question": "Is there a planned upgrade path, and does it include AI enablement as a milestone?" },
+            { "trigger": "Non-Epic EHR", "question": "Does your EHR vendor have an AI marketplace or certified AI partner program?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 3.5", "rationale": "EHR platform technical constraints are a primary risk factor in AI deployment — platform limitations constrain the AI tools that can be safely integrated." },
+            { "framework": "BT Compass Internal Reference Design Library", "principleOrFunction": "EHR and integration dependencies", "rationale": "Epic native AI is only available to Epic customers on current releases; AWS, Azure, and Google health AI are EHR-agnostic but require FHIR API connectivity." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Technical infrastructure readiness", "rationale": "DiMe identifies EHR platform readiness — including API version and AI marketplace access — as a prerequisite technical assessment." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["EHR contract showing active modules and release version", "EHR vendor AI marketplace enrollment confirmation", "FHIR API activation documentation", "EHR upgrade roadmap"],
+            "quantitativeFields": ["EHR platform name and current version/release", "Number of AI tools currently licensed from EHR vendor", "FHIR R4 API enabled (yes/no)", "Number of active EHR-native AI tools in production"],
+            "confidenceImpact": "Stated EHR platform and version = level 1. Contract or release documentation = level 2. Active module list from EHR contract = level 3. Active AI tool usage report from EHR vendor = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic release version directly determines which AI Marketplace tools, App Orchard partners, and Cognitive Computing features are available — this is the most EHR-sensitive signal in the question bank.",
+            "aws": "AWS is EHR-agnostic — EHR platform readiness question for AWS is specifically about FHIR API access and data export capability.",
+            "azure": "DAX Copilot has certified integrations with Epic and Cerner — EHR platform determines integration path and configuration effort.",
+            "google": "Care Studio has certified Epic and Cerner integrations — EHR platform determines entry point for Google clinical workflow tools."
+          }
+        },
+
+        "q2_6": {
+          "signal_id": "s2_6",
+          "signal_name": "Data Platform Maturity",
+          "question": "Do you have a centralized data warehouse, data lake, or analytics platform? Who manages it, and can it support AI model training or inference at scale?",
+          "follow_ups": [
+            { "trigger": "Cloud data platform", "question": "Which cloud platform — AWS, Azure, or Google? What AI services are already enabled on that platform?" },
+            { "trigger": "On-prem data warehouse only", "question": "Is there a cloud migration roadmap for the data platform, and does it include AI workloads?" },
+            { "trigger": "No centralized platform", "question": "Where do your analytics and reporting teams work today — direct EHR reporting, standalone BI tools, or something else?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MEASURE 2.2", "rationale": "AI measurement and monitoring require a data infrastructure capable of capturing, storing, and querying AI performance data — no data platform means no monitoring capability." },
+            { "framework": "BT Compass Internal Reference Design Library", "principleOrFunction": "Data platform requirement", "rationale": "AWS HealthLake, Azure Health Data Services, and Google HDE all serve as or integrate with a health data platform — existing platform alignment determines vendor fit." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Data infrastructure and interoperability", "rationale": "DiMe identifies data platform maturity as a prerequisite for enterprise-scale AI — organizations without a data platform must build one before scaling AI workloads." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Data platform architecture diagram", "Cloud contract or enrollment documentation", "Analytics platform inventory or CMDB excerpt", "Data governance documentation for the data platform"],
+            "quantitativeFields": ["Data platform type (warehouse, lake, lakehouse)", "Cloud provider if applicable", "Number of data sources integrated into the platform", "Volume of data in platform (rough estimate)"],
+            "confidenceImpact": "Verbal description of data platform = level 1. Architecture diagram = level 2. Active platform documentation with data source inventory = level 3. Platform usage metrics or data volume report = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic analytics lives primarily within Epic (Reporting Workbench, Clarity, Caboodle) — a separate data platform is required for non-Epic AI workloads.",
+            "aws": "HealthLake can serve as the health data platform — AWS is a strong fit for organizations building their first cloud-based health data layer.",
+            "azure": "Azure Health Data Services integrates with Azure Synapse Analytics — Microsoft-aligned organizations may already have Azure as their data platform foundation.",
+            "google": "Google HDE is the strongest option when the data platform itself needs to be built with health-native FHIR and de-identification capabilities."
+          }
+        }
+      }
+    },
+
+    "domain_3": {
+      "id": "infrastructure_architecture_readiness",
+      "name": "Infrastructure & Architecture Readiness",
+      "gate_type": "secondary",
+      "questions": {
+
+        "q3_1": {
+          "signal_id": "s3_1",
+          "signal_name": "Compute Availability",
+          "question": "Is dedicated compute capacity available for AI workloads, or would new AI tools compete with production clinical systems for resources?",
+          "follow_ups": [
+            { "trigger": "Cloud compute", "question": "Which cloud provider, and are AI-specific services (GPU instances, managed ML) already provisioned or accessible?" },
+            { "trigger": "On-prem compute only", "question": "Is there capital budget and timeline for dedicated on-prem AI compute, or is cloud the path?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 3.5", "rationale": "Compute constraints are a pre-deployment risk — AI workloads competing with clinical production systems create availability and performance risks for patient care." },
+            { "framework": "BT Compass Internal Reference Design Library", "principleOrFunction": "Deployment models", "rationale": "AWS, Azure, and Google managed cloud AI services eliminate on-prem compute requirements — but require cloud strategy and connectivity maturity." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Technical infrastructure readiness", "rationale": "DiMe identifies compute capacity as a prerequisite infrastructure assessment, particularly for AI workloads requiring GPU resources." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Infrastructure architecture diagram", "Cloud enrollment or contract documentation", "Compute capacity assessment or CMDB excerpt", "Capital budget approval for compute investment"],
+            "quantitativeFields": ["Current available compute for AI workloads (vCPU, GPU count if applicable)", "Cloud provider and AI service tier if applicable", "Percentage of AI-relevant workloads currently cloud-hosted"],
+            "confidenceImpact": "Verbal description = level 1. Architecture diagram = level 2. Cloud contract or capacity report = level 3. Active capacity monitoring dashboard = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic native AI runs within the Epic environment — no separate compute provisioning required for native models. App Orchard tools vary by partner.",
+            "aws": "AWS managed AI services (HealthLake, Bedrock, SageMaker) eliminate on-prem compute requirements — cloud enrollment and connectivity is the prerequisite, not compute procurement.",
+            "azure": "Azure managed health AI services similarly eliminate on-prem compute requirements — Microsoft Azure enrollment is the prerequisite.",
+            "google": "Google Cloud managed services eliminate on-prem compute — GCP enrollment and connectivity is the prerequisite for Vertex AI and MedLM."
+          }
+        },
+
+        "q3_2": {
+          "signal_id": "s3_2",
+          "signal_name": "Cloud Strategy and Maturity",
+          "question": "Is your cloud strategy defined? Which cloud platform is your primary or preferred provider, and are AI-relevant workloads currently cloud-hosted or on a migration path?",
+          "follow_ups": [
+            { "trigger": "AWS primary", "question": "Is AWS HealthLake or any AWS health AI service already in use or under evaluation?" },
+            { "trigger": "Azure primary", "question": "Are Microsoft 365, Teams, or Azure Active Directory in your environment? Is there an existing Azure enterprise agreement?" },
+            { "trigger": "Google primary", "question": "Is Google Workspace in use? Are any Google Cloud health services under evaluation?" },
+            { "trigger": "No cloud strategy", "question": "What would it take to establish a cloud foothold for AI workloads? Is there a cloud readiness assessment underway?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 3.5", "rationale": "Cloud strategy maturity directly determines which AI deployment paths are feasible — organizations without cloud strategy cannot safely deploy cloud-based health AI." },
+            { "framework": "BT Compass Internal Reference Design Library", "principleOrFunction": "Deployment models and best-fit profile", "rationale": "Cloud alignment is the primary discriminator between AWS, Azure, and Google vendor fit — this question is the single most important vendor matching signal in the assessment." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Technical infrastructure readiness", "rationale": "DiMe identifies cloud strategy as a foundational infrastructure requirement for scalable health AI." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Cloud strategy document", "Enterprise agreement or cloud enrollment documentation", "Cloud architecture diagram", "Cloud migration roadmap"],
+            "quantitativeFields": ["Primary cloud provider", "Cloud spend in current fiscal year (rough estimate)", "Percentage of workloads currently cloud-hosted", "Number of clinical AI workloads currently cloud-hosted"],
+            "confidenceImpact": "Verbal cloud strategy description = level 1. Written cloud strategy document = level 2. Active enterprise agreement or cloud contract = level 3. Cloud spend or usage dashboard = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Cloud strategy affects DAX Copilot (Azure) and App Orchard tools that use cloud processing — Epic-native AI is largely cloud-agnostic.",
+            "aws": "AWS is a strong fit for organizations with existing AWS enterprise agreements or AWS-forward cloud strategies.",
+            "azure": "Azure is a strong fit for Microsoft-aligned organizations — Microsoft 365, Teams, and Azure AD are the key alignment indicators.",
+            "google": "Google Cloud is a strong fit for Google Workspace organizations or data-science-forward organizations choosing Google for AI/ML capabilities."
+          }
+        },
+
+        "q3_3": {
+          "signal_id": "s3_3",
+          "signal_name": "Network Readiness",
+          "question": "Is your network infrastructure capable of supporting AI workloads — in terms of bandwidth for data transfer, latency for real-time AI inference, and network segmentation for security?",
+          "follow_ups": [
+            { "trigger": "Known network constraints", "question": "Are there specific sites, departments, or connectivity paths where network limitations would affect AI tool performance?" },
+            { "trigger": "Edge AI in consideration", "question": "What are the device management and security challenges at the edge for AI-dependent devices?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 3.5", "rationale": "Network constraints can prevent AI tools from operating reliably in clinical settings — latency failures in real-time clinical AI have direct patient safety implications." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Promote safety and well-being", "rationale": "AI tools that fail due to network constraints in clinical workflows create patient safety risks — network reliability is a safety prerequisite." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Technical infrastructure readiness", "rationale": "DiMe identifies network readiness — particularly for real-time inference workloads — as a prerequisite technical assessment." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Network architecture diagram", "Network capacity assessment", "Recent network performance report", "SD-WAN or network upgrade documentation"],
+            "quantitativeFields": ["Available bandwidth to primary cloud provider (Mbps)", "Network latency to primary data center or cloud region (ms)", "Number of facilities with network upgrades pending"],
+            "confidenceImpact": "Verbal network description = level 1. Architecture diagram = level 2. Network capacity assessment = level 3. Active network performance monitoring dashboard = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic native AI has minimal additional network requirements — it runs on existing Epic infrastructure.",
+            "aws": "HealthLake and SageMaker inference require reliable cloud connectivity — bandwidth and latency to AWS region are the key network requirements.",
+            "azure": "DAX Copilot audio transmission requires reliable connectivity with sufficient bandwidth — ambient documentation is sensitive to network latency.",
+            "google": "Google Cloud AI services require reliable connectivity to GCP — similar to AWS and Azure network requirements."
+          }
+        },
+
+        "q3_4": {
+          "signal_id": "s3_4",
+          "signal_name": "Integration Architecture",
+          "question": "Is your integration layer mature enough to connect AI tools to your EHR, data platforms, and clinical workflows? Do you have an integration platform or API layer, or are integrations point-to-point?",
+          "follow_ups": [
+            { "trigger": "Point-to-point integrations", "question": "How many active integrations are currently maintained, and who owns them? What is the cost of adding a new integration?" },
+            { "trigger": "Integration platform exists", "question": "Which integration platform? Does it support FHIR R4 and REST APIs natively?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 3.5", "rationale": "Integration architecture is a deployment risk — poor integration quality creates data flow failures, security vulnerabilities, and unauditable AI data pipelines." },
+            { "framework": "BT Compass Internal Reference Design Library", "principleOrFunction": "EHR and integration dependencies", "rationale": "All four vendor reference designs require integration architecture maturity — Epic-certified integration for App Orchard, FHIR APIs for AWS/Azure/Google." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Data infrastructure and interoperability", "rationale": "DiMe identifies integration platform maturity as a critical infrastructure requirement — point-to-point integration landscapes cannot scale with AI." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Integration architecture diagram", "Integration platform documentation", "Active integration inventory or CMDB excerpt", "API documentation for key integrations"],
+            "quantitativeFields": ["Integration platform name and version", "Number of active integrations", "Number of FHIR R4 integrations currently active", "Average time to build and deploy a new integration"],
+            "confidenceImpact": "Verbal description = level 1. Architecture diagram = level 2. Integration inventory document = level 3. Integration monitoring dashboard with uptime and error metrics = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic-certified integration methods (App Orchard) reduce custom integration burden — but require Epic integration team capacity and Epic configuration expertise.",
+            "aws": "HealthLake ingestion pipeline requires integration work — typically 3–6 months for production-quality FHIR integration from major EHR platforms.",
+            "azure": "Azure Health Data Services has similar FHIR integration requirements — DAX Copilot has a more standardized integration path via certified EHR integrations.",
+            "google": "Google HDE is designed to reduce integration burden through FHIR harmonization — but initial pipeline build still requires integration engineering."
+          }
+        },
+
+        "q3_5": {
+          "signal_id": "s3_5",
+          "signal_name": "Scalability and Resilience",
+          "question": "Can your infrastructure scale with AI workload growth, and do your disaster recovery and business continuity plans explicitly cover AI-dependent clinical workflows?",
+          "follow_ups": [
+            { "trigger": "No DR plan for AI workflows", "question": "If an AI tool supporting a clinical workflow went down, what is the fallback process, and has it been tested?" },
+            { "trigger": "Pilot scale only", "question": "What would it take to extend current infrastructure from pilot scale to department or enterprise scale?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MANAGE 2.2", "rationale": "Resilience planning for AI-dependent clinical workflows is a patient safety requirement — AI tools embedded in care delivery create dependencies that must be explicitly covered in BCP/DR planning." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Promote safety and well-being", "rationale": "Clinical workflows that become AI-dependent require explicit fallback protocols — patient safety cannot depend on AI tool availability without a tested fallback." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Post-deployment surveillance and resilience", "rationale": "DiMe requires operational resilience planning as part of AI deployment readiness — including downtime procedures and recovery testing." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Disaster recovery plan (executive summary — redact sensitive infrastructure details)", "BCP documentation covering AI-dependent clinical workflows", "Infrastructure scalability assessment", "Load testing results for AI workloads"],
+            "quantitativeFields": ["RTO (recovery time objective) for AI-dependent clinical workflows", "RPO (recovery point objective)", "Last DR test date", "Maximum AI workload scale tested"],
+            "confidenceImpact": "Verbal DR description = level 1. Written DR plan = level 2. DR plan with AI-specific coverage = level 3. DR test results with AI workflow coverage = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic SLA and DR planning apply to Epic-native AI — native AI resilience is tied to Epic uptime commitments.",
+            "aws": "AWS SLAs for HealthLake and managed services are high — but health system network resilience and regional failover design must be explicitly planned.",
+            "azure": "Azure availability zones and geo-redundancy options apply — DAX Copilot downtime fallback to manual documentation must be defined.",
+            "google": "Google Cloud multi-region architecture options apply — health system must define fallback for Care Studio or MedLM downtime in clinical workflows."
+          }
+        }
+      }
+    },
+
+    "domain_4": {
+      "id": "security_privacy_compliance",
+      "name": "Security, Privacy & Compliance",
+      "gate_type": "critical",
+      "questions": {
+
+        "q4_1": {
+          "signal_id": "s4_1",
+          "signal_name": "CISO Involvement in AI Decisions",
+          "question": "Is your CISO actively involved in AI procurement and deployment decisions? Is security review a formal gate in your AI approval process?",
+          "follow_ups": [
+            { "trigger": "CISO not involved", "question": "Have any AI tools been deployed without a formal security review? Who in IT is responsible for AI vendor security assessment?" },
+            { "trigger": "CISO involved informally", "question": "What would it take to formalize CISO involvement as a required gate in the AI approval process?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 6.2", "rationale": "CISO accountability for AI risk is an organizational governance requirement — security review must be a formal gate, not an optional consultation." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Foster responsibility and accountability", "rationale": "Named security accountability is required for responsible AI deployment — diffuse or absent security oversight creates systemic patient data risk." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Privacy and security", "rationale": "CHAI requires formal security governance as a prerequisite for trustworthy AI deployment — including named security accountability and formal review processes." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Risk management and oversight", "rationale": "DiMe identifies CISO involvement in AI procurement as a core risk management requirement." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI governance charter naming CISO as required reviewer", "Security review template or checklist used for AI tools", "CISO sign-off documentation for a recent AI tool approval", "AI approval process flowchart"],
+            "quantitativeFields": ["Number of AI tools approved in past 12 months with documented CISO review", "Average time from AI tool request to security review completion"],
+            "confidenceImpact": "Stated CISO involvement = level 1. Written AI approval process with CISO gate = level 2. Completed CISO review for a recent AI tool = level 3. CISO review metrics (volume, cycle time) = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic App Orchard vetting reduces but does not eliminate health system CISO review responsibility — each App Orchard partner activation still requires health system security assessment.",
+            "aws": "AWS HIPAA BAA and security configuration must be reviewed by CISO — IAM design and cloud security posture require CISO ownership.",
+            "azure": "Azure BAA, DAX audio data processing path, and Microsoft subprocessor list all require CISO review and sign-off.",
+            "google": "Google Cloud health AI is less common in healthcare — CISO may not have an existing GCP review framework, requiring new assessment work."
+          }
+        },
+
+        "q4_2": {
+          "signal_id": "s4_2",
+          "signal_name": "Third-Party Risk Management",
+          "question": "Is there a formal third-party risk management process that explicitly applies to AI vendors — covering model governance, data handling, and ongoing monitoring?",
+          "follow_ups": [
+            { "trigger": "General TPRM exists but not AI-specific", "question": "What AI-specific risk elements are not covered by your current TPRM process — model governance, training data, drift monitoring, equity assessment?" },
+            { "trigger": "No formal TPRM", "question": "How have AI tool decisions been made in the past? What due diligence, if any, was conducted before a contract was signed?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 6.2", "rationale": "Third-party AI risk management must be formally structured — AI vendors introduce model governance, data handling, and performance risks that general IT TPRM processes do not address." },
+            { "framework": "MANAGE 3.2", "principleOrFunction": "Policies and procedures for AI risk management include third-party oversight", "rationale": "NIST explicitly identifies third-party AI oversight as a MANAGE function requirement — including ongoing monitoring, not just point-in-time review." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Accountability", "rationale": "CHAI requires vendor accountability structures that extend beyond contract terms to include model governance, performance monitoring, and equity obligations." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Risk management and oversight", "rationale": "DiMe requires formal third-party AI risk assessment including data handling, model validation evidence, and ongoing performance monitoring terms." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI-specific vendor risk assessment template or questionnaire", "Completed vendor risk assessment for an active AI tool (redacted)", "TPRM policy document with AI-specific provisions", "Vendor risk committee meeting minutes referencing AI tools"],
+            "quantitativeFields": ["Number of AI vendors under active TPRM monitoring", "Frequency of AI vendor risk reviews", "Number of AI tools flagged or paused due to TPRM findings"],
+            "confidenceImpact": "Verbal description of TPRM = level 1. Written TPRM policy = level 2. Completed vendor risk assessment template = level 3. Active TPRM monitoring dashboard with AI vendor coverage = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic App Orchard vetting provides a baseline — but health system TPRM must cover App Orchard partners independently, as Epic's vetting does not constitute the health system's risk assessment.",
+            "aws": "AWS itself is typically covered by an enterprise cloud TPRM review — individual AI services (HealthLake, Bedrock) may require service-specific risk assessment.",
+            "azure": "Microsoft BAA and Trust Center documentation support TPRM — DAX audio processing path and subprocessor list are key TPRM review items.",
+            "google": "Google Cloud TPRM may be novel for organizations without prior GCP experience — CISO and procurement teams may need to build a GCP-specific assessment framework."
+          }
+        },
+
+        "q4_3": {
+          "signal_id": "s4_3",
+          "signal_name": "Cybersecurity Incident Posture",
+          "question": "Has your organization experienced a significant cybersecurity incident in the past 24 months? What is your current security posture and recovery status?",
+          "follow_ups": [
+            { "trigger": "Recent incident", "question": "Has the incident changed your posture toward third-party AI tools — additional scrutiny, deployment pause, or new requirements?" },
+            { "trigger": "No recent incident", "question": "When was your last penetration test or security assessment, and did it cover AI-specific attack surfaces?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MANAGE 4.1", "rationale": "Incident history is a leading indicator of organizational security posture — a health system with unresolved incident exposure has elevated AI deployment risk." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Promote safety and well-being", "rationale": "Cybersecurity incidents affecting health AI systems create direct patient safety risks — incident posture must be stable before expanding AI exposure." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Privacy and security", "rationale": "CHAI requires security posture assessment as a prerequisite for AI deployment — organizations in active incident response should not expand AI vendor surface area." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Penetration test executive summary (redacted)", "Security audit executive summary", "Incident response after-action report (redacted, no operational details)", "Current cybersecurity framework assessment (e.g., NIST CSF, HITRUST)"],
+            "quantitativeFields": ["Date of last penetration test", "Date of last external security audit", "Current NIST CSF or HITRUST maturity tier if assessed", "Number of open critical or high security findings"],
+            "confidenceImpact": "Verbal incident history description = level 1. Written security policy = level 2. Security assessment or audit report = level 3. Active security posture dashboard or third-party certification = level 4. HITRUST or equivalent external certification = level 5.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Recent cybersecurity incidents affecting Epic environments are a contraindication for App Orchard expansion until posture is restored.",
+            "aws": "Organizations with recent incidents and weak cloud security posture should not expand to AWS health AI until cloud security controls are validated.",
+            "azure": "Same caution applies to Azure — Microsoft's security tooling (Defender for Cloud) can help improve posture but does not substitute for organizational security maturity.",
+            "google": "VPC Service Controls and Cloud Audit Logs are Google's primary security controls — organizations with weak cloud security governance are not ready for GCP health AI."
+          }
+        },
+
+        "q4_4": {
+          "signal_id": "s4_4",
+          "signal_name": "Regulatory Compliance Posture",
+          "question": "Has your organization's HIPAA compliance posture been formally assessed for AI workloads — including cloud-based AI processing, third-party model training restrictions, and FDA AI/ML guidance applicability?",
+          "follow_ups": [
+            { "trigger": "General HIPAA compliance but not AI-specific", "question": "Have legal and compliance teams reviewed the specific compliance requirements for cloud-based AI processing — including vendor data processing agreements and BAAs?" },
+            { "trigger": "FDA guidance mentioned", "question": "Which of your AI tools fall under FDA's AI/ML Software as a Medical Device (SaMD) framework? Have those been formally assessed?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 6.1", "rationale": "Regulatory compliance must be formally assessed for AI-specific requirements — HIPAA, state privacy laws, and FDA SaMD guidance create distinct obligations not covered by general compliance programs." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Promote safety and well-being", "rationale": "Regulatory compliance with AI-specific requirements is a patient safety obligation — non-compliance creates legal liability and patient harm risk." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Privacy and security", "rationale": "CHAI requires regulatory compliance assessment as part of AI trustworthiness review — HIPAA BAA coverage and FDA SaMD classification are foundational compliance checkpoints." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Legal review memo on AI compliance requirements (redacted)", "HIPAA risk assessment with AI workload coverage", "Executed BAA with each AI vendor processing PHI", "FDA SaMD classification assessment for clinical AI tools"],
+            "quantitativeFields": ["Number of AI vendors with executed BAAs", "Number of AI tools assessed for FDA SaMD applicability", "Date of last HIPAA risk assessment"],
+            "confidenceImpact": "Stated compliance posture = level 1. Written compliance policy covering AI = level 2. Executed BAAs and legal review memo = level 3. Formal HIPAA risk assessment with AI coverage = level 4. External compliance audit or HITRUST certification = level 5.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic BAA covers Epic-native AI — App Orchard partners require separate BAA review per partner.",
+            "aws": "AWS BAA is the foundation — health system must confirm HIPAA eligibility of each specific AWS service in use (not all AWS services are HIPAA eligible).",
+            "azure": "Microsoft BAA covers DAX and Azure Health Data Services — health system must confirm specific service coverage and audio data processing terms.",
+            "google": "Google BAA covers Healthcare Data Engine and Vertex AI/MedLM — HIPAA eligibility list must be verified as it can change."
+          }
+        },
+
+        "q4_5": {
+          "signal_id": "s4_5",
+          "signal_name": "AI Vendor Data Handling Requirements",
+          "question": "Are AI-specific data handling requirements defined and imposed on AI vendors in contracts — including restrictions on training models on your patient data, data retention limits, and data residency?",
+          "follow_ups": [
+            { "trigger": "No AI-specific requirements", "question": "Under your current vendor contracts, could a vendor use your data to train or improve their AI models? Has legal reviewed this?" },
+            { "trigger": "Requirements defined", "question": "Are these requirements consistently applied across all AI vendors, or only to some?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 6.2", "rationale": "Vendor data handling requirements are a foundational AI governance control — without explicit contractual restrictions, vendors may use patient data for model training or share it with subprocessors." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Protect autonomy", "rationale": "Patients have a right to know how their data is used in AI systems — permitting vendor model training on patient data without explicit authorization is a patient autonomy violation." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Privacy and security", "rationale": "CHAI requires explicit contractual prohibitions on vendor use of patient data for AI model training, unless the patient has provided explicit consent." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Risk management and oversight", "rationale": "DiMe identifies data handling restrictions as a core contractual requirement for responsible AI vendor management." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI vendor contract data handling provisions (redacted of financial terms)", "Standard AI vendor data requirements template used in procurement", "Legal review of AI vendor data handling terms", "BAA addendum with AI-specific data use restrictions"],
+            "quantitativeFields": ["Number of AI vendor contracts with explicit training data restrictions", "Number of AI vendor contracts with defined data retention limits", "Number of AI vendor contracts with data residency requirements"],
+            "confidenceImpact": "Verbal description of requirements = level 1. Written data requirements template = level 2. Executed vendor contract with AI data handling provisions = level 3. Legal audit of AI vendor data compliance = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic's BAA addresses data handling for Epic-hosted data — App Orchard partners require independent data handling review per partner.",
+            "aws": "AWS BAA confirms data is not used for AWS model training — health system must explicitly confirm this in service-specific terms for each AI service.",
+            "azure": "Microsoft BAA and Azure OpenAI terms confirm data is not used for OpenAI model training — health system must verify current terms before deployment.",
+            "google": "Google BAA confirms data is not used for Google model training under BAA — health system must verify current MedLM and Vertex AI terms."
+          }
+        },
+
+        "q4_6": {
+          "signal_id": "s4_6",
+          "signal_name": "Security Requirements in Vendor Contracts",
+          "question": "Do AI vendor contracts include security-specific requirements — penetration testing rights, breach notification SLAs, audit rights, data residency, and model explainability obligations?",
+          "follow_ups": [
+            { "trigger": "Standard IT security terms only", "question": "Are there AI-specific security requirements your current contract templates do not address — model audit rights, explainability, drift reporting?" },
+            { "trigger": "Strong requirements defined", "question": "Are these requirements verified during vendor onboarding, or only reviewed at contract signing?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MANAGE 3.2", "rationale": "AI vendor contracts must include AI-specific security obligations that go beyond standard IT requirements — model audit rights and explainability obligations are not addressed in standard IT security contract templates." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Accountability", "rationale": "CHAI requires contractual vendor accountability mechanisms including audit rights, performance reporting obligations, and breach notification requirements." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Risk management and oversight", "rationale": "DiMe identifies AI-specific contractual security requirements as a procurement readiness checkpoint — organizations without these requirements are exposed to unmitigated vendor risk." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Standard AI vendor contract security requirements template", "AI contract security addendum (redacted of financial terms)", "Security questionnaire sent to AI vendors", "Breach notification provision from executed AI vendor contract"],
+            "quantitativeFields": ["Breach notification SLA (hours from discovery to notification)", "Number of AI vendors with contractual penetration test rights", "Number of AI vendors with contractual audit rights"],
+            "confidenceImpact": "Verbal security requirements description = level 1. Written security requirements template = level 2. Executed AI vendor contract with security provisions = level 3. Evidence of security requirement enforcement (audit exercise, pen test result, breach notification received and acted upon) = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic contract security terms are non-negotiable for most health systems — supplement with App Orchard partner-level security requirements.",
+            "aws": "AWS service terms and BAA provide baseline security commitments — health system should add penetration testing authorization and audit log requirements.",
+            "azure": "Microsoft BAA and service terms provide baseline — DAX contract should explicitly address audio data security, retention, and deletion.",
+            "google": "Google Cloud terms and BAA provide baseline — GCP security requirements should be reviewed with CISO given lower familiarity in healthcare."
+          }
+        }
+      }
+    },
+
+    "domain_5": {
+      "id": "ai_governance_operating_model",
+      "name": "AI Governance & Operating Model",
+      "gate_type": "critical",
+      "questions": {
+
+        "q5_1": {
+          "signal_id": "s5_1",
+          "signal_name": "AI Governance Body",
+          "question": "Does a formal AI governance committee or equivalent decision authority exist? Who chairs it, what is its meeting cadence, and does it have authority to block or approve AI tool deployments?",
+          "follow_ups": [
+            { "trigger": "No governance body", "question": "When AI tool decisions have been made in the past, who was involved and what was the process?" },
+            { "trigger": "Governance body exists informally", "question": "What would it take to formalize the committee with defined authority, a charter, and a regular meeting cadence?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 1.1", "rationale": "A formal AI governance body with defined authority is the foundational organizational mechanism for AI risk management — without it, accountability is diffuse and controls are inconsistent." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Foster responsibility and accountability", "rationale": "WHO calls for formal governance structures with named accountability as a prerequisite for responsible AI in health — informal governance produces accountability gaps." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Organizational accountability", "rationale": "CHAI requires a designated governance structure with defined authority over AI tool decisions as the foundation for trustworthy AI deployment." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Governance framework", "rationale": "DiMe identifies formal AI governance as a prerequisite for AI scaling — pilot-scale AI can survive without it, but service-line or enterprise AI cannot." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI governance committee charter", "Meeting minutes from last two AI governance meetings", "AI governance committee member roster (titles, not names)", "AI approval process flowchart showing governance gate"],
+            "quantitativeFields": ["Governance committee meeting frequency (monthly, quarterly)", "Number of AI tools reviewed in past 12 months", "Number of AI tool approvals granted vs. denied or deferred"],
+            "confidenceImpact": "Verbal governance description = level 1. Written charter = level 2. Charter plus meeting minutes = level 3. Meeting minutes with specific approval decisions documented = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Formal governance is required to manage App Orchard activation requests — without a governance body, departments activate App Orchard tools without central visibility.",
+            "aws": "AWS health AI expansion requires governance to manage IAM, data access, and new service activation — ungoverned cloud AI is a leading security risk.",
+            "azure": "DAX Copilot at scale requires governance to manage physician enrollment, note review policy, and performance monitoring accountability.",
+            "google": "Google Cloud health AI, particularly MedLM, requires a clinical governance structure — new product with limited enterprise validation requires governance oversight."
+          }
+        },
+
+        "q5_2": {
+          "signal_id": "s5_2",
+          "signal_name": "AI Approval Process",
+          "question": "Is there a defined process for approving new AI tools before deployment — with clinical review, security review, and governance sign-off as required stages?",
+          "follow_ups": [
+            { "trigger": "No formal process", "question": "How have departments acquired AI tools in the past? Has any AI tool gone live without IT or compliance awareness?" },
+            { "trigger": "Process exists", "question": "Is the process documented and consistently followed, or does it depend on who is involved in a given project?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 1.1", "rationale": "A formal AI approval process with defined stages is the operational mechanism for AI risk management — ad hoc approval produces inconsistent risk control." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Ensure transparency and explainability", "rationale": "A formal approval process creates a documented record of the rationale and evidence basis for AI deployment decisions — required for transparency and accountability." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Accountability", "rationale": "CHAI requires a formal, documented approval process as the foundation for AI accountability — informal approval produces ungoverned AI exposure." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Governance framework", "rationale": "DiMe requires a defined approval process with clinical, security, and governance stages as a prerequisite for responsible AI deployment." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI tool approval process flowchart or documentation", "AI intake form used for new tool requests", "Completed approval record for a recently approved AI tool (redacted)", "AI governance policy with approval stages defined"],
+            "quantitativeFields": ["Average cycle time from AI tool request to approval decision (days)", "Number of stages in the approval process", "Number of AI tools in the approval pipeline currently"],
+            "confidenceImpact": "Verbal approval process description = level 1. Written process documentation = level 2. AI intake form used in practice = level 3. Completed approval records for multiple tools = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "App Orchard activation should go through the AI approval process — many health systems bypass this for Epic-native tools and create governance blind spots.",
+            "aws": "New AWS AI service activations should require approval process review — especially for services processing PHI.",
+            "azure": "DAX Copilot requires physician enrollment and note review policy definition — the approval process should cover these workflow-level governance requirements.",
+            "google": "MedLM and Care Studio deployments require formal approval given emerging clinical validation status — approval process should include clinical validation stage."
+          }
+        },
+
+        "q5_3": {
+          "signal_id": "s5_3",
+          "signal_name": "AI Tool Inventory",
+          "question": "Does the organization maintain a current inventory of AI tools in use across all departments — including vendor, use case, data inputs, clinical scope, and governance status for each?",
+          "follow_ups": [
+            { "trigger": "No inventory", "question": "Do you have a sense of how many AI tools are in use across the organization, including department-level tools that may not have gone through IT?" },
+            { "trigger": "Partial inventory", "question": "Which departments or tool categories are least visible in the current inventory?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MANAGE 4.1", "rationale": "AI risk cannot be managed without a complete inventory — untracked AI tools represent ungoverned risk exposure and create audit failures." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Ensure transparency and explainability", "rationale": "An organization cannot be transparent about its AI use if it does not know what AI it is using — inventory is the foundation of AI transparency." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Accountability", "rationale": "CHAI requires AI inventory as the foundation for accountability — you cannot hold vendors or internal owners accountable for tools you do not know exist." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI tool inventory spreadsheet or registry (redacted of contract values)", "IT asset management system export showing AI tools", "AI governance committee report on active AI tools"],
+            "quantitativeFields": ["Total number of AI tools in current inventory", "Number of clinical AI tools vs. operational AI tools", "Number of tools with unknown governance status", "Number of departments with AI tools not in central inventory"],
+            "confidenceImpact": "Stated estimate of AI tool count = level 1. Partial written inventory = level 2. Comprehensive inventory with governance status = level 3. Inventory with active monitoring and update cadence = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic App Orchard activations should all appear in the AI inventory — many do not, creating governance blind spots.",
+            "aws": "AWS AI service usage should be tracked in the AI inventory alongside IT asset management.",
+            "azure": "DAX Copilot enrollments and Azure AI service activations should appear in the AI inventory.",
+            "google": "Google Cloud health AI services should be inventoried — GCP is less visible to healthcare IT teams than AWS or Azure in many organizations."
+          }
+        },
+
+        "q5_4": {
+          "signal_id": "s5_4",
+          "signal_name": "Accountability for AI Performance and Harms",
+          "question": "Is there a named owner accountable when an AI tool performs incorrectly or causes a patient harm — with a documented escalation path and harm reporting process?",
+          "follow_ups": [
+            { "trigger": "No named accountability", "question": "If an AI tool produced a harmful recommendation tomorrow, who would be responsible for investigating and responding?" },
+            { "trigger": "General accountability only", "question": "Is accountability defined per AI tool, or only at a general IT or clinical informatics level?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 6.2", "rationale": "Named accountability for AI performance and harms is a non-negotiable governance requirement — diffuse or absent accountability is the leading predictor of harm escalation after AI failure." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Foster responsibility and accountability", "rationale": "WHO explicitly requires named human accountability for AI outcomes in healthcare — AI systems in patient care must have a human accountable for their performance." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Accountability", "rationale": "CHAI defines accountability as per-tool, per-use-case, and per-deployment — not as a general organizational responsibility." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Post-deployment surveillance and oversight", "rationale": "DiMe requires named accountability tied to AI harm reporting processes as a post-deployment requirement before any AI tool is considered production-ready." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI governance policy with accountability definitions", "AI tool ownership assignment (per tool, by title)", "AI harm reporting process or escalation flowchart", "Quality and safety program documentation covering AI tools"],
+            "quantitativeFields": ["Number of AI tools with named accountable owners (by title)", "Number of AI-related safety events or near-misses reported in past 12 months", "Average time from AI harm report to investigation completion"],
+            "confidenceImpact": "Verbal accountability description = level 1. Written governance policy with accountability clause = level 2. Per-tool accountability assignments = level 3. Documented harm reports with accountability response records = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic App Orchard tools require health system accountability — Epic vetting does not transfer liability for clinical harm to Epic.",
+            "aws": "AWS AI services require health system-defined accountability for clinical AI outputs — AWS provides infrastructure, not clinical accountability.",
+            "azure": "DAX Copilot note review policy defines physician accountability for note drafts — this must be explicitly defined before DAX deployment.",
+            "google": "MedLM clinical outputs require health system-defined accountability — particularly important given emerging validation status."
+          }
+        },
+
+        "q5_5": {
+          "signal_id": "s5_5",
+          "signal_name": "Post-Deployment Monitoring",
+          "question": "Does a formal process exist for monitoring AI tools after go-live — including defined metrics, review cadence, escalation triggers, and vendor accountability terms?",
+          "follow_ups": [
+            { "trigger": "No monitoring process", "question": "How would the organization know if an AI tool's performance degraded after deployment?" },
+            { "trigger": "Monitoring exists", "question": "Does monitoring cover equity and bias — is the AI tool's performance tracked across patient demographic groups?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MEASURE 2.8", "rationale": "AI system performance must be continuously monitored after deployment — model drift, distributional shift, and emerging bias are post-deployment risks that pre-deployment validation cannot catch." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Promote safety and well-being", "rationale": "WHO requires ongoing monitoring of AI tools in clinical use — patient safety cannot be guaranteed by pre-deployment validation alone; continuous monitoring is required." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Ensure inclusiveness and equity", "rationale": "Post-deployment monitoring must include equity monitoring — AI tools can perform differently across patient populations, and this divergence may worsen over time without monitoring." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Continuous improvement", "rationale": "CHAI requires a formal post-deployment monitoring process as the mechanism for continuous improvement and harm prevention." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Post-deployment surveillance and oversight", "rationale": "DiMe defines post-deployment surveillance as a mandatory phase of AI deployment — not an optional enhancement." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI monitoring policy or framework document", "Active AI performance dashboard or scorecard (de-identified)", "AI governance meeting minutes with monitoring review", "Vendor SLA with performance reporting obligations"],
+            "quantitativeFields": ["Number of AI tools with active performance monitoring", "Monitoring review frequency (monthly, quarterly)", "Number of equity dimensions monitored (e.g., race, ethnicity, language, payer)", "Number of AI tools with vendor-contractual performance reporting"],
+            "confidenceImpact": "Verbal monitoring description = level 1. Written monitoring policy = level 2. Monitoring framework with defined metrics and cadence = level 3. Active dashboard with trend data = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic provides some usage and adoption analytics — outcome monitoring and equity monitoring require health system-built processes on top of Epic data.",
+            "aws": "CloudWatch and SageMaker Model Monitor provide monitoring infrastructure — health system must define the clinical metrics and equity dimensions to monitor.",
+            "azure": "Azure Monitor and Application Insights provide infrastructure — DAX Copilot note quality and physician adoption metrics should be monitored through defined dashboards.",
+            "google": "Vertex AI Model Monitoring provides technical monitoring — health system must define clinical outcome and equity metrics for MedLM monitoring."
+          }
+        },
+
+        "q5_6": {
+          "signal_id": "s5_6",
+          "signal_name": "Operating Model Clarity",
+          "question": "Is there a defined operating model for AI tools post-deployment — naming who owns each tool, who trains staff, who manages the vendor relationship, and when reviews occur?",
+          "follow_ups": [
+            { "trigger": "No operating model", "question": "When an AI tool goes into production, who is responsible for it the day after go-live? Who calls the vendor when something goes wrong?" },
+            { "trigger": "Operating model defined for some tools", "question": "Is the operating model consistently applied across all AI tools, or only for high-profile ones?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 1.4", "rationale": "A defined operating model is the organizational infrastructure for sustained AI risk management — without it, governance commitments made at approval time are not maintained post-deployment." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Accountability", "rationale": "CHAI requires a defined post-deployment operating model as the mechanism for sustained accountability — accountability at approval time that evaporates post-deployment is not accountability." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Implementation and change management", "rationale": "DiMe identifies operating model clarity as a deployment readiness requirement — AI tools deployed without a defined operating model routinely become orphaned after go-live." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI operating model document or RACI matrix", "AI tool ownership register (by title)", "Staff training plan for an active AI tool", "Vendor management SLA and escalation process"],
+            "quantitativeFields": ["Number of AI tools with defined operating model", "Number of AI tools with named clinical owner vs. IT owner", "Staff training completion rate for active AI tools (if tracked)"],
+            "confidenceImpact": "Verbal operating model description = level 1. Written RACI or operating model = level 2. Operating model with named owners and review calendar = level 3. Evidence of operating model in practice (training records, vendor management logs) = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic native AI requires a defined operating model for module ownership, training, and Epic vendor relationship management.",
+            "aws": "AWS health AI requires a defined operating model that includes cloud operations ownership — not just clinical tool ownership.",
+            "azure": "DAX Copilot operating model must explicitly address physician training ownership, note review policy enforcement, and Microsoft vendor relationship management.",
+            "google": "Google Cloud health AI operating model must include data engineering ownership — HDE and Vertex AI require ongoing technical operations that go beyond clinical tool management."
+          }
+        }
+      }
+    },
+
+    "domain_6": {
+      "id": "workflow_adoption_change_readiness",
+      "name": "Workflow Adoption & Change Readiness",
+      "gate_type": "strategic_adoption",
+      "questions": {
+
+        "q6_1": {
+          "signal_id": "s6_1",
+          "signal_name": "Clinical Stakeholder Engagement",
+          "question": "Are clinical leaders — CMIO, clinical informatics, department chiefs — actively involved in AI use case selection and validation? Are they co-owners of the initiative or informed observers?",
+          "follow_ups": [
+            { "trigger": "Clinical stakeholders not engaged", "question": "Have any AI tools been purchased and deployed by IT or administration without clinical input or validation?" },
+            { "trigger": "Clinical engagement exists", "question": "Does the CMIO or clinical informatics team have formal authority to block AI deployments that fail clinical validation?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 6.1", "rationale": "Clinical stakeholder engagement is an organizational policy requirement for clinical AI — AI tools affecting clinical workflows require clinical co-ownership, not just IT deployment." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Protect autonomy", "rationale": "WHO requires that clinicians and patients have meaningful input into AI tools affecting care — deploying clinical AI without clinical co-ownership is an autonomy violation." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Fairness and equity", "rationale": "Clinical stakeholder engagement is required to identify equity concerns in AI tool design and deployment — equity gaps are most visible to frontline clinical staff." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Implementation and change management", "rationale": "DiMe identifies clinical champion engagement as the single most important adoption predictor for health AI tools." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI governance committee roster showing clinical representation (by title)", "Clinical informatics team involvement in AI use case brief", "CMIO or clinical champion sign-off on AI approval", "Clinical validation plan for an active AI tool"],
+            "quantitativeFields": ["Number of clinical champions identified for current AI initiative", "Number of clinical AI tools with documented clinical co-ownership", "CMIO or clinical leader involvement in governance (yes/no, frequency)"],
+            "confidenceImpact": "Stated clinical engagement = level 1. Governance charter showing clinical representation = level 2. Clinical validation plan or sign-off document = level 3. Evidence of clinical co-ownership in practice (meeting records, validation test results) = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Clinical informatics is typically already engaged in Epic governance — the question is whether that engagement extends to App Orchard AI tool activation.",
+            "aws": "AWS health AI often starts with IT and data teams — clinical stakeholder engagement is frequently the missing element in AWS health AI deployments.",
+            "azure": "DAX Copilot requires physician champions for adoption — clinical engagement is the primary success factor, not technical configuration.",
+            "google": "Care Studio and MedLM require strong clinical informatics co-ownership given emerging validation status."
+          }
+        },
+
+        "q6_2": {
+          "signal_id": "s6_2",
+          "signal_name": "Change Management Capacity",
+          "question": "Does the organization have the capacity to drive technology adoption effectively? What is the track record with recent technology implementations?",
+          "follow_ups": [
+            { "trigger": "Adoption issues noted", "question": "Which stakeholder group is hardest to move — clinical staff, administrative staff, or IT? What typically breaks down?" },
+            { "trigger": "Strong track record", "question": "What made recent implementations successful — dedicated change management resources, executive sponsorship, or something else?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 2.2", "rationale": "Change management capacity is a risk factor — organizations with poor adoption track records are at elevated risk that AI deployments will not achieve their intended benefits." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Implementation and change management", "rationale": "DiMe identifies change management capacity as a primary implementation risk factor — AI tools with no adoption do not improve care, regardless of technical quality." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Promote safety and well-being", "rationale": "AI tools deployed without effective change management create safety risks from inconsistent use, workarounds, and clinician distrust of AI outputs." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Change management plan for current or recent AI initiative", "Adoption metrics from a recent technology implementation", "Training completion records from a recent implementation", "Organizational readiness assessment"],
+            "quantitativeFields": ["Adoption rate of most recent clinical technology implementation (% of target users active at 90 days)", "Number of dedicated change management FTEs available for AI initiative", "Number of completed implementations in past 24 months with adoption metrics"],
+            "confidenceImpact": "Verbal change management description = level 1. Written change management plan = level 2. Change management plan with adoption targets = level 3. Adoption metrics from completed implementation = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic implementations have the most documented change management playbooks — apply those patterns to AI tool activation within Epic.",
+            "aws": "AWS health AI often fails at adoption, not technology — change management is the primary gap in AWS health AI deployments.",
+            "azure": "DAX Copilot adoption is the primary success metric — change management capacity is the most important factor in DAX ROI.",
+            "google": "Care Studio adoption requires workflow redesign — change management is as important as technical deployment for Care Studio success."
+          }
+        },
+
+        "q6_3": {
+          "signal_id": "s6_3",
+          "signal_name": "Executive Sponsorship",
+          "question": "Is there a named executive sponsor with authority and accountability for this AI initiative — someone who can allocate resources, resolve roadblocks, and communicate priority?",
+          "follow_ups": [
+            { "trigger": "No named sponsor", "question": "Who has the authority to resolve budget, staffing, or priority conflicts that would stop this initiative in its tracks?" },
+            { "trigger": "Sponsor named but passive", "question": "When was the last time the sponsor actively intervened to remove a roadblock or communicate priority? Is the sponsorship real or nominal?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 1.1", "rationale": "Executive sponsorship is required for sustained organizational commitment to AI risk management — initiatives without a named sponsor lose priority under competing pressures." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Leadership alignment and sponsorship", "rationale": "DiMe identifies named executive sponsorship as the most reliable predictor of AI initiative success — its absence is a primary failure cause." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Foster responsibility and accountability", "rationale": "Responsible AI in health requires executive accountability — not just operational management." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Project charter naming executive sponsor (by title)", "Executive communication naming AI initiative as a priority", "AI governance charter with named executive accountable party", "Budget approval documentation showing executive authorization"],
+            "quantitativeFields": ["Executive sponsor title", "Frequency of executive sponsor engagement (meeting cadence)", "Date of last executive sponsor intervention or decision"],
+            "confidenceImpact": "Verbal sponsor description = level 1. Written charter naming sponsor = level 2. Charter plus documented sponsor engagement = level 3. Evidence of active sponsorship in practice (decision records, budget authorization) = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "DAX Copilot at scale requires CIO or CMIO-level sponsorship for physician enrollment and policy change.",
+            "aws": "AWS health AI platform investment requires CIO-level or CFO-level sponsorship for cloud enterprise agreement and data engineering investment.",
+            "azure": "Microsoft enterprise agreement and DAX at scale require executive sponsorship for contract negotiation and cross-departmental policy change.",
+            "google": "Google Cloud health AI investment requires executive sponsorship — GCP is less established in healthcare, requiring organizational commitment to a new vendor relationship."
+          }
+        },
+
+        "q6_4": {
+          "signal_id": "s6_4",
+          "signal_name": "Workflow Integration Plan",
+          "question": "Is there a plan for integrating AI tools into clinical or operational workflows — not just deploying the technology, but redesigning the workflow around it?",
+          "follow_ups": [
+            { "trigger": "No workflow plan", "question": "What is the assumption about how staff will incorporate the AI tool into their current work? Has anyone mapped the current workflow?" },
+            { "trigger": "Workflow plan exists", "question": "Who owns workflow redesign — IT, clinical informatics, or the department? Has the impacted clinical team been involved?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 2.2", "rationale": "Workflow integration failures are a primary source of AI harm in clinical settings — AI tools that are technically deployed but not workflow-integrated create alert fatigue, workarounds, and safety risks." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Promote safety and well-being", "rationale": "WHO requires that AI in clinical settings be integrated into safe workflow designs — deployment without workflow planning creates patient safety risks from inconsistent use." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Implementation and change management", "rationale": "DiMe requires workflow integration mapping as a required implementation planning step — adoption without workflow integration does not produce clinical benefit." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Current-state workflow diagram for target AI use case", "Future-state workflow diagram with AI integration", "Workflow redesign plan or clinical workflow assessment", "Staff training plan tied to workflow changes"],
+            "quantitativeFields": ["Number of workflow steps that will change with AI tool deployment", "Number of clinical staff impacted by workflow change", "Estimated training time per impacted staff member"],
+            "confidenceImpact": "Verbal workflow plan description = level 1. Written workflow integration plan = level 2. Current-state and future-state workflow diagrams = level 3. Training materials and adoption metrics from a comparable workflow change = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic App Orchard tools require workflow integration within Epic — clinical informatics team typically owns this for Epic environments.",
+            "aws": "AWS analytics and AI outputs must be integrated into clinical or operational workflows — technology deployment without workflow integration produces unused AI.",
+            "azure": "DAX Copilot is a workflow tool — the physician encounter workflow must be redesigned around ambient documentation; this is the primary implementation challenge.",
+            "google": "Care Studio is a clinical search and workflow tool — workflow integration planning is the primary implementation activity, not technical deployment."
+          }
+        },
+
+        "q6_5": {
+          "signal_id": "s6_5",
+          "signal_name": "Hard Constraint Burden",
+          "question": "Are there organizational constraints — financial pressure, active EHR migration, regulatory investigation, leadership transitions, or competing initiatives — that could derail or significantly slow this AI initiative?",
+          "follow_ups": [
+            { "trigger": "Multiple constraints", "question": "Which constraint is most likely to stop this initiative — and is there a plan to mitigate it?" },
+            { "trigger": "Active EHR migration", "question": "Is there a defined window after go-live when AI integration work can begin, or would AI need to proceed in parallel with the migration?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 2.2", "rationale": "Organizational constraints are material implementation risks — they must be identified and assessed before committing to AI deployment timelines or vendor contracts." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Implementation planning and sequencing", "rationale": "DiMe requires explicit constraint identification as part of implementation planning — organizational constraints that are not surfaced during planning become project failures during execution." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["IT strategic plan showing competing initiative priorities", "EHR migration timeline if applicable", "Financial position summary (general terms only — no detailed financial data)", "Risk register excerpt showing organizational constraints"],
+            "quantitativeFields": ["Number of active major IT initiatives competing for resources", "EHR migration go-live date if applicable", "Estimated staff capacity available for AI initiative (FTE equivalent)"],
+            "confidenceImpact": "Verbal constraint description = level 1. Written risk register or constraint log = level 2. IT strategic plan showing competing priorities = level 3. Resource allocation data showing capacity = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Active Epic migrations or upgrades are a contraindication for App Orchard expansion — wait for stable Epic operations before adding AI complexity.",
+            "aws": "Major IT initiatives competing for data engineering capacity are a contraindication for AWS HealthLake pipeline builds.",
+            "azure": "Financial pressure is a risk factor for DAX Copilot — per-provider pricing at scale is significant; validate budget availability before contracting.",
+            "google": "Google Cloud health AI requires organizational capacity for data platform build — organizations in constrained capacity environments should defer GCP health AI investment."
+          }
+        }
+      }
+    },
+
+    "domain_7": {
+      "id": "procurement_vendor_readiness",
+      "name": "Procurement & Vendor Readiness",
+      "gate_type": "secondary",
+      "questions": {
+
+        "q7_1": {
+          "signal_id": "s7_1",
+          "signal_name": "RFP Process Maturity",
+          "question": "Does a defined RFP or procurement process exist for technology at this scale? Has it been used for complex multi-vendor evaluations, and are governance gates defined before contract signature?",
+          "follow_ups": [
+            { "trigger": "No defined process", "question": "For past technology purchases of this type, how were vendor decisions made?" },
+            { "trigger": "General process exists", "question": "Is the process specifically adapted for AI — covering model governance, data handling, clinical validation evidence, and equity requirements?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 6.2", "rationale": "Procurement processes must be designed for AI-specific requirements — general IT procurement processes miss model governance, clinical validation, and data handling requirements that are unique to AI." },
+            { "framework": "BT Compass Internal Reference Design Library", "principleOrFunction": "Typical procurement requirements", "rationale": "All four vendor reference designs include typical procurement requirements that go beyond standard IT contract terms — procurement process maturity is required to use them." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Procurement framework", "rationale": "DiMe requires a procurement process that is adapted for AI-specific risks before vendor engagement begins — issuing an RFP without an AI-adapted process produces weak requirements and poor vendor accountability." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["RFP template or standard procurement process documentation", "AI-specific RFP addendum or requirements template", "Procurement governance policy showing required approval gates", "Prior AI RFP or vendor evaluation documentation (redacted)"],
+            "quantitativeFields": ["Average procurement cycle time from RFP to contract (days)", "Number of governance gates required before contract signature", "Number of AI procurements completed in past 3 years"],
+            "confidenceImpact": "Verbal procurement process description = level 1. Written procurement policy = level 2. AI-adapted RFP template = level 3. Completed AI RFP with evaluation records = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic App Orchard activation does not typically require a full RFP — but vendor assessment and governance approval should be documented.",
+            "aws": "AWS enterprise agreement renewal or AI service expansion may not require a new RFP — but should go through a defined evaluation and approval process.",
+            "azure": "Microsoft enterprise agreement negotiations benefit from a mature procurement process — DAX Copilot licensing should be formally negotiated.",
+            "google": "Google Cloud health AI procurement is novel for most health systems — a structured evaluation process reduces the risk of committing to a vendor relationship without adequate due diligence."
+          }
+        },
+
+        "q7_2": {
+          "signal_id": "s7_2",
+          "signal_name": "Requirements Definition Maturity",
+          "question": "How well-defined are your AI infrastructure requirements before vendor conversations begin — across functional, technical, security, data governance, and clinical validation dimensions?",
+          "follow_ups": [
+            { "trigger": "Requirements not defined", "question": "What is the minimum set of requirements you would need to define before you could evaluate a vendor fairly?" },
+            { "trigger": "High-level requirements exist", "question": "Are requirements specific enough to write binding RFP language, or are they still at a conceptual level?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 1.5", "rationale": "Organizational risk tolerance and AI impact categories must be defined before vendor requirements can be written — requirements without risk context produce incomplete specifications." },
+            { "framework": "BT Compass Internal Reference Design Library", "principleOrFunction": "Typical procurement requirements", "rationale": "Vendor reference designs include procurement requirements categories — these should inform requirements definition before RFP is issued." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Accountability", "rationale": "CHAI requires that vendor accountability requirements be defined before contracting — requirements written after contract signing cannot be enforced." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["AI requirements document or specification", "RFP requirements section for an AI procurement", "Functional requirements list for target AI use case", "Security requirements template for AI vendors"],
+            "quantitativeFields": ["Number of defined functional requirements", "Number of defined security and data handling requirements", "Number of defined clinical validation requirements"],
+            "confidenceImpact": "Verbal requirements description = level 1. Written high-level requirements = level 2. Specific, measurable requirements document = level 3. Requirements tied to evaluation criteria in a completed RFP = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "App Orchard requirements are partially pre-defined by Epic's certification standards — health system requirements should supplement, not rely solely on, Epic vetting.",
+            "aws": "AWS procurement requirements should cover IAM design, HIPAA service scope, data pipeline specifications, and cost management controls.",
+            "azure": "Azure requirements should cover BAA scope, DAX audio processing terms, Microsoft subprocessor disclosure, and physician adoption metrics.",
+            "google": "Google procurement requirements should cover GCP BAA scope, MedLM clinical validation evidence, de-identification methodology, and VPC Service Controls requirements."
+          }
+        },
+
+        "q7_3": {
+          "signal_id": "s7_3",
+          "signal_name": "Vendor Evaluation Competency",
+          "question": "Does the organization have the internal competency to evaluate AI vendors — with defined scoring criteria, proof-of-concept design capability, and a formal reference check process?",
+          "follow_ups": [
+            { "trigger": "Limited evaluation experience", "question": "What expertise does your team have in evaluating AI model quality, clinical validation evidence, and data handling practices?" },
+            { "trigger": "Strong evaluation process", "question": "Has your evaluation process included equity assessment — testing AI tool performance across diverse patient populations?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 6.2", "rationale": "Vendor evaluation competency is an organizational governance requirement — health systems that cannot evaluate AI vendor claims are unable to exercise responsible oversight." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Fairness and equity", "rationale": "CHAI requires that vendor evaluation include equity assessment — vendors should be required to demonstrate performance across diverse patient populations, not just aggregate metrics." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Algorithm development and validation", "rationale": "DiMe requires that health systems evaluate vendor validation evidence rigorously — published accuracy statistics without population stratification are insufficient." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Vendor evaluation scoring rubric", "Proof-of-concept evaluation plan for current AI procurement", "Reference check questionnaire used for AI vendors", "Evaluation committee composition (by title)"],
+            "quantitativeFields": ["Number of dimensions in current vendor evaluation rubric", "Number of reference checks conducted per AI vendor evaluation", "Number of POCs run in past 3 years"],
+            "confidenceImpact": "Verbal evaluation description = level 1. Written evaluation rubric = level 2. Completed vendor evaluation with scores = level 3. POC results with defined success criteria and outcome data = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Evaluating App Orchard partners requires technical expertise in Epic integration — Epic's vetting is baseline, not the full evaluation.",
+            "aws": "Evaluating AWS health AI requires cloud architecture expertise — most clinical procurement teams need IT architecture support for AWS AI evaluation.",
+            "azure": "Evaluating DAX Copilot requires physician champion involvement in POC design — clinical adoption metrics are the primary evaluation dimension, not technical performance.",
+            "google": "Evaluating MedLM and Care Studio requires clinical informatics expertise — emerging products require more rigorous clinical validation evidence review than established products."
+          }
+        },
+
+        "q7_4": {
+          "signal_id": "s7_4",
+          "signal_name": "AI Procurement Experience",
+          "question": "Has the organization run an AI-specific RFP before? What was learned — about requirements that were missing, vendor claims that were overstated, or governance gaps discovered post-contract?",
+          "follow_ups": [
+            { "trigger": "No prior AI procurement", "question": "What do you anticipate being most challenging about this AI procurement — technical evaluation, contract terms, or stakeholder alignment?" },
+            { "trigger": "Prior experience", "question": "What requirements from past AI RFPs turned out to be wrong or missing? What would you do differently?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 2.2", "rationale": "Prior AI procurement experience is an organizational risk factor — organizations without it face a steeper learning curve on requirements that are uniquely important for AI." },
+            { "framework": "BT Compass Internal Reference Design Library", "principleOrFunction": "Typical procurement requirements", "rationale": "Vendor reference designs include procurement requirements derived from common failure modes — organizations with prior experience can compare these to their own lessons learned." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Procurement framework", "rationale": "DiMe identifies procurement experience as a risk modifier — organizations without it should seek external advisory support for requirements definition." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Prior AI RFP document (redacted)", "After-action report from a prior AI procurement", "Lessons learned document from prior AI vendor relationship", "Contract amendment or addendum from a prior AI contract reflecting learned requirements"],
+            "quantitativeFields": ["Number of AI procurements completed in past 3 years", "Number of AI vendor contracts that required amendment post-signature", "Number of AI tools decommissioned or replaced due to performance issues"],
+            "confidenceImpact": "Verbal procurement experience description = level 1. Prior RFP or evaluation document = level 2. After-action or lessons learned document = level 3. Contract amendment records showing experience-driven requirement improvements = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Organizations with prior App Orchard procurement experience understand Epic's certification process limitations and have learned to conduct independent vendor assessment.",
+            "aws": "Prior cloud procurement experience with AWS is relevant — organizations new to cloud AI procurement need stronger advisory support.",
+            "azure": "Prior Microsoft enterprise agreement or Nuance procurement experience is directly relevant to DAX contracting.",
+            "google": "Prior Google Cloud procurement experience is rare in healthcare — most organizations will be negotiating with Google Cloud for the first time, requiring careful due diligence."
+          }
+        },
+
+        "q7_5": {
+          "signal_id": "s7_5",
+          "signal_name": "Governance Gates in Procurement",
+          "question": "Are formal governance approval gates required before an AI contract is signed — including AI governance approval, CISO sign-off, clinical compliance review, and legal review?",
+          "follow_ups": [
+            { "trigger": "No formal gates", "question": "Under your current process, what would prevent an AI contract from being signed without clinical, security, or governance review?" },
+            { "trigger": "Gates exist", "question": "Are these gates reliably followed, or can they be bypassed for expedited procurement?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "GOVERN 1.1", "rationale": "Governance gates in procurement are the organizational mechanism for ensuring AI risk management is exercised before contractual commitments are made." },
+            { "framework": "CHAI Blueprint for Trustworthy AI", "principleOrFunction": "Accountability", "rationale": "CHAI requires that procurement governance gates are real and enforceable — nominal gates that can be bypassed provide no accountability value." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Governance framework", "rationale": "DiMe requires that governance gates be formally integrated into the procurement process — not as optional reviews, but as required approval stages." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Procurement approval flowchart showing governance gates", "AI governance committee charter with procurement authority", "Contract approval policy requiring governance sign-off", "CISO sign-off documentation from a recent AI contract"],
+            "quantitativeFields": ["Number of required approval gates before AI contract signature", "Number of contracts in past 12 months that cleared all required governance gates", "Number of contracts delayed due to governance gate requirements"],
+            "confidenceImpact": "Verbal gate description = level 1. Written procurement policy with gates = level 2. Procurement flowchart with named gate owners = level 3. Evidence of gates in practice (approval records, CISO sign-off documents) = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "App Orchard activations should require AI governance committee approval — many organizations activate App Orchard tools without formal governance gates.",
+            "aws": "New AWS AI service activations that process PHI should require CISO and governance approval before provisioning.",
+            "azure": "DAX Copilot contract should require CISO, legal, and clinical governance gates — audio data processing is a material privacy decision.",
+            "google": "New Google Cloud health AI contracts should require full governance gate review given lower organizational familiarity with GCP health AI."
+          }
+        }
+      }
+    },
+
+    "domain_8": {
+      "id": "budget_investment_readiness",
+      "name": "Budget & Investment Readiness",
+      "gate_type": "secondary",
+      "questions": {
+
+        "q8_1": {
+          "signal_id": "s8_1",
+          "signal_name": "Budget Availability",
+          "question": "Is a realistic budget allocated, approved, or fundable for this AI initiative — covering not just licensing, but implementation, integration, training, and ongoing operations?",
+          "follow_ups": [
+            { "trigger": "No budget identified", "question": "What is the anticipated path to funding — capital budget request, operating budget, grant, or other?" },
+            { "trigger": "Budget identified but not approved", "question": "What is the approval timeline and what factors could delay or reduce the budget?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 2.2", "rationale": "Inadequate budget is a primary risk factor for AI initiative failure — underfunded AI deployments skip governance, training, and monitoring steps that are essential for safe deployment." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Implementation planning and sequencing", "rationale": "DiMe requires budget confirmation as part of implementation planning — AI initiatives launched without confirmed budget routinely fail or are descoped during execution." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Budget approval documentation (amounts redacted)", "Capital or operating budget request showing AI initiative line item", "Finance committee or board budget approval (redacted)", "Signed vendor contract showing committed spend (amounts redacted)"],
+            "quantitativeFields": ["Budget status (identified / requested / approved / contracted)", "Investment horizon (one-time, multi-year)", "Funding source (capital, operating, grant)"],
+            "confidenceImpact": "Verbal budget description = level 1. Written budget request = level 2. Approved budget documentation = level 3. Signed contract or purchase order = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic AI Marketplace and App Orchard activations carry incremental licensing costs on top of base Epic fees — budget should be confirmed with Epic account team.",
+            "aws": "AWS consumption-based pricing requires budget management controls — cloud spend can escalate without cost guardrails.",
+            "azure": "DAX Copilot per-provider pricing at scale is a significant budget commitment — model the per-provider cost against intended enrollment before contracting.",
+            "google": "Google Cloud health AI requires budget for platform build (HDE pipeline) plus ongoing AI service consumption — total investment is higher upfront than AWS or Azure for organizations without an existing GCP foundation."
+          }
+        },
+
+        "q8_2": {
+          "signal_id": "s8_2",
+          "signal_name": "Budget-Ambition Alignment",
+          "question": "Does your available budget match your stated AI ambition — pilot, department scale, or enterprise? Are executive expectations calibrated to what the budget can realistically support?",
+          "follow_ups": [
+            { "trigger": "Mismatch apparent", "question": "If the budget supports a pilot but the mandate is enterprise scale, who is responsible for closing that gap — and by when?" },
+            { "trigger": "Alignment claimed", "question": "Has anyone done a rough cost model comparing available budget to similar implementations at comparable health systems?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 2.2", "rationale": "Budget-ambition misalignment is a material AI deployment risk — initiatives that begin with inadequate budgets for their stated scope routinely cut governance, monitoring, and clinical validation, creating safety and compliance risks." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Implementation planning and sequencing", "rationale": "DiMe identifies budget-ambition misalignment as a primary predictor of AI initiative failure — it must be surfaced and resolved before vendor engagement." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Cost model or budget estimate for AI initiative", "Benchmark data from comparable health system AI implementations", "Executive budget briefing document", "Vendor budget range or pricing estimate"],
+            "quantitativeFields": ["Total budget available (range acceptable)", "Comparable implementation cost benchmark if available", "Gap between available budget and estimated implementation cost"],
+            "confidenceImpact": "Verbal alignment description = level 1. Written cost estimate = level 2. Cost model with implementation components = level 3. Benchmarked cost model compared to peer organization data = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic AI Marketplace expansion at enterprise scale requires a budget model that includes App Orchard licensing, integration, and clinical validation costs per tool.",
+            "aws": "Enterprise-scale AWS health AI requires budget for data pipeline build, ongoing cloud consumption, and data science operations — pilot-level budget cannot fund enterprise deployment.",
+            "azure": "Enterprise DAX Copilot deployment requires per-provider budget at scale — budget-ambition mismatch is a common failure mode for DAX enterprise rollouts.",
+            "google": "Google Cloud health AI at enterprise scale requires significant upfront platform investment — budget must cover HDE build, Vertex AI model development, and ongoing operations."
+          }
+        },
+
+        "q8_3": {
+          "signal_id": "s8_3",
+          "signal_name": "Total Cost of Ownership Awareness",
+          "question": "Does the budget model include total cost of ownership — licensing, implementation, integration, training, ongoing operations, support, and technology refresh — or only licensing fees?",
+          "follow_ups": [
+            { "trigger": "Licensing-only budget", "question": "Implementation, integration, and training costs for health AI typically equal or exceed licensing fees. Has this been modeled for your initiative?" },
+            { "trigger": "TCO modeled", "question": "What operational cost assumptions are driving the model — internal FTE, vendor support, or managed service?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 2.2", "rationale": "TCO modeling is a risk management requirement — AI initiatives that underestimate non-licensing costs deprioritize governance, monitoring, and clinical validation when budgets are exhausted." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Implementation planning and sequencing", "rationale": "DiMe requires a full TCO model — including operational costs — as part of implementation planning. Licensing-only budgets are a primary cause of implementation failure." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Total cost of ownership model or budget estimate", "Implementation cost estimate from a system integrator", "Vendor implementation pricing estimate", "IT operating model cost estimate for AI workloads"],
+            "quantitativeFields": ["Ratio of implementation and operational cost to licensing cost", "Year 1 total cost estimate (range acceptable)", "Year 3 total cost estimate (range acceptable)", "FTE operational cost estimate"],
+            "confidenceImpact": "Verbal TCO description = level 1. Written high-level cost estimate = level 2. Detailed TCO model with implementation components = level 3. Vendor or SI quote supporting the cost model = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic App Orchard TCO includes App Orchard partner licensing, Epic integration configuration, clinical validation, and ongoing governance — significantly more than App Orchard licensing alone.",
+            "aws": "AWS TCO includes platform costs (HealthLake, SageMaker), data engineering (often significant), cloud operations, and ongoing AI monitoring — implementation costs frequently exceed platform costs in Year 1.",
+            "azure": "DAX Copilot TCO includes per-provider licensing, EHR integration configuration, physician training, change management, and ongoing support — total cost is 2-3x licensing for large deployments.",
+            "google": "Google Cloud health AI TCO includes significant upfront platform build cost — HDE pipeline + Vertex AI model development is a material capital investment before operational AI begins."
+          }
+        },
+
+        "q8_4": {
+          "signal_id": "s8_4",
+          "signal_name": "Financial Constraint Burden",
+          "question": "Are financial pressures — margin compression, capital constraints, competing budget priorities — limiting AI investment capacity? Is the AI budget protected or at risk if financial conditions worsen?",
+          "follow_ups": [
+            { "trigger": "Significant financial pressure", "question": "What scenario would cause the AI budget to be reduced or eliminated? Has a contingency plan been developed?" },
+            { "trigger": "Budget protected", "question": "What governance mechanism protects the AI budget from reallocation — board commitment, multi-year contract, or executive discretion?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MAP 2.2", "rationale": "Financial instability is a material AI deployment risk — organizations under financial pressure deprioritize governance, monitoring, and clinical validation when budgets are cut, creating safety exposure." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Implementation planning and sequencing", "rationale": "DiMe identifies financial constraint burden as a risk that must be explicitly assessed — AI initiatives that begin under financial pressure frequently fail to sustain governance and operational requirements." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["Executive communication confirming AI budget protection", "Board or finance committee resolution on AI investment", "Multi-year contract demonstrating budget commitment", "Strategic plan with multi-year AI investment commitment"],
+            "quantitativeFields": ["Operating margin (current year, range acceptable)", "Budget protection mechanism (contractual, board resolution, executive discretion)", "Years of committed AI investment budget"],
+            "confidenceImpact": "Verbal financial stability description = level 1. Written strategic plan with AI investment commitment = level 2. Board resolution or multi-year contract = level 3. Audited financial summary showing protected investment = level 5.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Financial pressure is a risk for App Orchard expansion — incremental licensing costs are cut first when budgets tighten.",
+            "aws": "AWS consumption costs can be reduced quickly under financial pressure — but cutting AI workloads mid-pipeline creates data integrity risks.",
+            "azure": "DAX per-provider costs at scale are contractually committed — financial pressure after contract signature creates budget risk without contractual relief.",
+            "google": "Google Cloud platform investment is largely upfront — financial pressure after platform build reduces the return on that investment by limiting ongoing AI workloads."
+          }
+        },
+
+        "q8_5": {
+          "signal_id": "s8_5",
+          "signal_name": "ROI and Value Expectations",
+          "question": "Are there defined expectations for the financial or operational return on AI investment — with quantified metrics, a measurement methodology, and a defined review timeline?",
+          "follow_ups": [
+            { "trigger": "No defined ROI framework", "question": "If the AI initiative does not deliver measurable value in 12 months, what happens to the investment? Who makes that call?" },
+            { "trigger": "ROI defined", "question": "Who owns measurement — IT, finance, or the clinical department? Has the measurement methodology been agreed upon before the AI tool is deployed?" }
+          ],
+          "standardsAlignment": [
+            { "framework": "NIST AI RMF", "principleOrFunction": "MEASURE 2.5", "rationale": "ROI measurement is an AI performance measurement requirement — organizations that cannot measure AI value cannot govern AI performance or make informed continuation decisions." },
+            { "framework": "DiMe AI in Healthcare Playbook", "principleOrFunction": "Outcome measurement and surveillance", "rationale": "DiMe requires defined ROI metrics before deployment — retrospective ROI definition after deployment is a risk indicator, not a measurement practice." },
+            { "framework": "WHO Ethics and Governance of AI for Health", "principleOrFunction": "Promote responsive and sustainable AI", "rationale": "AI investments without defined ROI frameworks cannot be evaluated for sustainability — WHO requires that AI deployment decisions be informed by measured outcomes." }
+          ],
+          "evidenceValidation": {
+            "validationLabel": "Validate with Evidence",
+            "validationPrompt": "Validate this answer by uploading redacted supporting evidence. Evidence strengthens confidence in your score, improves the quality of recommendations, and helps build the internal business case with executives, governance leaders, and budget owners.",
+            "acceptedEvidenceTypes": ["ROI model or value case document", "Business case with financial projections", "Vendor ROI documentation from comparable implementations", "Finance committee ROI review documentation"],
+            "quantitativeFields": ["Primary ROI metric and target value", "ROI measurement timeline (months to first review)", "Comparable organization ROI benchmark if available", "Break-even timeline estimate"],
+            "confidenceImpact": "Verbal ROI description = level 1. Written ROI expectations = level 2. Quantified ROI model with methodology = level 3. Benchmarked ROI model with peer organization data = level 4.",
+            "safetyAttestationRequired": true,
+            "safetyAttestationText": "I confirm this material has been reviewed and does not include PHI, PII, confidential patient information, credentials, proprietary contracts, or unredacted sensitive content."
+          },
+          "vendorRelevance": {
+            "epic": "Epic publishes ROI data for native AI tools (e.g., sepsis alert ROI, no-show reduction) — health system ROI targets should be compared to Epic benchmarks for the specific tool.",
+            "aws": "AWS health AI ROI is typically measured through analytics value and cost avoidance — vendor ROI claims require health system validation against local data.",
+            "azure": "DAX Copilot ROI is well-documented (documentation time reduction, physician satisfaction, after-hours note completion reduction) — health system targets should be compared to published DAX outcomes.",
+            "google": "Google Cloud health AI ROI is emerging — fewer published health system case studies; ROI modeling requires more assumption-based projection than Epic or DAX."
+          }
+        }
+      }
+    }
+
+  }
+}

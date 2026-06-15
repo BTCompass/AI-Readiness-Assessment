@@ -1,0 +1,1007 @@
+{
+  "metadata": {
+    "product": "BT Compass AI Infrastructure Assessment",
+    "rubric_version": "2.0",
+    "last_updated": "2026-06-15",
+    "scale": "1-5",
+    "scoring_model": "gated_decision_readiness",
+    "note": "This is a gated decision-readiness model. Do NOT average domain scores into a single overall score as the primary output. Decision-readiness status is the primary diagnostic. A readiness index (weighted average) is optional and secondary.",
+    "dual_score_architecture": {
+      "description": "Every domain produces two scores: Readiness Score (1-5) and Evidence Confidence Score (0-5). These are always displayed together and never collapsed into a single number.",
+      "readiness_score": {
+        "scale": "1-5",
+        "source": "Deterministic rules-based evaluation of intake responses against signal anchors",
+        "scorer": "n8n scoring engine — not Claude"
+      },
+      "evidence_confidence_score": {
+        "scale": "0-5",
+        "source": "Evidence level assigned to documents uploaded per signal; averaged across domain signals",
+        "scorer": "n8n scoring engine — not Claude. Claude may summarize evidence and flag contradictions only.",
+        "levels": {
+          "0": "No evidence provided",
+          "1": "Self-reported only — intake answer is the only evidence",
+          "2": "Static document — policy, charter, roadmap, architecture diagram",
+          "3": "Operating artifact — minutes, completed assessment, signed BAA, workflow diagram in use",
+          "4": "Quantitative report — KPI dashboard, usage data, audit log, performance metrics",
+          "5": "Audited or externally validated — third-party audit, certification, FDA clearance"
+        }
+      },
+      "credibility_gap": {
+        "formula": "Credibility Gap = Readiness Score - Evidence Confidence Score",
+        "interpretation": {
+          "0.0_to_0.5": "Well-supported",
+          "0.6_to_1.2": "Some validation needed",
+          "1.3_to_2.0": "Material evidence gap",
+          "above_2.0": "High self-report / low evidence risk"
+        },
+        "gating_interaction": "A critical gating domain with credibility gap > 1.3 triggers a mandatory validation warning. Ready for RFP status requires Evidence Confidence Score >= 3 across all critical gating domains."
+      }
+    },
+    "scorer_responsibility": {
+      "n8n_scores": ["Readiness Score per signal", "Evidence confidence level per uploaded document", "Domain readiness score (weighted signal average)", "Domain evidence confidence score", "Credibility gap", "Decision-readiness status", "Color assignment"],
+      "claude_role": ["Ask intake questions adaptively", "Summarize uploaded evidence", "Extract metrics from documents", "Flag contradictions between self-report and evidence", "Write domain interpretations", "Write Scenario Brief narratives", "Generate RFP language", "Generate 90-day roadmap"],
+      "principle": "Claude guides and interprets. n8n scores and decides. Do not let Claude become the scorer."
+    }
+  },
+  "scale_definitions": {
+    "1": "Not defined / high risk",
+    "2": "Partially defined / major gaps",
+    "3": "Emerging / usable but incomplete",
+    "4": "Strong / mostly ready",
+    "5": "Mature / scalable and governed"
+  },
+  "color_mapping": {
+    "Red": {
+      "range": "1.0 - 2.4",
+      "min": 1.0,
+      "max": 2.4,
+      "label": "Critical Gap",
+      "decision_impact": "Blocks decision-readiness. Must resolve before scale or RFP."
+    },
+    "Yellow": {
+      "range": "2.5 - 3.4",
+      "min": 2.5,
+      "max": 3.4,
+      "label": "Developing",
+      "decision_impact": "Proceed with defined conditions and remediation plan."
+    },
+    "Green": {
+      "range": "3.5 - 5.0",
+      "min": 3.5,
+      "max": 5.0,
+      "label": "Capable/Mature",
+      "decision_impact": "Proceed. Monitor as scope grows."
+    }
+  },
+  "confidence_rules": {
+    "High": {
+      "definition": "Strong evidence: confirmed answers from operator intake and supporting documents",
+      "threshold": "80% or more of signals have direct evidence",
+      "note": "High confidence scores can be used as-is for investment and procurement decisions."
+    },
+    "Medium": {
+      "definition": "Some evidence, some assumptions: mix of confirmed answers and reasonable inference",
+      "threshold": "50-79% of signals have direct evidence",
+      "note": "Medium confidence scores are usable but should be validated before major commitments."
+    },
+    "Low": {
+      "definition": "Many missing answers, weak evidence, or unverified claims",
+      "threshold": "Less than 50% of signals have direct evidence",
+      "note": "Low confidence scores \u2014 even if Green \u2014 require validation before use in investment or procurement decisions. The system should flag: 'This domain appears strong but requires validation before being used for major investment or procurement decisions.'"
+    }
+  },
+  "gating_model": {
+    "critical_gating_domains": {
+      "description": "If ANY critical gating domain is Red, the overall recommendation CANNOT be Ready for Scale or Ready for RFP, regardless of other domain scores.",
+      "domains": [
+        "security_privacy_compliance",
+        "data_readiness_governance",
+        "ai_governance_operating_model"
+      ],
+      "red_override_message": "One or more critical gating domains are Red. The initiative is not decision-ready for scale or RFP until these are resolved."
+    },
+    "secondary_gating_domains": {
+      "description": "If ANY secondary gating domain is Red, the initiative may proceed only as discovery or planning \u2014 not full procurement or enterprise deployment.",
+      "domains": [
+        "infrastructure_architecture_readiness",
+        "procurement_vendor_readiness",
+        "budget_investment_readiness"
+      ],
+      "red_override_message": "One or more secondary gating domains are Red. The initiative may proceed to discovery or planning only \u2014 not full procurement or enterprise deployment."
+    },
+    "strategic_adoption_domains": {
+      "description": "If these domains are Red, warn that the initiative may lack executive alignment, workflow ownership, or implementation pull-through.",
+      "domains": [
+        "strategic_intent_use_case_scope",
+        "workflow_adoption_change_readiness"
+      ],
+      "red_warning_message": "Strategic or adoption domains are Red. The initiative may lack clear executive alignment, workflow ownership, or implementation pull-through. Organizational readiness work is required."
+    },
+    "conflict_resolution": {
+      "rule": "Red overrides Green. The lowest-scoring critical gating domain determines the ceiling of the decision-readiness status.",
+      "examples": [
+        {
+          "scenario": "Infrastructure = Green, Security = Red",
+          "result": "Technically feasible, but not decision-ready. Security, privacy, and compliance gaps block movement to scale or RFP."
+        },
+        {
+          "scenario": "Strategic Intent = Green, Budget = Red",
+          "result": "Strategically attractive, but not investment-ready. The organization should clarify budget envelope and funding ownership before vendor engagement."
+        },
+        {
+          "scenario": "Procurement Readiness = Green, Data Readiness = Red",
+          "result": "Procurement process may be mature, but requirements are premature because data readiness is unresolved."
+        }
+      ]
+    }
+  },
+  "decision_readiness_statuses": {
+    "1_not_ready": {
+      "label": "Not Ready",
+      "trigger_conditions": [
+        "Any critical gating domain is Red (score < 2.5)",
+        "OR two or more domains of any type are Red"
+      ],
+      "guidance": "Foundational work is required before any vendor engagement, RFP, or procurement activity. Identify and resolve Red domain blockers first.",
+      "allowed_next_steps": [
+        "Internal gap analysis",
+        "Governance formation",
+        "Data strategy",
+        "Security remediation"
+      ]
+    },
+    "2_ready_internal_alignment": {
+      "label": "Ready for Internal Alignment",
+      "trigger_conditions": [
+        "No critical gating domain is Red",
+        "AND significant gaps remain in ownership, governance, data, security, or budget",
+        "AND multiple domains are Yellow or one secondary domain is Red"
+      ],
+      "guidance": "The concept has promise but major internal alignment work is needed before any external vendor engagement.",
+      "allowed_next_steps": [
+        "Stakeholder alignment sessions",
+        "Governance structure design",
+        "Data gap assessment",
+        "Budget scenario planning"
+      ]
+    },
+    "3_ready_vendor_discovery": {
+      "label": "Ready for Vendor Discovery",
+      "trigger_conditions": [
+        "No critical gating domain is Red",
+        "AND no secondary gating domain is Red",
+        "AND the organization has enough clarity to learn from vendors",
+        "AND gaps remain that prevent a mature RFP from being issued"
+      ],
+      "guidance": "The organization has sufficient clarity to have structured conversations with vendors and learn what solutions exist \u2014 but not enough maturity to issue a binding RFP.",
+      "allowed_next_steps": [
+        "Vendor briefings",
+        "Reference architecture reviews",
+        "Market scans",
+        "Informal demos"
+      ]
+    },
+    "4_ready_targeted_pilot": {
+      "label": "Ready for Targeted Pilot",
+      "trigger_conditions": [
+        "Scope is narrow and well-defined",
+        "All critical gating domains are Yellow or Green",
+        "Risks are understood and documented",
+        "Governance and security requirements are manageable at pilot scale"
+      ],
+      "guidance": "The organization is ready to run a focused, bounded pilot. Governance, security, and data requirements must be explicitly scoped for the pilot \u2014 not assumed to extend to full deployment.",
+      "allowed_next_steps": [
+        "Pilot scope definition",
+        "Pilot RFP or vendor selection",
+        "Pilot governance plan",
+        "Success criteria definition"
+      ]
+    },
+    "5_ready_service_line_scale": {
+      "label": "Ready for Service-Line Scale",
+      "trigger_conditions": [
+        "Clear AI workload defined for a specific department or service line",
+        "All critical gating domains are Yellow or Green",
+        "Infrastructure is Yellow or Green",
+        "Budget is Yellow or Green",
+        "Governance is defined at minimum for the target scope"
+      ],
+      "guidance": "The organization is ready to deploy AI at department or service-line scale. Enterprise-wide governance may not be required yet, but domain-level governance must be in place.",
+      "allowed_next_steps": [
+        "Service-line RFP or procurement",
+        "Department-level governance activation",
+        "Integration planning with EHR and data platforms"
+      ]
+    },
+    "6_ready_enterprise_planning": {
+      "label": "Ready for Enterprise AI Foundation Planning",
+      "trigger_conditions": [
+        "Strong strategic alignment (Domain 1 Green)",
+        "Critical gating domains are Yellow or Green",
+        "Organization has sufficient maturity to plan enterprise infrastructure",
+        "Not necessarily ready to buy immediately \u2014 planning horizon is 6-18 months"
+      ],
+      "guidance": "The organization is ready to design and plan enterprise AI infrastructure \u2014 architecture, governance, vendor strategy, and phasing. Procurement may follow after planning is complete.",
+      "allowed_next_steps": [
+        "Enterprise AI architecture design",
+        "Multi-year investment roadmap",
+        "Enterprise governance framework",
+        "Strategic vendor partnership exploration"
+      ]
+    },
+    "7_ready_for_rfp": {
+      "label": "Ready for RFP",
+      "trigger_conditions": [
+        "No critical gating domain is Red",
+        "No secondary gating domain is Red",
+        "Procurement requirements are clearly defined",
+        "Governance is formally defined",
+        "Budget is realistic and allocated or fundable",
+        "Evidence confidence is Medium or High across critical domains"
+      ],
+      "guidance": "The organization is ready to issue a formal RFP. Requirements must be complete enough to evaluate vendors fairly. Low-confidence scores in any critical domain must be resolved before RFP is issued.",
+      "allowed_next_steps": [
+        "RFP development",
+        "Vendor shortlist",
+        "Legal and compliance review of contract terms",
+        "Evaluation committee formation"
+      ]
+    }
+  },
+  "scenario_logic": {
+    "description": "Use domain color distribution to select the recommended decision-readiness scenario.",
+    "rules": [
+      {
+        "condition": "Multiple domains Red, including any critical gating domain",
+        "recommended_status": "1_not_ready",
+        "recommended_scenario": "Internal Alignment or Controlled Discovery"
+      },
+      {
+        "condition": "No critical domain Red, most domains Yellow, one or more secondary domain Red",
+        "recommended_status": "2_ready_internal_alignment",
+        "recommended_scenario": "Internal Alignment"
+      },
+      {
+        "condition": "No critical domain Red, no secondary domain Red, most domains Yellow",
+        "recommended_status": "3_ready_vendor_discovery",
+        "recommended_scenario": "Vendor Discovery"
+      },
+      {
+        "condition": "Narrow scope, all critical domains Yellow or Green, risks documented",
+        "recommended_status": "4_ready_targeted_pilot",
+        "recommended_scenario": "Targeted Pilot"
+      },
+      {
+        "condition": "Critical domains Green or Yellow, Infrastructure Yellow or Green, Budget Yellow or Green, defined workload",
+        "recommended_status": "5_ready_service_line_scale",
+        "recommended_scenario": "Service-Line Scale Deployment"
+      },
+      {
+        "condition": "Strong strategic alignment, critical domains Yellow or Green, planning horizon 6-18 months",
+        "recommended_status": "6_ready_enterprise_planning",
+        "recommended_scenario": "Enterprise AI Foundation Planning"
+      },
+      {
+        "condition": "Most domains Green, High or Medium confidence across critical domains, procurement defined, budget allocated",
+        "recommended_status": "7_ready_for_rfp",
+        "recommended_scenario": "Ready for RFP"
+      }
+    ]
+  },
+  "output_specification": {
+    "primary_output_hierarchy": [
+      "1. Decision-readiness status",
+      "2. Critical blockers",
+      "3. Domain scorecard (all 8 domains)",
+      "4. Recommended scenario",
+      "5. Next actions",
+      "6. Optional readiness index (weighted average \u2014 labeled clearly, placed below status)"
+    ],
+    "per_domain_output": [
+      "Domain name",
+      "Readiness Score (1.0-5.0)",
+      "Color rating (Red / Yellow / Green)",
+      "Evidence Confidence Score (0-5 with level label)",
+      "Credibility Gap (Readiness Score minus Evidence Confidence Score) with interpretation",
+      "Evidence provided (list of documents uploaded for this domain)",
+      "Evidence gaps (signals with no supporting evidence)",
+      "Contradictions between self-report and evidence (if any)",
+      "Standards alignment notes (frameworks mapped to this domain)",
+      "Rationale (3-5 sentences, specific to this organization)",
+      "Key gaps (2-4 specific named gaps \u2014 not categories)",
+      "Critical blockers (if any)",
+      "Recommended next actions (1-2 concrete actions)",
+      "RFP and procurement implications",
+      "Recommended reference designs for this domain",
+      "Reference designs not yet appropriate given current readiness"
+    ],
+    "summary_output": [
+      "Decision-readiness status",
+      "Top 3 blockers",
+      "Top 3 strengths",
+      "Recommended scenario",
+      "What must be resolved before moving forward",
+      "Whether organization is ready for: vendor discovery / pilot / service-line scale / enterprise planning / RFP",
+      "Recommended reference designs (from vendor reference library)",
+      "Reference designs not ready yet (with explanation)",
+      "90-day roadmap with evidence collection targets per domain",
+      "RFP requirement starter language by domain"
+    ],
+    "false_precision_rule": "Do NOT generate a single percentage score as the primary finding. If a readiness index is included, label it explicitly as a secondary, informational metric. Primary output is always decision-readiness status.",
+    "conservative_bias_rule": "The scoring model should be conservative \u2014 especially when evidence confidence is Low or when regulated healthcare risks are present. When in doubt, recommend the lower decision-readiness status with a clear remediation path."
+  },
+  "domains": {
+    "domain_1": {
+      "id": "strategic_intent_use_case_scope",
+      "name": "Strategic Intent & Use Case Scope",
+      "gate_type": "strategic_adoption",
+      "description": "Clarity of AI ambition, specificity of use cases, executive mandate, and alignment between stated intent and organizational capacity.",
+      "signals": {
+        "s1_1": {
+          "name": "Use Case Specificity",
+          "description": "How clearly defined are the AI use cases driving this initiative?",
+          "score_anchors": {
+            "1": "AI interest is general or vendor-driven. No specific use cases defined. 'We want to do something with AI.'",
+            "3": "1-2 use cases named but not fully scoped. Rationale exists but success criteria are vague.",
+            "5": "Use cases are clearly defined, scoped, and tied to measurable clinical or operational outcomes."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx",
+            "rfp_language"
+          ]
+        },
+        "s1_2": {
+          "name": "Executive Mandate Clarity",
+          "description": "Is AI investment being driven by a board or CEO mandate, or is it primarily vendor pressure or internal curiosity?",
+          "score_anchors": {
+            "1": "No executive mandate. Interest is informal or vendor-initiated.",
+            "3": "Executive interest exists but mandate is informal. No named accountable leader.",
+            "5": "Formal executive mandate with named sponsor, defined timeline, and board-level visibility."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s1_3": {
+          "name": "Ambition-Capacity Alignment",
+          "description": "Does the stated AI ambition match the organization's current governance, data, and infrastructure capacity?",
+          "score_anchors": {
+            "1": "Enterprise AI ambition with pilot-level readiness. Significant misalignment.",
+            "3": "Ambition is roughly aligned with capacity, with identifiable gaps that are being addressed.",
+            "5": "Ambition is calibrated to capacity. Phased plan exists to grow capability alongside ambition."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s1_4": {
+          "name": "Success Metrics Defined",
+          "description": "Are measurable outcomes defined for the AI initiative?",
+          "score_anchors": {
+            "1": "No success metrics. 'We'll know it when we see it.'",
+            "3": "Qualitative outcomes described but not quantified or tied to measurement mechanisms.",
+            "5": "Specific, measurable, time-bound success criteria defined and agreed by stakeholders."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        },
+        "s1_5": {
+          "name": "Strategic Urgency and Timeline",
+          "description": "Is there a defined timeline and sense of urgency that reflects realistic implementation capacity?",
+          "score_anchors": {
+            "1": "No timeline. Urgency is board pressure with no operational plan behind it.",
+            "3": "General timeline exists but milestones are not defined or resourced.",
+            "5": "Phased timeline with milestones, resource allocation, and governance gate checkpoints."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        }
+      }
+    },
+    "domain_2": {
+      "id": "data_readiness_governance",
+      "name": "Data Readiness & Governance",
+      "gate_type": "critical",
+      "description": "Availability, quality, and governance of data required to support AI workloads. Includes EHR integration, data platform maturity, and interoperability posture.",
+      "signals": {
+        "s2_1": {
+          "name": "Data Availability",
+          "description": "Is the data required for the defined AI use cases available and accessible?",
+          "score_anchors": {
+            "1": "Required data does not exist, is inaccessible, or is owned by a vendor without data sharing provisions.",
+            "3": "Data exists but is partially accessible, fragmented across systems, or requires significant transformation.",
+            "5": "Required data is available, accessible, and in a format usable for AI without major transformation."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s2_2": {
+          "name": "Data Quality",
+          "description": "Is clinical and operational data reliable, complete, and consistent?",
+          "score_anchors": {
+            "1": "Known data quality issues \u2014 incomplete records, inconsistent coding, unreliable fields relevant to AI workloads.",
+            "3": "Data quality is adequate in some domains but has known gaps in areas relevant to the AI use case.",
+            "5": "Data quality has been formally assessed and meets the threshold required for AI model training and inference."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        },
+        "s2_3": {
+          "name": "Interoperability",
+          "description": "Can data flow between systems required for the AI workload \u2014 EHR, data warehouse, AI platform, and downstream consumers?",
+          "score_anchors": {
+            "1": "Significant interoperability gaps. Data is siloed. FHIR or HL7 integration is absent or immature.",
+            "3": "Some integration capability exists. FHIR or API connectivity partially in place but not comprehensive.",
+            "5": "Strong interoperability posture. FHIR R4 or equivalent APIs in place. Data flows reliably across required systems."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s2_4": {
+          "name": "Data Governance Maturity",
+          "description": "Is there a formal data governance structure with ownership, policies, and enforcement?",
+          "score_anchors": {
+            "1": "No data governance program. Data ownership is unclear. No formal data policies.",
+            "3": "Data governance exists informally or partially. Policies exist but adoption is inconsistent.",
+            "5": "Mature data governance program with named data owners, formal policies, audit processes, and regular review."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        },
+        "s2_5": {
+          "name": "EHR Platform Readiness",
+          "description": "Is the EHR platform capable of supporting the AI workloads \u2014 through native AI tools, marketplace integrations, or API connectivity?",
+          "score_anchors": {
+            "1": "EHR platform is a limiting factor. Legacy system, poor API support, or vendor constraints block AI integration.",
+            "3": "EHR platform can support AI with effort. Some API capability. Vendor AI marketplace accessible but not activated.",
+            "5": "EHR platform is AI-ready. Native AI tools licensed and in use or planned. APIs are current and well-documented."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s2_6": {
+          "name": "Data Platform Maturity",
+          "description": "Does a centralized data warehouse, data lake, or analytics platform exist to support AI workloads?",
+          "score_anchors": {
+            "1": "No centralized data platform. Analytics is report-based. No platform for AI model training or inference at scale.",
+            "3": "Data platform exists but is not optimized for AI. Limited compute, partial data coverage, or governance gaps.",
+            "5": "Mature, governed data platform with sufficient compute, broad data coverage, and AI workload capability."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        }
+      }
+    },
+    "domain_3": {
+      "id": "infrastructure_architecture_readiness",
+      "name": "Infrastructure & Architecture Readiness",
+      "gate_type": "secondary",
+      "description": "Compute, cloud, network, edge, and integration infrastructure capacity to support AI workloads at the intended scale.",
+      "signals": {
+        "s3_1": {
+          "name": "Compute Availability",
+          "description": "Is dedicated compute capacity available for AI workloads without competing with production clinical systems?",
+          "score_anchors": {
+            "1": "No dedicated AI compute. AI workloads would compete directly with clinical production systems.",
+            "3": "Some compute available but not dedicated or not sized for the intended AI workload.",
+            "5": "Dedicated AI compute provisioned or committed. Sized appropriately for intended workloads with headroom for growth."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        },
+        "s3_2": {
+          "name": "Cloud Strategy and Maturity",
+          "description": "Is the organization's cloud strategy defined and mature enough to support AI infrastructure needs?",
+          "score_anchors": {
+            "1": "No defined cloud strategy. Infrastructure is entirely on-premises with no migration plan.",
+            "3": "Cloud strategy exists. Partial cloud adoption. AI workloads would require new cloud capacity.",
+            "5": "Cloud-first or cloud-ready strategy. AI-relevant workloads are or can be cloud-hosted with governance in place."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s3_3": {
+          "name": "Network Readiness",
+          "description": "Is the network infrastructure capable of supporting AI workloads \u2014 bandwidth, latency, and segmentation?",
+          "score_anchors": {
+            "1": "Network is a known constraint. Bandwidth, latency, or segmentation issues would impact AI workload performance.",
+            "3": "Network is adequate for current workloads but would require upgrades for AI at scale.",
+            "5": "Network infrastructure is AI-ready. Segmentation, bandwidth, and latency requirements are met for intended workloads."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language"
+          ]
+        },
+        "s3_4": {
+          "name": "Integration Architecture",
+          "description": "Is the integration layer mature enough to connect AI tools to EHR, data platforms, and clinical workflows?",
+          "score_anchors": {
+            "1": "Point-to-point integrations only. No integration platform or API layer. Each new AI tool requires custom integration.",
+            "3": "Integration platform exists but coverage is incomplete. Some API capability but not standardized.",
+            "5": "Mature integration platform with standardized APIs (FHIR, REST, HL7). AI tools can be connected through documented interfaces."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        },
+        "s3_5": {
+          "name": "Scalability and Resilience",
+          "description": "Can the infrastructure scale with AI workload growth and maintain resilience for AI-dependent clinical workflows?",
+          "score_anchors": {
+            "1": "Infrastructure is brittle. Scaling requires significant capital investment. No DR plan for AI-dependent workflows.",
+            "3": "Infrastructure can scale with effort. DR plan exists for core systems but not specifically for AI-dependent workflows.",
+            "5": "Infrastructure scales elastically. DR and BCP plans explicitly cover AI-dependent clinical workflows."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "rfp_language"
+          ]
+        }
+      }
+    },
+    "domain_4": {
+      "id": "security_privacy_compliance",
+      "name": "Security, Privacy & Compliance",
+      "gate_type": "critical",
+      "description": "CISO involvement, third-party risk management, cybersecurity posture, regulatory compliance, and vendor data handling requirements.",
+      "signals": {
+        "s4_1": {
+          "name": "CISO Involvement in AI Decisions",
+          "description": "Is the CISO actively involved in AI procurement and deployment decisions?",
+          "score_anchors": {
+            "1": "CISO is not involved in AI decisions. AI tools have been or could be deployed without security review.",
+            "3": "CISO is aware and sometimes consulted but not formally integrated into AI procurement governance.",
+            "5": "CISO is a formal stakeholder in AI governance. Security review is a required gate in the AI approval process."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s4_2": {
+          "name": "Third-Party Risk Management",
+          "description": "Is there a formal TPRM process that applies to AI vendors?",
+          "score_anchors": {
+            "1": "No formal TPRM process. AI vendors are procured without structured security assessment.",
+            "3": "TPRM process exists for IT vendors generally but has not been adapted for AI-specific risks.",
+            "5": "Mature TPRM process explicitly covers AI vendors \u2014 including model governance, data handling, and ongoing monitoring."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        },
+        "s4_3": {
+          "name": "Cybersecurity Incident Posture",
+          "description": "Cybersecurity incident history and current recovery posture relevant to AI deployment risk.",
+          "score_anchors": {
+            "1": "Recent significant incident (within 24 months) with unresolved exposure or ongoing remediation. High-risk posture.",
+            "3": "Incident history exists but remediation is substantially complete. Posture is improving but not fully hardened.",
+            "5": "No recent significant incidents. Strong proactive posture. Incident response plan is tested and current."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s4_4": {
+          "name": "Regulatory Compliance Posture",
+          "description": "HIPAA, state privacy regulations, and applicable FDA AI/ML guidance compliance posture.",
+          "score_anchors": {
+            "1": "Compliance posture is unclear or known gaps exist in HIPAA, state privacy, or FDA requirements relevant to AI.",
+            "3": "Compliance posture is adequate for current operations but has not been specifically assessed for AI workloads.",
+            "5": "Compliance has been formally assessed for AI use cases. Legal and compliance have reviewed AI deployment requirements."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s4_5": {
+          "name": "AI Vendor Data Handling Requirements",
+          "description": "Are data handling, retention, and model training restrictions defined and imposed on AI vendors in contracts?",
+          "score_anchors": {
+            "1": "No defined requirements. Vendor data handling is accepted as-written in vendor contracts.",
+            "3": "General data handling requirements exist in IT contracts. AI-specific requirements are not yet defined.",
+            "5": "AI-specific data handling requirements are defined: no training on patient data, retention limits, data residency, audit rights."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        },
+        "s4_6": {
+          "name": "Security Requirements in Vendor Contracts",
+          "description": "Are security, audit, and breach notification requirements formally imposed on AI vendors?",
+          "score_anchors": {
+            "1": "Vendor contracts do not include security, audit, or breach notification requirements specific to AI.",
+            "3": "Standard IT security requirements are in contracts. AI-specific requirements (model explainability, security testing) are not yet defined.",
+            "5": "Contracts include AI-specific security requirements: penetration testing, model audit rights, breach notification SLAs, data residency."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language"
+          ]
+        }
+      }
+    },
+    "domain_5": {
+      "id": "ai_governance_operating_model",
+      "name": "AI Governance & Operating Model",
+      "gate_type": "critical",
+      "description": "Existence and maturity of AI governance structures, accountability for AI performance and harms, operating model for post-deployment ownership, and model inventory management.",
+      "signals": {
+        "s5_1": {
+          "name": "AI Governance Body",
+          "description": "Does a formal AI governance committee or equivalent decision authority exist?",
+          "score_anchors": {
+            "1": "No AI governance body. AI decisions are made ad hoc by whoever is involved in a given project.",
+            "3": "AI governance body exists informally or is in formation. Meets irregularly. No formal authority to block or approve AI tools.",
+            "5": "Formal AI governance committee with defined authority, regular cadence, multi-stakeholder representation, and documented charter."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx",
+            "rfp_language"
+          ]
+        },
+        "s5_2": {
+          "name": "AI Approval Process",
+          "description": "Is there a defined process for approving new AI tools before deployment?",
+          "score_anchors": {
+            "1": "No approval process. AI tools are deployed at department level without central review.",
+            "3": "Approval process is informally defined. IT is generally consulted but clinical, compliance, and governance review is inconsistent.",
+            "5": "Formal approval process with defined stages: clinical review, security review, governance sign-off, post-deployment monitoring trigger."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        },
+        "s5_3": {
+          "name": "AI Tool Inventory",
+          "description": "Does the organization maintain an inventory of AI tools currently in use?",
+          "score_anchors": {
+            "1": "No inventory. Unknown number of AI tools in use across the organization.",
+            "3": "Partial inventory. IT-purchased tools are tracked but department-level AI tools may not be visible.",
+            "5": "Comprehensive, current AI tool inventory with vendor, use case, data inputs, clinical scope, and governance status for each tool."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief"
+          ]
+        },
+        "s5_4": {
+          "name": "Accountability for AI Performance and Harms",
+          "description": "Is there a named owner accountable when an AI tool performs incorrectly or causes a harm?",
+          "score_anchors": {
+            "1": "No defined accountability. When an AI tool fails, there is no clear process or named owner.",
+            "3": "General accountability exists at the IT or clinical informatics level but is not formalized per tool.",
+            "5": "Named accountability per AI tool with documented escalation path and harm reporting process tied to quality and safety programs."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s5_5": {
+          "name": "Post-Deployment Monitoring",
+          "description": "Does a process exist for monitoring AI tools after go-live?",
+          "score_anchors": {
+            "1": "No post-deployment monitoring. Tools are deployed and assumed to perform correctly.",
+            "3": "Informal monitoring. Issues are addressed reactively. No systematic performance tracking.",
+            "5": "Formal post-deployment monitoring process with defined metrics, review cadence, escalation triggers, and vendor accountability."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        },
+        "s5_6": {
+          "name": "Operating Model Clarity",
+          "description": "Is there a defined operating model for AI post-deployment \u2014 who owns it, who trains staff, who manages the vendor relationship?",
+          "score_anchors": {
+            "1": "No operating model. Deployment creates orphaned AI tools with no clear owner post-go-live.",
+            "3": "Operating model is partially defined. IT owns tools generally but clinical and operational ownership is unclear.",
+            "5": "Fully defined operating model: named tool owner, staff training program, vendor management accountabilities, and review calendar."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        }
+      }
+    },
+    "domain_6": {
+      "id": "workflow_adoption_change_readiness",
+      "name": "Workflow Adoption & Change Readiness",
+      "gate_type": "strategic_adoption",
+      "description": "Clinical and operational stakeholder engagement, change management capacity, executive sponsorship, and organizational track record with technology adoption.",
+      "signals": {
+        "s6_1": {
+          "name": "Clinical Stakeholder Engagement",
+          "description": "Are clinical leaders \u2014 CMIO, clinical informatics, department chiefs \u2014 actively involved in AI use case selection and validation?",
+          "score_anchors": {
+            "1": "Clinical stakeholders are not engaged. AI decisions are made by IT or administration without clinical input.",
+            "3": "Clinical informatics is consulted. Clinical leaders are aware but not actively co-designing use cases.",
+            "5": "Clinical champions are co-owners of use case definition and validation. CMIO or equivalent is a formal governance participant."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s6_2": {
+          "name": "Change Management Capacity",
+          "description": "Does the organization have the capacity to drive technology adoption effectively?",
+          "score_anchors": {
+            "1": "Technology adoption is a known organizational weakness. Past implementations have had low adoption.",
+            "3": "Change management capability exists but is inconsistently applied. Results vary by project and department.",
+            "5": "Strong change management capability with a defined process, dedicated resources, and proven track record on recent implementations."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief"
+          ]
+        },
+        "s6_3": {
+          "name": "Executive Sponsorship",
+          "description": "Is there a named executive sponsor with authority and accountability for this AI initiative?",
+          "score_anchors": {
+            "1": "No named executive sponsor. Initiative is IT-led without executive cover.",
+            "3": "Executive awareness exists but sponsorship is passive. No named accountable executive.",
+            "5": "Named executive sponsor with authority to allocate resources, resolve roadblocks, and communicate priority to the organization."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s6_4": {
+          "name": "Workflow Integration Plan",
+          "description": "Is there a plan for integrating AI tools into clinical or operational workflows, not just deploying them?",
+          "score_anchors": {
+            "1": "No workflow integration plan. Assumption is that staff will adapt to the tool once deployed.",
+            "3": "General plan exists for training and rollout but workflow redesign has not been addressed.",
+            "5": "Workflow integration has been mapped. Clinical workflow redesign, training plan, and adoption metrics are defined."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "rfp_language"
+          ]
+        },
+        "s6_5": {
+          "name": "Hard Constraint Burden",
+          "description": "Are there organizational constraints \u2014 financial pressure, EHR migration, regulatory investigation, leadership change \u2014 that could derail AI adoption?",
+          "score_anchors": {
+            "1": "Multiple hard constraints active simultaneously. AI initiative is competing with existential organizational priorities.",
+            "3": "One or two constraints exist but are being managed. AI initiative has organizational space to proceed with care.",
+            "5": "No significant hard constraints. Organizational capacity is available for AI initiative execution."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        }
+      }
+    },
+    "domain_7": {
+      "id": "procurement_vendor_readiness",
+      "name": "Procurement & Vendor Readiness",
+      "gate_type": "secondary",
+      "description": "Maturity of the procurement process, clarity of AI requirements before vendor engagement, vendor evaluation competency, and governance gates in the procurement process.",
+      "signals": {
+        "s7_1": {
+          "name": "RFP Process Maturity",
+          "description": "Does a defined RFP or procurement process exist for technology at this scale?",
+          "score_anchors": {
+            "1": "No defined procurement process for AI or complex technology. Process is invented case by case.",
+            "3": "General IT procurement process exists. Not specifically designed for AI or AI infrastructure scale.",
+            "5": "Mature procurement process for complex technology. Experience with multi-vendor evaluations. Governance gates are defined."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        },
+        "s7_2": {
+          "name": "Requirements Definition Maturity",
+          "description": "How well-defined are AI requirements before vendor conversations begin?",
+          "score_anchors": {
+            "1": "Requirements are not defined. Vendor conversations are happening before internal requirements are clear.",
+            "3": "High-level requirements exist but are not specific enough to evaluate vendors fairly or write binding RFP language.",
+            "5": "Specific, measurable requirements are defined across functional, technical, security, data, and governance dimensions."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        },
+        "s7_3": {
+          "name": "Vendor Evaluation Competency",
+          "description": "Does the organization have the competency to evaluate AI vendors \u2014 scoring criteria, proof-of-concept design, reference checks?",
+          "score_anchors": {
+            "1": "No structured vendor evaluation process. Decisions are based on demos and vendor relationships.",
+            "3": "Evaluation criteria exist in general terms. POC experience is limited. Reference check process is informal.",
+            "5": "Structured vendor evaluation with defined scoring criteria, POC requirements, technical due diligence, and formal reference check process."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language"
+          ]
+        },
+        "s7_4": {
+          "name": "AI Procurement Experience",
+          "description": "Has the organization run an AI-specific RFP before? What was learned?",
+          "score_anchors": {
+            "1": "No AI procurement experience. Significant learning curve anticipated.",
+            "3": "Limited AI procurement experience. One or two prior AI acquisitions, informally managed.",
+            "5": "Multiple AI procurements completed. Lessons learned are documented. Requirements have been refined from prior experience."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "rfp_language"
+          ]
+        },
+        "s7_5": {
+          "name": "Governance Gates in Procurement",
+          "description": "Are there formal governance approval gates before an AI contract is signed?",
+          "score_anchors": {
+            "1": "No governance gates. Contracts can be signed without AI governance, clinical, or compliance review.",
+            "3": "Legal and IT review contracts but AI governance and clinical compliance review are not formal requirements.",
+            "5": "Formal governance gates before signature: AI governance approval, CISO sign-off, clinical compliance review, legal review."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        }
+      }
+    },
+    "domain_8": {
+      "id": "budget_investment_readiness",
+      "name": "Budget & Investment Readiness",
+      "gate_type": "secondary",
+      "description": "Realism and availability of budget for the AI initiative, awareness of total cost of ownership, alignment between investment expectations and organizational ambition, and financial constraints.",
+      "signals": {
+        "s8_1": {
+          "name": "Budget Availability",
+          "description": "Is a realistic budget allocated, approved, or fundable for this AI initiative?",
+          "score_anchors": {
+            "1": "No budget identified or allocated. Investment expectations are aspirational with no funding path.",
+            "3": "Budget is directionally identified but not formally approved or fully allocated.",
+            "5": "Budget is approved, allocated, and realistic for the scope of the initiative."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s8_2": {
+          "name": "Budget-Ambition Alignment",
+          "description": "Does the stated budget match the stated AI ambition?",
+          "score_anchors": {
+            "1": "Significant mismatch. Enterprise AI ambition with pilot-level budget. Expectation gap is a project risk.",
+            "3": "Budget and ambition are roughly aligned with some gaps. Scope adjustment may be needed.",
+            "5": "Budget is fully aligned with ambition. Investment envelope covers infrastructure, implementation, training, and ongoing operations."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx",
+            "rfp_language"
+          ]
+        },
+        "s8_3": {
+          "name": "Total Cost of Ownership Awareness",
+          "description": "Is there awareness of TCO beyond licensing \u2014 implementation, integration, training, ongoing operations, and support?",
+          "score_anchors": {
+            "1": "Budget thinking is limited to licensing fees. Implementation, integration, and operational costs are not modeled.",
+            "3": "TCO awareness exists at a general level. Some implementation and training costs are factored in but not fully modeled.",
+            "5": "Full TCO model including licensing, implementation, integration, training, ongoing operations, support, and refresh cycle."
+          },
+          "feeds_into": [
+            "scoring",
+            "rfp_language",
+            "scenario_brief"
+          ]
+        },
+        "s8_4": {
+          "name": "Financial Constraint Burden",
+          "description": "Are financial pressures \u2014 margin compression, capital constraints, competing priorities \u2014 limiting AI investment capacity?",
+          "score_anchors": {
+            "1": "Significant financial pressure. AI investment is competing with operational survival priorities. High risk of de-prioritization.",
+            "3": "Financial pressure exists but AI initiative has organizational support. Budget is at risk if financial situation worsens.",
+            "5": "Financial position supports AI investment. Budget is protected from margin or capital pressures."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx"
+          ]
+        },
+        "s8_5": {
+          "name": "ROI and Value Expectations",
+          "description": "Are there defined expectations for financial or operational return on AI investment?",
+          "score_anchors": {
+            "1": "No ROI framework. Investment is made on faith or board pressure without defined value expectations.",
+            "3": "General value expectations exist (efficiency, quality improvement) but are not quantified or tied to measurement.",
+            "5": "Defined ROI framework with quantified expectations, measurement methodology, and defined review timeline."
+          },
+          "feeds_into": [
+            "scoring",
+            "scenario_brief",
+            "executive_pptx",
+            "rfp_language"
+          ]
+        }
+      }
+    }
+  }
+}
