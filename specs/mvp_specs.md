@@ -3,438 +3,560 @@
 
 ---
 
+## architecture_principle
+
+**Customer-sensitive documents stay in the customer environment.**
+**The assessment logic, scoring model, reference design library, and output generator are the product.**
+
+This is a professional infrastructure readiness assessment — not a chat widget, not a survey tool, not a 10-minute intake. The assessment helps health system IT departments make better procurement decisions, produce higher-quality RFP specifications, and develop more accurate budget estimates per AI project. The output should be worth the time it takes to complete.
+
+Production deployment requires the customer's environment to meet their own security, compliance, and data governance standards. This MVP demonstrates the privacy-preserving architecture pattern and the assessment quality.
+
+---
+
 ## development_requirements
 
-**Platform stack:**
-- Frontend: Lovable.dev (React app, deployed to custom domain)
-- Orchestration: n8n.cloud (managed, no server required)
-- AI: Anthropic Claude API (model: claude-sonnet-4-6)
-- PDF: PDFco API (or html2pdf.app as fallback)
-- DNS: Cloudflare — btcompass.ai → Lovable deployment
+**What gets built (the package):**
+1. Document preparation phase (Phase 0) — checklist of what to gather before assessment begins
+2. Sovereign environment acknowledgment — one-time session-start confirmation (not per-document PHI gates)
+3. Assessment mode selection — operator selects entry point based on their situation
+4. Guided intake with public data enrichment — agent looks up known public facts and presents them for confirmation before asking intake questions
+5. Comprehensive domain intake — multiple targeted questions per domain, adapted to the selected mode
+6. Document signal extraction — Claude reads approved local documents and extracts domain signals
+7. Rules-based readiness scoring model — 8 domains, 0–4 scale, confidence separate from maturity
+8. Curated versioned vendor reference design library
+9. Scenario-generation engine — three differentiated investment scenarios
+10. Executive Scenario Brief + readiness scorecard output
+11. Human review and approval checkpoints throughout
 
-**Accounts needed before building:**
-1. n8n.cloud account (free trial or starter plan)
-2. Anthropic API account + API key
-3. Lovable.dev account
-4. PDFco account (free tier)
-5. Cloudflare account (btcompass.ai DNS management)
+**Runtime:**
+- Claude (claude-sonnet-4-6) via Claude Code or Anthropic API
+- MCP-style local file access (Claude reads approved documents in a designated local folder)
+- No external server, no document upload to SaaS, no cloud transmission of documents
 
-**Demo scenario (hardcoded):**
-Southside Academic Health Network — synthetic academic medical center. Epic EHR, mature research data assets, smart-room/edge AI ambition, ambient documentation, radiology AI, fragmented governance, recent third-party cybersecurity breach, margin pressure, cancer pavilion timeline. Preloaded public profile used by the intake agent.
-
----
-
-## integration_specifications
-
-### Claude API (via n8n Anthropic node)
-- Authentication: API key stored as n8n credential (never exposed to frontend)
-- Model: claude-sonnet-4-6
-- Two separate calls:
-  1. **Intake Agent call** — conversational, uses n8n AI Agent node with window buffer memory
-  2. **Interpretation + Brief call** — single structured HTTP request with full scoring context
-
-### n8n Webhook (frontend ↔ backend)
-- Endpoint: POST `https://[n8n-instance]/webhook/btcompass-chat`
-- Request body: `{ "session_id": "string", "message": "string", "stage": "intake|complete" }`
-- Response body: `{ "response": "string", "intake_complete": boolean, "scores": object|null, "brief": object|null }`
-
-### PDFco API
-- Input: HTML string of formatted Scenario Brief + Scorecard
-- Output: PDF download URL (valid for 24 hours)
-- Called by n8n HTTP Request node after output is compiled
-
-### Frontend ↔ n8n communication
-- Frontend sends each chat message via fetch POST to n8n webhook URL
-- n8n responds synchronously (within n8n 30s timeout) or via polling
-- If response time > 15 seconds: show "Analyzing..." loading state in frontend
+**Accounts needed:**
+1. Anthropic API account + API key
+2. Claude Code CLI (already installed)
 
 ---
 
-## data_flow_specifications
+## sovereign_environment_acknowledgment
 
-### Session initialization
-```
-Operator loads btcompass.ai/assessment
-→ Frontend generates unique session_id (UUID)
-→ Frontend sends first message: "Start assessment for [health system name]"
-→ n8n initializes session, loads Southside preloaded profile
-→ AI Agent responds with welcome + first intake question
-```
+This replaces per-document PHI attestation. Documents never leave the customer environment — the question is not whether each document is safe to share externally, but whether the environment itself is authorized and appropriate for this work.
 
-### Intake phase (Stage 1)
-```
-Operator sends message
-→ n8n webhook receives {session_id, message, stage: "intake"}
-→ n8n AI Agent node (Claude, window buffer memory):
-    - Reads full conversation history
-    - Generates next question or follow-up
-    - Detects when all required fields are answered
-    - When complete: outputs {intake_complete: true, structured_fields: {...}}
-→ n8n checks: is intake_complete == true?
-    - No: return {response: "next question", intake_complete: false}
-    - Yes: proceed to scoring engine
-```
+At the start of each assessment session, before any document is accessed, the operator confirms the following:
 
-### Scoring engine (Stage 2 — n8n nodes)
-```
-n8n receives structured_fields from intake agent
-→ For each of 8 domains:
-    - Evaluate 3–5 rubric signals from structured_fields (If/Switch nodes)
-    - Assign signal value (0–4) to each signal
-    - Calculate domain score = weighted average of signals (Set node)
-    - Assign readiness color (If node):
-        0–1.0 → Red
-        1.1–2.0 → Orange
-        2.1–3.0 → Yellow
-        3.1–3.5 → Yellow-Green
-        3.6–4.0 → Green
-    - Assign confidence level (If node):
-        ≥80% direct answers → High
-        50–79% direct answers → Medium
-        <50% direct answers → Low
-→ Compile scoring_data object (all 8 domains with scores, colors, confidence)
-```
+> **Environment Acknowledgment**
+>
+> This assessment tool operates entirely within your organization's environment. Documents are read locally during this session and are not transmitted to any external server. Outputs generated by this assessment are your organization's property.
+>
+> Before proceeding, please confirm the following:
+>
+> ☐ I am operating within an IT environment that my organization has authorized for use with AI tools.
+>
+> ☐ I have authorization to access the documents I intend to provide to this assessment.
+>
+> ☐ The documents I provide are consistent with my organization's data handling and sharing policies for internal tools.
+>
+> ☐ I understand that outputs generated by this assessment should be reviewed before any external distribution, and are for internal planning purposes only.
+>
+> ☐ My organization's security and compliance requirements for this type of AI-assisted assessment tool have been reviewed or are within my authority to proceed.
 
-### Interpretation + Brief generation (Stage 3 — Claude API call)
-```
-n8n HTTP Request node → Claude API
-System prompt: [see prompt specifications below]
-User message: JSON containing:
-    - health_system_profile (Southside preloaded data)
-    - intake_responses (structured fields from Stage 1)
-    - scoring_data (all 8 domain scores, colors, confidence from Stage 2)
+The operator checks all five items before the session continues. This is a one-time, session-level acknowledgment — not repeated per document.
 
-Claude outputs JSON:
-{
-  "domain_interpretations": [
-    {
-      "domain": "Governance and Accountability",
-      "score": 1.8,
-      "color": "Orange",
-      "confidence": "Medium",
-      "interpretation": "...",
-      "evidence_gaps": ["...", "..."],
-      "recommended_next_action": "...",
-      "rfp_requirement_categories": ["...", "..."]
-    },
-    ... (8 domains total)
-  ],
-  "workload_classification": "Enterprise AI Foundation",
-  "scenario_brief": {
-    "current_state_summary": "...",
-    "scenario_1": { "name": "Controlled Pilot Acceleration", ... },
-    "scenario_2": { "name": "Department/Service-Line Scale", ... },
-    "scenario_3": { "name": "Enterprise AI Foundation", ... },
-    "scenario_comparison_table": { ... },
-    "recommended_path": { "scenario": "...", "rationale": "...", "prerequisites": [...], "avoid": [...] }
-  },
-  "executive_summary": "...",
-  "rfp_starter_categories": ["...", "...", "...", "...", "..."]
-}
-```
-
-### Output delivery (Stage 4)
-```
-n8n compiles complete output object
-→ n8n HTTP Request → PDFco API → generates PDF → returns download_url
-→ n8n webhook response to frontend:
-{
-  "intake_complete": true,
-  "scores": { scoring_data },
-  "brief": { complete brief object },
-  "pdf_url": "https://..."
-}
-→ Frontend navigates to output page
-→ Displays: Scorecard + Scenario Brief + Executive Summary + RFP Categories
-→ PDF download button uses pdf_url
-```
+**Design principle:** Documents stay in your house. We are confirming your house is in order — not asking permission to look at each room.
 
 ---
 
-## platform_implementation_requirements
+## assessment_modes
 
-### n8n Workflow Structure (nodes in order)
+The operator selects their entry point at the start of the assessment. The mode shapes the question depth, document requests, and output emphasis.
 
-1. **Webhook Trigger** — POST /btcompass-chat, responds immediately
-2. **Switch node** — routes by `stage` field (intake vs. scoring)
-3. **AI Agent node** (intake stage)
-   - Model: Anthropic Claude (claude-sonnet-4-6)
-   - Memory: Window Buffer Memory (last 20 messages)
-   - System prompt: intake system prompt (see below)
-   - Output parser: JSON parser to detect intake_complete flag
-4. **If node** — checks intake_complete == true
-5. **Set nodes** (one per domain × 8 domains) — scoring signal evaluation
-6. **Set node** — compiles scoring_data object
-7. **HTTP Request node** — calls Claude API for interpretation + brief
-8. **HTTP Request node** — calls PDFco API for PDF generation
-9. **Respond to Webhook** — returns complete output
+### Mode 1: Proposal Assessment
+**Who uses this:** CIO or IT director who already has a specific AI project under consideration — an AI proposal, a vendor pitch, a board-approved initiative. The question is: "Are we ready for this? What infrastructure does it actually require? What should our RFP demand?"
 
-### n8n Credentials to configure
-- Anthropic API: add as "Anthropic" credential with API key
-- PDFco API: add as HTTP Header Auth credential
-- No database credentials needed for demo (in-memory session)
+**What it does:** Takes the existing proposal as a starting point. Assesses whether the organization's current infrastructure, governance, data environment, and security posture can support the proposed project. Identifies gaps. Generates procurement specifications and RFP requirements specific to that project.
 
-### n8n AI Agent system prompt (intake)
+**Output emphasis:** Gap analysis against the proposal, specific infrastructure requirements, risk-adjusted RFP requirements, budget sanity check.
 
-```
-You are an AI Infrastructure Assessment Advisor for health systems. You are helping a health system IT leader complete a structured intake assessment that will produce a readiness scorecard and AI Infrastructure Investment Scenario Brief.
+### Mode 2: Enterprise Foundation Assessment
+**Who uses this:** CIO building or refreshing an AI infrastructure strategy across the whole organization. No specific project — broad readiness picture.
 
-HEALTH SYSTEM PROFILE (preloaded):
-Southside Academic Health Network
-- 847-bed academic medical center, Level I trauma, NCI-designated cancer center
-- Epic EHR (live 4 years), Clarity analytics, Interconnect API enabled
-- AWS primary cloud (mature), Azure secondary (research), on-prem legacy remaining
-- Research data infrastructure: institutional data warehouse, REDCap, OMOP CDR
-- AI currently active: ambient documentation (nuance DAX), radiology AI (3 FDA-cleared tools), early smart-room/Artisight pilot (12 rooms)
-- Recent event: third-party vendor cybersecurity breach (6 months ago, contained but unresolved vendor liability)
-- Cancer pavilion opening: 18 months, driving infrastructure decisions
-- Budget signal: $12M-$18M planning envelope for AI infrastructure
-- Governance: AI steering committee formed but no formal approval process; CISO engaged post-breach; no CMIO clinical AI policy
-- Margin pressure: -2.3% operating margin, CFO scrutiny on technology ROI
+**What it does:** Comprehensive 8-domain assessment. Covers all domains with depth. Identifies where the organization is strong, where it has critical gaps, and what sequence of investments makes sense before committing to a large AI infrastructure spend.
 
-BEHAVIOR RULES:
-1. Ask ONE question at a time. Wait for the answer.
-2. Adapt based on answers — reference Epic, the cybersecurity breach, the cancer pavilion when relevant.
-3. Skip questions already answered by the preloaded profile.
-4. Do NOT ask for PHI, patient data, employee personal data, or NDA-restricted information.
-5. When all required fields are answered, output a JSON object with intake_complete: true.
+**Output emphasis:** Full 8-domain scorecard, strategic investment sequencing, enterprise vendor architecture options, long-horizon RFP readiness.
 
-REQUIRED INTAKE FIELDS:
-- confirmed_ai_ambition: pilot | service_line_scale | enterprise_foundation
-- priority_workloads: list of active or priority AI use cases
-- governance_state: none | forming | partial | operational
-- ciso_involvement: none | reactive | active
-- clinical_ai_oversight: none | informal | formal
-- model_inventory_exists: true | false | unknown
-- post_deployment_monitoring: none | partial | formal
-- data_readiness: poor | partial | good | strong
-- interoperability_gaps: list or none
-- infrastructure_scalability: limited | moderate | strong
-- edge_device_readiness: none | pilot | scaling
-- operating_model_readiness: low | medium | high
-- change_management_capacity: low | medium | high
-- rfp_experience: none | limited | experienced
-- procurement_requirements_defined: true | false | partial
-- budget_range: confirmed or revised from preloaded signal
-- hard_constraints: list (e.g., margin_pressure, cancer_pavilion_timeline, breach_liability)
-- strategic_urgency: low | medium | high
+### Mode 3: Departmental or Pilot Assessment
+**Who uses this:** IT leader who needs to assess AI readiness for one department, one service line, or one specific use case (e.g., radiology AI, ambient documentation in cardiology, revenue cycle automation).
 
-COMPLETION OUTPUT FORMAT:
-When all fields are answered, respond with:
-"Thank you — I have enough to generate your assessment. Here is my summary of what I've confirmed: [2-3 sentence summary]. Generating your readiness scorecard and Scenario Brief now."
+**What it does:** Scoped assessment for the target department or use case. Identifies what infrastructure, governance, and data readiness requirements are specific to that scope. Does not attempt to assess the whole organization.
 
-Then output (as the final part of your message):
-```json
-{
-  "intake_complete": true,
-  "structured_fields": { [all required fields with values] }
-}
-```
-```
+**Output emphasis:** Use-case-specific infrastructure requirements, department-level governance prerequisites, targeted RFP requirements, pilot scope and success criteria.
 
-### Claude interpretation prompt (HTTP Request node)
+### Mode 4: Scale Readiness Assessment
+**Who uses this:** IT leader whose pilot is working and wants to understand what it would take to scale it — from one department to a service line, or from a service line to enterprise-wide.
 
-```
-You are producing a structured AI infrastructure readiness assessment for a health system CIO.
+**What it does:** Takes the existing pilot as a baseline. Assesses what gaps exist between pilot-scale infrastructure and production-scale infrastructure. Identifies governance, data, security, and operating model requirements that were bypassed at pilot scale.
 
-You will receive:
-1. Health system profile (confirmed baseline)
-2. Intake responses (operator-provided)
-3. Domain scores calculated by the scoring engine (DO NOT recalculate scores — use these exactly)
-
-Your job is to write:
-- One interpretation paragraph per domain (3-5 sentences, specific to this organization)
-- Evidence gaps per domain (2-4 specific questions that remain unanswered)
-- Recommended next action per domain (one concrete action)
-- RFP requirement categories per domain (2-3 specific categories)
-- Three investment scenarios (Controlled Pilot Acceleration, Department/Service-Line Scale, Enterprise AI Foundation)
-- Recommended path with rationale specific to this organization's inputs
-- Executive summary (3-4 sentences, CIO-ready language)
-- RFP starter categories (5-7 high-level requirement categories)
-
-RULES:
-- Use the scores exactly as provided. Do not revise them.
-- Be specific to this organization. Do not write generic statements that could apply to any hospital.
-- Acknowledge the cybersecurity breach and governance gaps in the interpretation.
-- Acknowledge the cancer pavilion timeline as a constraint.
-- The recommended path should be honest — if the organization is not ready for the recommended scenario, say so and name the prerequisites.
-- Write in CIO-ready language: concise, executive-readable, practical.
-- Output valid JSON matching the schema provided.
-
-[Attach scoring_data and intake_responses as JSON in the user message]
-```
+**Output emphasis:** Pilot-to-production gap analysis, scaling prerequisites, production-grade RFP requirements, infrastructure lift estimate.
 
 ---
 
-## scoring_rubric_signals
+## phase_0_document_preparation
 
-### Domain 1: AI Strategy and Use-Case Clarity
-| Signal | Intake field | 0 | 1 | 2 | 3 | 4 |
-|---|---|---|---|---|---|---|
-| Ambition clarity | confirmed_ai_ambition | not_stated | vague | pilot | service_line | enterprise |
-| Workload prioritization | priority_workloads | none | 1 vague | 1-2 specific | 3-4 specific | 5+ prioritized |
-| Strategic urgency | strategic_urgency | low | low | medium | medium | high |
+Before the intake begins, the operator is given a document preparation checklist. The goal: gather what is accessible, organized, and ready to share before Claude begins asking questions. More documents = more signals = higher confidence output.
 
-### Domain 2: Governance and Accountability
-| Signal | Intake field | 0 | 1 | 2 | 3 | 4 |
-|---|---|---|---|---|---|---|
-| Governance state | governance_state | none | forming | partial | partial | operational |
-| CISO involvement | ciso_involvement | none | none | reactive | active | active |
-| Clinical oversight | clinical_ai_oversight | none | none | informal | formal | formal |
-| Model inventory | model_inventory_exists | false | false | unknown | true | true |
-| Post-deployment monitoring | post_deployment_monitoring | none | none | partial | partial | formal |
-
-### Domain 3: Data Readiness and Interoperability
-| Signal | Intake field | 0 | 1 | 2 | 3 | 4 |
-|---|---|---|---|---|---|---|
-| Data readiness | data_readiness | poor | poor | partial | good | strong |
-| Interoperability gaps | interoperability_gaps | many | several | some | few | none |
-| EHR platform maturity | (from profile: Epic live 4 years) | — | — | — | 3 | — |
-
-### Domain 4: Cybersecurity and Third-Party/Vendor Risk
-| Signal | Intake field | 0 | 1 | 2 | 3 | 4 |
-|---|---|---|---|---|---|---|
-| Recent incident | (from profile: breach 6mo ago) | — | 0 | — | — | — |
-| CISO involvement | ciso_involvement | none | reactive | reactive | active | active |
-| Third-party risk process | (inferred from governance_state) | none→0 | forming→1 | partial→2 | partial→2 | operational→4 |
-
-### Domain 5: Clinical Safety and Oversight
-| Signal | Intake field | 0 | 1 | 2 | 3 | 4 |
-|---|---|---|---|---|---|---|
-| Clinical oversight | clinical_ai_oversight | none | none | informal | formal | formal |
-| CMIO involvement | (inferred from governance_state + clinical_ai_oversight) | — | — | — | — | — |
-| Human-in-loop requirements | (inferred from governance_state) | none→0 | forming→1 | partial→2 | partial→2 | operational→4 |
-
-### Domain 6: Infrastructure Scalability
-| Signal | Intake field | 0 | 1 | 2 | 3 | 4 |
-|---|---|---|---|---|---|---|
-| Infrastructure scalability | infrastructure_scalability | limited | limited | moderate | strong | strong |
-| Edge device readiness | edge_device_readiness | none | none | pilot | pilot | scaling |
-| Cloud maturity | (from profile: AWS mature) | — | — | — | 3 | — |
-
-### Domain 7: Operating Model and Change Readiness
-| Signal | Intake field | 0 | 1 | 2 | 3 | 4 |
-|---|---|---|---|---|---|---|
-| Operating model readiness | operating_model_readiness | low | low | medium | medium | high |
-| Change management capacity | change_management_capacity | low | low | medium | medium | high |
-| Hard constraints | hard_constraints | many→0 | several→1 | some→2 | few→3 | none→4 |
-
-### Domain 8: RFP/Procurement Readiness
-| Signal | Intake field | 0 | 1 | 2 | 3 | 4 |
-|---|---|---|---|---|---|---|
-| RFP experience | rfp_experience | none | none | limited | limited | experienced |
-| Requirements defined | procurement_requirements_defined | false | false | partial | partial | true |
-| Governance gate for procurement | (inferred from governance_state) | none→0 | forming→1 | partial→2 | partial→2 | operational→4 |
+This phase is not a gate — the operator can proceed with whatever they have. But the output quality reflects the evidence quality, and that is visible in the confidence scores. A Low confidence score on a critical domain is a signal to go get the document.
 
 ---
 
-## frontend_implementation_requirements
+### Document Preparation Checklist
 
-### Page 1: Landing (btcompass.ai)
-- BT Compass AI logo + tagline
-- Problem statement: "Health system CIOs are making AI infrastructure decisions without a structured framework."
-- CTA button: "Start Your AI Infrastructure Assessment"
-- Brief credibility copy (domain expertise, not generic AI tool)
-- Link to breakthroughcompass.com for full company context
-
-### Page 2: Intake chat (/assessment)
-- Session initialized on page load (generate UUID, store in sessionStorage)
-- Chat interface: user message input at bottom, conversation history above
-- Organization name pre-populated from URL param if provided (?org=Southside)
-- Each message: POST to n8n webhook, display response when received
-- Loading indicator while waiting for n8n response
-- PHI attestation banner (always visible): "Do not enter patient data, PHI, employee data, or NDA-restricted information."
-- When intake_complete = true: show "Assessment complete — generating your scorecard" → navigate to output page
-
-### Page 3: Output (/results?session=[id])
-**Section 1: Executive Summary**
-- 3-4 sentence summary at top, large readable font
-
-**Section 2: Readiness Scorecard**
-- 8 domain cards in 2×4 grid
-- Each card: domain name, score (X.X / 4), color badge, confidence level, 1-line interpretation
-- Click to expand: full interpretation, evidence gaps, next action, RFP categories
-
-**Section 3: Scenario Brief**
-- Three scenario cards (Pilot Acceleration, Service-Line Scale, Enterprise Foundation)
-- Recommended path highlighted with rationale
-- Comparison table (6 dimensions × 3 scenarios)
-
-**Section 4: RFP Starter Categories**
-- 5-7 requirement categories listed with brief description
-
-**Section 5: Actions**
-- "Download Full Brief (PDF)" button → triggers pdf_url download
-- "Start New Assessment" link
-
-### Page 4: No separate page needed — PDF download from output page
+**Instructions:** Review this list and gather what you can before starting the assessment. Place gathered documents in your designated local assessment folder. You do not need everything — gather what is accessible. More is better. The assessment will tell you where your evidence is thin.
 
 ---
 
-## human_in_loop_requirements
+#### Priority 1 — Most Valuable (gather these first)
 
-| Gate | Implementation | Behavior |
+| Document | Why it matters | Where to find it |
 |---|---|---|
-| PHI acknowledgment | Banner on chat page (always visible) + confirmation on any document-related question | Claude is instructed to never accept PHI; banner is always shown |
-| Workload classification confirmation | Claude asks "I'm classifying this as [X] — confirm or revise?" before generating | n8n waits for confirmation response before triggering scoring |
-| Output review | Output page is shown before PDF is offered | Operator sees full scorecard before downloading |
+| AI strategy or AI roadmap | Defines ambition, use cases, timelines — orients the entire assessment | CIO office, strategic planning |
+| IT strategic plan (current year) | Shows how AI fits into broader IT priorities and budget constraints | CIO office, PMO |
+| Technology stack inventory or CMDB summary | Identifies current platforms, cloud posture, integration landscape | IT operations, architecture team |
+| AI use case proposals or project briefs in progress | If you already have proposals, they are the starting point | CIO, PMO, clinical informatics |
+| IT budget (current fiscal year, redacted as needed) | Validates whether budget expectations are realistic | Finance, IT director |
+| EHR platform contract and current module list | Reveals integration capabilities, vendor relationship, AI-adjacent tools already licensed | IT, contracts team |
+
+#### Priority 2 — High Value
+
+| Document | Why it matters | Where to find it |
+|---|---|---|
+| AI governance policy or charter (if exists) | Reveals governance maturity — or the gap | CIO, CISO, legal/compliance |
+| Data governance policy | Reveals data readiness posture | Data/analytics team, compliance |
+| CISO's AI/vendor risk policy or assessment framework | Critical for cybersecurity domain scoring | CISO office |
+| Active or recent AI pilot reports | Shows what has worked, what has failed — calibrates realism | Clinical informatics, PMO |
+| Cloud strategy document | Reveals infrastructure scalability posture | Infrastructure, architecture |
+| Active technology vendor contracts (titles and scope only) | Identifies vendor dependencies and existing relationships | Contracts, procurement |
+
+#### Priority 3 — Useful if Accessible
+
+| Document | Why it matters | Where to find it |
+|---|---|---|
+| Recent cybersecurity audit or penetration test summary (executive summary only) | Calibrates security posture | CISO |
+| Data warehouse or data platform architecture overview | Reveals data readiness depth | Data/analytics, architecture |
+| Change management or organizational readiness assessments | Informs operating model domain | HR, transformation office |
+| RFP documents from recent technology procurements | Shows procurement maturity and specification quality | Procurement, IT |
+| Board or executive AI briefings (if any) | Reveals executive mandate clarity | CIO office, board secretary |
+| Clinical informatics strategic plan | Reveals clinical safety and oversight domain posture | Clinical informatics, CMIO |
 
 ---
 
-## quality_risk_testing_specifications
+## intake_specifications
 
-### Test scenario: Southside Academic Health Network
-**Input:** Fragmented governance + recent cybersecurity breach + high AI ambition + cancer pavilion timeline + margin pressure
-**Expected scoring:**
-- Governance: ≤2.0 (Orange) — fragmented governance
-- Cybersecurity: ≤1.5 (Orange/Red) — recent breach
-- Infrastructure: ~3.0 (Yellow) — AWS mature, but edge pilot only
-- RFP Readiness: ≤2.0 (Orange) — no formal procurement process
+### Public data enrichment (before questions begin)
 
-**Pass criteria:**
-- [ ] Governance domain scores Orange or Red (not Green)
-- [ ] Cybersecurity domain scores Orange or Red
-- [ ] Recommended path surfaces governance as a prerequisite, not an afterthought
-- [ ] Three scenarios are meaningfully differentiated (not three versions of the same advice)
-- [ ] Domain expert reviewing output would say "this is more specific and useful than HIMSS INFRAM"
+When the operator identifies their health system, the assessment agent performs a public data lookup before asking any intake questions. The agent presents what it found — not as confirmed fact, but as a starting baseline — and asks the operator to confirm, correct, or expand.
 
-### Quality risk validation questions (show to advisor after demo)
-1. Does anything feel fatally wrong about how health systems work?
-2. Are the domain scores calibrated correctly for this type of organization?
-3. Would a CIO find the scorecard useful in a governance or board conversation?
-4. Is the Scenario Brief specific enough to this organization, or does it feel generic?
+**What the agent looks up:**
+- Organization size (beds, facilities, geography)
+- EHR platform and vendor relationship
+- Health system affiliation and ownership structure
+- Publicly known AI initiatives, pilots, or announcements
+- Recent news relevant to cybersecurity, financial position, or strategic direction
+- CMS data where available (star ratings, program participation)
 
----
+**How it is presented:**
 
-## error_handling_requirements
+> "Before I ask you questions, I looked up what is publicly known about [Health System Name]. Here is what I found. Please confirm, correct, or add context — this becomes the starting baseline for your assessment."
+>
+> - **Size:** [X] licensed beds across [Y] facilities in [geography] — *confirm or correct?*
+> - **EHR:** [Platform and version if known] — *confirm or correct?*
+> - **Known AI activity:** [Public announcements, vendor partnerships, press releases] — *confirm, correct, or flag as outdated?*
+> - **Recent relevant news:** [Cybersecurity incidents, financial news, leadership changes] — *anything to add or clarify?*
 
-| Error condition | Handling |
-|---|---|
-| n8n webhook timeout (>30s) | Frontend shows retry button; n8n logs error |
-| Claude API failure | n8n catches error, returns "Assessment temporarily unavailable — please retry" |
-| PDF generation failure | Skip PDF, show "PDF unavailable — copy output manually" message; assessment still usable |
-| Incomplete intake (user abandons mid-session) | No scoring triggered; session data not persisted |
-| Claude returns invalid JSON | n8n code node validates JSON before passing to scoring; fallback to raw text display |
+The operator corrects or confirms each item. Corrections are recorded in session_context as operator-confirmed (higher confidence than public data). Items the operator cannot confirm are flagged as unverified.
+
+**Data sources:** Web search, CMS public databases, health system public websites, press releases, industry news.
 
 ---
 
-## success_criteria_and_testing
+### Assessment mode selection
 
-**Pre-demo checklist:**
-- [ ] btcompass.ai loads branded landing page
-- [ ] "Start Assessment" navigates to chat page
-- [ ] Chat message sends and receives Claude response in <15 seconds
-- [ ] Intake completes in 8–12 exchanges for the Southside scenario
-- [ ] Scoring engine calculates all 8 domain scores correctly
-- [ ] Output page displays scorecard with correct colors
-- [ ] Scenario Brief contains three distinct scenarios
-- [ ] PDF downloads successfully
-- [ ] Full demo arc (problem → intake → scorecard → brief → PDF) runs in under 10 minutes
+After sovereign environment acknowledgment and public data enrichment, the agent presents the four modes and asks the operator to select one. The selected mode shapes which questions are prioritized, how deep each domain goes, and what the output emphasizes.
 
-**Demo run checklist (June 18 dry run):**
-- [ ] Run full Southside scenario end-to-end
-- [ ] Verify governance and cybersecurity domains score Orange or Red
-- [ ] Verify recommended path mentions governance prerequisites
-- [ ] Verify PDF is readable and CIO-ready
-- [ ] Verify 8-minute demo arc fits the presentation
-- [ ] Prepare fallback: screenshot of output page if live demo has connectivity issues
+---
+
+### Domain intake questions (comprehensive)
+
+Each domain has a primary question set and a follow-up set. The agent adapts — if the operator's answer reveals depth, follow-ups go deeper. If the answer reveals a gap, follow-ups focus on understanding the gap's scope and cause. The agent does not rush through questions to reach scoring.
+
+---
+
+**Domain 1: AI Strategy and Use-Case Clarity**
+
+Primary questions:
+1. What specific AI workloads or use cases are driving this assessment? (List them — we'll come back to each)
+2. Who is driving AI investment interest — CEO, board, clinical champion, vendor pressure, or internal IT initiative?
+3. How would you characterize your AI ambition for the next 24 months — pilot and learn, scale within a domain, or build enterprise-wide AI infrastructure?
+4. Are there board or executive mandates that shape what you must do, or cannot do, with AI?
+5. Is there a written AI strategy or roadmap? If so, what does it prioritize?
+
+Follow-ups:
+- If multiple use cases listed: Which use case is the highest priority and why?
+- If vendor-driven: What has the vendor committed to in terms of implementation support and outcomes?
+- If board mandate mentioned: What is the board's success metric — and by when?
+
+---
+
+**Domain 2: Governance and Accountability**
+
+Primary questions:
+1. Does your organization have a formal AI governance body — a committee, council, or defined decision authority for AI?
+2. What is the process for approving a new AI tool — who decides, what criteria, how long does it take?
+3. Do you maintain an inventory of AI tools currently in use across the organization?
+4. Who is accountable when an AI tool performs incorrectly or causes a harm — is there a named owner?
+5. Does your organization have a post-deployment monitoring process for AI tools once they go live?
+
+Follow-ups:
+- If governance body exists: How often does it meet, who chairs it, and does it have authority to block AI procurement?
+- If no formal process: How have AI tool approvals happened so far — informal, ad hoc?
+- If no inventory: Do individual departments manage their own AI tools without central IT visibility?
+
+---
+
+**Domain 3: Data Readiness and Interoperability**
+
+Primary questions:
+1. Which EHR platform are you on, and what version or release cycle are you on?
+2. Do you have a centralized data warehouse, data lake, or analytics platform? Who manages it?
+3. How would you describe your data quality posture — is structured clinical data reliable and complete?
+4. What are your most significant data interoperability challenges today?
+5. Are your data systems primarily cloud-hosted, on-premises, or hybrid?
+
+Follow-ups:
+- If Epic: What Epic AI Marketplace tools are you already using or have access to?
+- If data quality issues noted: Which domains are worst — clinical, operational, claims, or imaging?
+- If cloud mentioned: Which cloud platform — AWS, Azure, Google? What AI services are you already using?
+
+---
+
+**Domain 4: Cybersecurity and Third-Party/Vendor Risk**
+
+Primary questions:
+1. Is your CISO actively involved in AI procurement and deployment decisions?
+2. What is your process for assessing the security of a new AI vendor before contracting?
+3. Has your organization experienced a significant cybersecurity incident in the past 24 months?
+4. Do you have a formal third-party risk management program that applies to AI vendors?
+5. What security and data handling requirements do you currently impose on AI vendors in contracts?
+
+Follow-ups:
+- If recent incident: Has the incident changed your posture toward third-party AI tools?
+- If no CISO involvement: Who in IT is responsible for AI vendor security review?
+- If weak third-party program: Has an AI vendor ever been deployed without a formal security review?
+
+---
+
+**Domain 5: Clinical Safety and Oversight**
+
+Primary questions:
+1. Is your CMIO, clinical informatics team, or clinical quality team involved in AI tool selection and validation?
+2. What is your process for validating that a clinical AI tool performs acceptably before it goes live?
+3. Do your AI tools in clinical settings require a human to review and confirm AI outputs before action is taken?
+4. Does your organization have a policy or requirement for monitoring AI tools for bias or equity concerns?
+5. When a clinical AI tool produces a wrong answer, who is accountable and how is it reported?
+
+Follow-ups:
+- If no clinical involvement: Have clinical AI tools been purchased and deployed by IT without clinical validation?
+- If human-in-loop: What does that actually look like — is it a genuine checkpoint or a checkbox?
+- If no bias monitoring: Are there specific patient populations or workflows where this is a known risk?
+
+---
+
+**Domain 6: Infrastructure Scalability**
+
+Primary questions:
+1. Is your compute infrastructure primarily on-premises, cloud, or hybrid — and what is your direction of travel?
+2. Do you have dedicated compute capacity for AI workloads, or would new AI workloads compete with production systems?
+3. What is the state of your network infrastructure for AI workloads — bandwidth, latency, segmentation?
+4. Do you have any edge AI or device-level AI deployed today (smart rooms, imaging AI at the device, etc.)?
+5. What is your disaster recovery and business continuity posture for AI-dependent clinical workflows?
+
+Follow-ups:
+- If cloud: What percentage of AI-relevant workloads are currently cloud-hosted?
+- If on-prem: Is there a defined cloud migration plan, and does it include AI workloads?
+- If edge mentioned: What are the device management and security challenges at the edge?
+
+---
+
+**Domain 7: Operating Model and Change Readiness**
+
+Primary questions:
+1. Does your organization have a defined operating model for AI — who owns AI tools post-deployment, who trains staff, who manages vendor relationships?
+2. How would you characterize your organization's change management capacity — is change managed well, or is adoption the frequent point of failure?
+3. Who holds executive sponsorship for AI initiatives — is there a named leader with authority and accountability?
+4. What hard constraints shape what is possible — financial pressure, active EHR migration, regulatory investigation, staffing gaps, or others?
+5. What has your experience been with technology adoptions that failed or underdelivered — what typically goes wrong?
+
+Follow-ups:
+- If no operating model: When AI tools go into production, who is actually responsible for them?
+- If change management issues noted: Which stakeholder group is hardest to move — clinical, administrative, or IT?
+- If constraints mentioned: Which constraint is most likely to stop an AI initiative in its tracks?
+
+---
+
+**Domain 8: RFP/Procurement Readiness**
+
+Primary questions:
+1. What is your current RFP process for a technology procurement of this scale — who leads it, who is involved, how long does it take?
+2. Have you run an AI-specific RFP before? If yes — what did you learn? If no — what concerns you most about the process?
+3. How well-defined are your AI requirements before you go to market — do you start with clear specifications or with vendor conversations?
+4. What is your vendor evaluation process — scoring criteria, proof-of-concept requirements, reference checks?
+5. Does your procurement process include governance gates — approval checkpoints before a contract is signed?
+
+Follow-ups:
+- If experienced: What requirements from past RFPs turned out to be wrong or missing?
+- If no experience: What do you need to have in place before you can issue an RFP?
+- If requirements unclear: How do you define success criteria for a new AI vendor?
+
+---
+
+### Document processing
+
+After intake questions are complete (or concurrent, for operators who have documents ready), Claude reads operator-provided documents from the designated local folder.
+
+**Process:**
+1. Operator places documents in the local assessment folder before the session or at the document step
+2. Claude reads each document using MCP file access tools — no transmission outside the environment
+3. Claude extracts domain signals from each document, citing source document and section for each signal
+4. Document signals are combined with intake responses in the session_context object
+5. Where documents contradict intake responses, Claude surfaces the discrepancy and asks the operator to resolve it
+6. Confidence is upgraded when documents provide direct evidence for a signal
+
+**Document types Claude can productively process:**
+- Strategy documents (AI roadmap, IT strategic plan, digital transformation plan)
+- Governance documents (AI governance charter, data governance policy, risk frameworks)
+- Technical documents (technology stack inventory, architecture overviews, cloud strategy)
+- Project documents (pilot briefs, after-action reports, RFP templates, vendor assessments)
+- Financial documents (budget summaries — redacted is fine, round numbers are fine)
+- Policy documents (CISO AI policy, third-party risk policy, clinical AI policy)
+
+---
+
+### Baseline confirmation checkpoint
+
+Before scoring begins:
+- Claude presents a structured summary of all confirmed intake responses + document signals per domain
+- Operator reviews each domain's evidence summary
+- Operator confirms, corrects, or adds missing context
+- Only after operator confirmation does scoring begin
+
+---
+
+## scoring_specifications
+
+### Scale
+0–4 Likert, domain-level, rules-based evaluation against rubric.json
+
+| Score | Label | Definition |
+|---|---|---|
+| 0 | Not Started | No formal activity or evidence |
+| 1 | Ad Hoc | Activity exists but inconsistent, undocumented, or individual-dependent |
+| 2 | Defined | Process exists but adoption, authority, or enforcement is limited |
+| 3 | Operational | Process is used, governed, repeatable, tied to accountable owners |
+| 4 | Scaled/Optimized | Enterprise-wide, measured, continuously improved, board-ready |
+
+### Signals per domain
+Each domain has 5–8 scored signals. Each signal maps to one or more intake questions or document evidence types.
+
+### Color mapping
+- 0.0–1.0 → Red (Critical gap — prerequisite work required before AI procurement)
+- 1.1–2.0 → Orange (Significant gap — targeted remediation needed before scale)
+- 2.1–3.0 → Yellow (Developing — gaps are manageable with defined effort)
+- 3.1–3.5 → Yellow-Green (Capable — ready with specific conditions)
+- 3.6–4.0 → Green (Strong — proceed; focus on maintaining as AI scope grows)
+
+### Confidence (separate from maturity)
+Reflects evidence quality and completeness, not readiness level.
+- High: ≥80% of signals have direct evidence from intake + documents
+- Medium: 50–79% direct evidence
+- Low: <50% direct evidence (significant inference required)
+
+A domain can score Green (3.7) with Low confidence if the score was primarily inferred from intake answers without document support. The confidence level tells the CIO how much to trust that score — and signals where to go get the evidence.
+
+### Mode-adjusted scoring
+
+**Proposal Assessment:** Each domain is scored relative to the specific proposal's requirements. A domain that is generally weak but irrelevant to the proposal is noted but does not drive the recommendation.
+
+**Enterprise Foundation:** All 8 domains scored with equal weight. Sequencing recommendations reflect the order in which gaps must be resolved.
+
+**Departmental/Pilot:** Scoped domains scored fully; non-scoped domains scored lightly and flagged as "not assessed for this scope."
+
+**Scale Readiness:** Scores reflect the delta between current pilot-scale posture and production-scale requirements.
+
+---
+
+## output_specifications
+
+### Readiness scorecard (per domain)
+- Score (X.X / 4.0)
+- Readiness color and label
+- Confidence level (High/Medium/Low) with explanation of what is driving confidence
+- Interpretation (4–6 sentences, specific to this organization — not generic advice)
+- Evidence basis (what intake answers and documents support this score)
+- Specific gaps (3–5 named gaps — not categories, but specific things that are missing or unresolved)
+- Recommended next action (one concrete, actionable next step — who does what)
+- Related RFP requirement categories (2–4 categories relevant to this domain's gaps)
+
+### Scenario Brief structure
+
+**Section 1: Confirmed baseline**
+- What is confirmed (high confidence, direct evidence)
+- What is assumed (intake-only, no document support)
+- What is uncertain (operator couldn't answer)
+- What was flagged as a hard constraint
+
+**Section 2: Three investment scenarios**
+- Controlled Pilot Acceleration
+- Department/Service-Line Scale
+- Enterprise AI Foundation
+
+Each scenario: what it supports, what it doesn't, infrastructure implications, governance prerequisites, budget fit, major risks, vendor/reference patterns, RFP implications.
+
+**Section 3: Scenario comparison table**
+Six dimensions × 3 scenarios: Budget fit · Time to value · Governance required · Infrastructure lift · Risk level · Reversibility
+
+**Section 4: Recommended path**
+Specific to this organization's inputs. References their EHR, budget, governance posture, workload types, constraints. Not generic advice. Includes: what must be resolved first, what to avoid buying too early, what to build vs. buy vs. defer.
+
+**Section 5: Questions to bring to vendor conversations**
+5–8 questions tailored to their specific workload types and domain gaps — questions that would surface risks specific to their situation, not generic vendor questions.
+
+**Section 6: What procurement should prepare for**
+Contract structures to understand, data governance requirements to include in RFP language, performance and evaluation criteria, vendor lock-in risks, governance gates before signature.
+
+**Section 7: RFP requirement starter language**
+Draft requirement categories with sample specification language, organized by domain. Operator reviews, edits, and owns before any external use.
+
+### Output format
+- Markdown files written to /output/ directory within the assessment package
+- Scorecard and Scenario Brief as separate files, plus a combined full report
+- PDF: operator converts locally (Pandoc, browser print-to-PDF, or any local tool)
+- Nothing transmitted externally unless the operator explicitly exports it
+
+---
+
+## human_review_checkpoints
+
+| Checkpoint | What the operator sees | What they decide |
+|---|---|---|
+| Sovereign environment acknowledgment | Five-item checklist — one-time, session-start | Confirm all five before proceeding |
+| Mode selection | Four assessment modes described | Choose entry point |
+| Public data review | Agent presents public profile baseline | Confirm, correct, or expand each item |
+| Baseline confirmation | Full summary of intake + document signals per domain | Confirm, correct, or add missing context |
+| Workload classification | "Based on your inputs, I'm classifying this as [X]. Confirm or revise?" | Confirm or override before scenario generation |
+| Scenario Brief review | Full output displayed before any export | Review and approve; note assumptions to surface |
+
+---
+
+## vendor_reference_library_specifications
+
+**Format:** Markdown files with structured frontmatter
+**Version:** library_index.md with last-updated date and source metadata
+
+**MVP content (3 reference designs):**
+1. Epic AI Ecosystem — Epic Cognitive Computing, AI Marketplace, DAX, Cheers, NLP models
+2. AWS Health AI — HealthLake, SageMaker health patterns, Bedrock for health, reference architectures
+3. Microsoft Azure Health — Azure Health Data Services, Azure AI health patterns, Teams-integrated care
+
+**Each reference design includes:**
+- Deployment models (cloud / hybrid / on-prem / edge)
+- EHR and integration dependencies
+- Governance prerequisites
+- Security and privacy assumptions
+- Best-fit health system profile
+- Contraindications (poor-fit conditions)
+- Typical procurement requirements
+- Evidence strength and source
+- Version and last-updated
+
+---
+
+## package_structure
+
+```
+/assessment-package/
+  workflow/
+    assessment_workflow.md          # Step-by-step operator guide (Phases 0–5)
+    document_prep_checklist.md      # Printable one-page document prep list
+
+  prompts/
+    intake_system_prompt.md         # System prompt: intake agent behavior + rules
+    public_data_lookup_prompt.md    # Prompt: how to look up and present public org data
+    scoring_prompt.md               # Prompt: signal extraction from intake + documents
+    interpretation_prompt.md        # Prompt: domain interpretation, gaps, next actions
+    scenario_brief_prompt.md        # Prompt: three-scenario Scenario Brief generation
+
+  scoring/
+    rubric.json                     # 8 domains × 5–8 signals, 0–4 scale definitions
+    confidence_rules.md             # Confidence calculation rules
+    color_mapping.md                # Score → traffic-light color mapping
+
+  reference_library/
+    library_index.md                # Version, last-updated, source metadata
+    epic_ai_ecosystem.md
+    aws_health_ai.md
+    azure_health_foundation.md
+    vendor_evaluation_criteria.md
+
+  templates/
+    scenario_brief_template.md
+    scorecard_template.md
+    assumptions_template.md
+    rfp_requirements_template.md
+
+  sample_docs/
+    README.md                       # Document types the tool can process; example formats
+    example_ai_strategy_excerpt.md  # Illustrative (not org-specific)
+    example_governance_charter.md
+    example_infrastructure_overview.md
+
+  output/                           # Assessment outputs written here
+    .gitkeep
+
+  SOVEREIGN_ENVIRONMENT_NOTICE.md  # What this tool does and does not do; deployment requirements
+```
+
+---
+
+## definition_of_done
+
+- [ ] Phase 0 document prep checklist is printable, organized by priority tier, and honest about what improves output quality
+- [ ] Sovereign environment acknowledgment presents as a five-item checklist at session start — not per-document gates
+- [ ] Operator selects assessment mode and intake adapts accordingly
+- [ ] Agent looks up public data before asking questions and presents each item for confirmation
+- [ ] Operator corrections to public data are recorded as higher-confidence than public source
+- [ ] Multiple questions are asked per domain — primary + follow-ups based on answers
+- [ ] Intake adapts based on what the operator says (follow-ups fire when the answer warrants depth)
+- [ ] Documents are read locally, signals extracted with source citations
+- [ ] Where documents contradict intake, discrepancy is surfaced for operator resolution
+- [ ] Baseline confirmation checkpoint shows evidence per domain before scoring begins
+- [ ] Workload classification confirmation works before scenario generation
+- [ ] All 8 domains score with colors and confidence levels
+- [ ] Confidence is separate from maturity — a Green domain can carry Low confidence
+- [ ] Scorecard interpretations are specific to this organization — not generic advice
+- [ ] Evidence gaps are specific named gaps, not category-level observations
+- [ ] Three scenarios are meaningfully differentiated with specific procurement implications
+- [ ] Section 7 of Scenario Brief includes draft RFP requirement language per domain
+- [ ] Output is written to local /output/ directory as markdown
+- [ ] A health system CIO or CISO receiving this output would say it is more credible and useful than a HIMSS INFRAM survey
+
+---
+
+## build_sequence
+
+- June 14: scoring/rubric.json (full signal set, 5–8 per domain) + prompts/intake_system_prompt.md + prompts/public_data_lookup_prompt.md + workflow/assessment_workflow.md + workflow/document_prep_checklist.md
+- June 15: prompts/scoring_prompt.md + prompts/interpretation_prompt.md + reference_library/ (3 designs + index) + scoring/confidence_rules.md
+- June 16: prompts/scenario_brief_prompt.md + templates/ (all 4) + end-to-end run-through in one mode
+- June 17: sample_docs/ + SOVEREIGN_ENVIRONMENT_NOTICE.md + full run-through across all 4 modes
+- June 18: Demo dry run, refinement, fallback preparation
+- June 19: Demo

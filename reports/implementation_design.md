@@ -42,9 +42,7 @@
 - Min 6–7: Show readiness scorecard (8 domains, 0–4 scores, traffic-light colors, confidence levels, evidence gaps, next actions)
 - Min 7–8: Show RFP translation (sample requirement categories — not full library, not backend logic)
 
-**Demo scenario:** Southside Academic Health Network (synthetic) — AI-forward academic medical center, Epic, mature research data, smart-room/edge ambition, ambient documentation, radiology AI, fragmented governance, recent third-party cybersecurity breach, margin pressure, cancer pavilion timeline.
-**Demo question:** "Is this organization ready to issue an AI infrastructure RFP, or does it need governance and architecture remediation first?"
-**Demo answer:** "Proceed toward RFP, but only if mandatory requirements are included for AI governance, cyber/vendor risk, Epic/data integration, edge-device AI, clinical validation, post-deployment monitoring, and change management."
+**Demo approach:** The operator enters their own health system information through the guided intake. No preloaded scenario, no pre-scripted answers. The assessment adapts to whatever the operator provides. The demo proves the pattern works — that the tool can take any health system's real inputs and produce a specific, useful output.
 
 **IP protection:** Show intake experience, Scenario Brief, scorecard, high-level RFP categories. Do not show full prompt chain, scoring algorithm, weighting model, full rubric library, or n8n workflow details.
 
