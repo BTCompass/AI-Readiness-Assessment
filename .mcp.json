@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "btcompass": {
+      "command": "uv",
+      "args": ["run", "python", "main.py"],
+      "cwd": "/home/hpext/ai-agent-project/mcp-server",
+      "env": {
+        "PATH": "/home/hpext/.local/bin:/usr/bin:/bin"
+      }
+    }
+  }
+}
