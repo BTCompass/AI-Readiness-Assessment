@@ -6,6 +6,15 @@
   <title>BT Compass · Slide 7 Market &amp; Revenue</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    /*
+      TEXT COLOR SYSTEM (matches slide 3):
+      #FFFFFF  → primary   (titles, totals, key numbers)
+      #D1E4F5  → high      (stream names, segment totals, body content)
+      #9DB8D0  → medium    (sub-labels, descriptions, segment lines)
+      #6A90AB  → low       (muted info, year labels, source notes)
+      #4A7090  → dim       (fine print, truly background info — still legible)
+    */
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
@@ -18,49 +27,42 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── Slide shell ── */
     .slide {
       width: 1400px;
       height: 787px;
       background: linear-gradient(150deg, #071120 0%, #0C1A2E 55%, #071018 100%);
-      padding: 32px 48px 28px;
+      padding: 32px 48px 24px;
       position: relative;
       overflow: hidden;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
     }
-
     .slide::before {
       content: '';
-      position: absolute;
-      inset: 0;
+      position: absolute; inset: 0;
       background-image: radial-gradient(circle at 1px 1px, rgba(96,165,250,0.04) 1px, transparent 0);
       background-size: 32px 32px;
       pointer-events: none;
     }
-    .glow  { position: absolute; top: -80px;  left: -60px;  width: 420px; height: 420px; background: radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 65%);  pointer-events: none; }
-    .glow2 { position: absolute; bottom: -60px; right: -40px; width: 340px; height: 340px; background: radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 65%); pointer-events: none; }
+    .glow  { position: absolute; top: -80px;   left: -60px;   width: 420px; height: 420px; background: radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 65%);  pointer-events: none; }
+    .glow2 { position: absolute; bottom: -60px; right: -40px;  width: 340px; height: 340px; background: radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 65%); pointer-events: none; }
 
     /* ── Header ── */
     .slide-header {
       position: relative; z-index: 2;
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 20px; flex-shrink: 0;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 18px; flex-shrink: 0;
     }
     .slide-title    { font-size: 26px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px; }
     .slide-subtitle { font-size: 13px; font-weight: 400; color: #6A90AB; margin-top: 4px; }
+    .source-note    { font-size: 10.5px; font-weight: 400; color: #4A7090; text-align: right; margin-top: 6px; }
 
-    .source-note {
-      font-size: 10px; font-weight: 400; color: #3A5A78;
-      text-align: right; line-height: 1.5;
-    }
-
-    /* ── Body: two rows ── */
-    .body { display: flex; flex-direction: column; gap: 16px; flex: 1; position: relative; z-index: 2; }
+    /* ── Layout body ── */
+    .body { display: flex; flex-direction: column; gap: 14px; flex: 1; position: relative; z-index: 2; min-height: 0; }
 
     /* ══════════════════════════════════
-       ROW 1 — MARKET SEGMENTS (3 cards)
+       MARKET SEGMENT CARDS
     ══════════════════════════════════ */
     .market-row {
       display: grid;
@@ -72,213 +74,160 @@
     .seg-card {
       border-radius: 12px;
       border: 1px solid;
-      padding: 16px 18px;
+      padding: 14px 18px;
       position: relative;
       overflow: hidden;
     }
     .seg-card::before {
       content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      border-radius: 12px 12px 0 0;
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; border-radius: 12px 12px 0 0;
     }
 
-    /* Enterprise — blue */
-    .seg-enterprise {
-      background: rgba(59,130,246,0.07);
-      border-color: rgba(59,130,246,0.22);
-    }
+    .seg-enterprise { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.25); }
     .seg-enterprise::before { background: linear-gradient(90deg, #1D4ED8, #60A5FA); }
 
-    /* SME — teal */
-    .seg-sme {
-      background: rgba(16,185,129,0.07);
-      border-color: rgba(16,185,129,0.22);
-    }
+    .seg-sme { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.25); }
     .seg-sme::before { background: linear-gradient(90deg, #059669, #34D399); }
 
-    /* SMB — purple */
-    .seg-smb {
-      background: rgba(139,92,246,0.07);
-      border-color: rgba(139,92,246,0.22);
-    }
+    .seg-smb { background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.25); }
     .seg-smb::before { background: linear-gradient(90deg, #6D28D9, #A78BFA); }
 
     .seg-label {
-      font-size: 9px; font-weight: 800; letter-spacing: 1.5px;
-      text-transform: uppercase; margin-bottom: 6px;
+      font-size: 9.5px; font-weight: 800;
+      letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 6px;
     }
     .seg-enterprise .seg-label { color: #60A5FA; }
-    .seg-sme       .seg-label { color: #34D399; }
-    .seg-smb       .seg-label { color: #A78BFA; }
+    .seg-sme        .seg-label { color: #34D399; }
+    .seg-smb        .seg-label { color: #A78BFA; }
 
     .seg-total {
-      font-size: 28px; font-weight: 800; color: #FFFFFF;
-      letter-spacing: -1px; line-height: 1; margin-bottom: 10px;
+      font-size: 30px; font-weight: 800; color: #FFFFFF;
+      letter-spacing: -1px; line-height: 1.1; margin-bottom: 10px;
     }
-    .seg-total span { font-size: 14px; font-weight: 600; margin-left: 3px; color: #9DB8D0; }
+    .seg-total span { font-size: 14px; font-weight: 600; margin-left: 4px; color: #9DB8D0; }
 
-    .seg-lines { display: flex; flex-direction: column; gap: 4px; }
-    .seg-line  {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 10.5px; padding: 3px 0;
+    .seg-lines { display: flex; flex-direction: column; gap: 5px; }
+    .seg-line {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 11px; padding-bottom: 5px;
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    .seg-line:last-child { border-bottom: none; }
-    .seg-line-name  { color: #9DB8D0; font-weight: 400; }
-    .seg-line-count { font-weight: 700; }
+    .seg-line:last-child { border-bottom: none; padding-bottom: 0; }
+    .seg-line-name  { color: #9DB8D0; font-weight: 400; padding-right: 12px; line-height: 1.4; }
+    .seg-line-count { font-size: 12px; font-weight: 700; white-space: nowrap; }
     .seg-enterprise .seg-line-count { color: #93C5FD; }
     .seg-sme        .seg-line-count { color: #6EE7B7; }
     .seg-smb        .seg-line-count { color: #C4B5FD; }
 
     /* ══════════════════════════════════
-       ROW 2 — REVENUE TABLE
+       REVENUE TABLE
     ══════════════════════════════════ */
     .revenue-section {
-      background: #0C1E32;
+      background: #102030;
       border: 1px solid #1E3A58;
       border-radius: 12px;
       overflow: hidden;
       flex: 1;
       display: flex;
       flex-direction: column;
+      min-height: 0;
     }
 
     .rev-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 22px;
       background: #091828;
       border-bottom: 1px solid #1E3A58;
       flex-shrink: 0;
     }
-    .rev-header-title {
-      font-size: 11px; font-weight: 700; color: #FFFFFF;
-      text-transform: uppercase; letter-spacing: 1px;
-    }
-    .rev-header-note {
-      font-size: 10px; font-weight: 400; color: #4A7090;
-    }
+    .rev-header-title { font-size: 11px; font-weight: 700; color: #FFFFFF; text-transform: uppercase; letter-spacing: 1px; }
+    .rev-header-note  { font-size: 10.5px; font-weight: 400; color: #6A90AB; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      flex: 1;
-    }
+    table { width: 100%; border-collapse: collapse; }
 
-    /* Column header row */
-    thead tr {
-      background: #091828;
-      border-bottom: 1px solid #1E3A58;
-    }
+    thead tr { background: #091828; border-bottom: 2px solid #1E3A58; }
     thead th {
-      padding: 10px 20px;
-      font-size: 10px; font-weight: 700;
+      padding: 10px 22px;
+      font-size: 11px; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.8px;
-      color: #6A90AB;
       text-align: left;
     }
     thead th.num { text-align: right; }
-
-    /* Year labels */
+    thead th.col-stream { color: #6A90AB; }
     thead th.y1 { color: #4A7090; }
     thead th.y2 { color: #6A90AB; }
     thead th.y3 { color: #9DB8D0; }
     thead th.y5 { color: #60A5FA; }
 
-    /* Body rows */
-    tbody tr {
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
+    tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
     tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    tbody tr.vendor-row { background: rgba(251,191,36,0.05); }
 
-    /* Vendor row — subtle highlight */
-    tbody tr.vendor-row { background: rgba(251,191,36,0.04); }
-    tbody tr.vendor-row:hover { background: rgba(251,191,36,0.07); }
+    td { padding: 12px 22px; vertical-align: middle; }
 
-    td {
-      padding: 11px 20px;
-      font-size: 11.5px;
-      vertical-align: middle;
-    }
-
-    .stream-name {
-      font-weight: 600; color: #D1E4F5;
-    }
-    .stream-price {
-      font-size: 10px; font-weight: 500;
-      color: #4A7090; margin-top: 2px;
-    }
+    /* Stream name column */
+    .stream-name  { font-size: 13px; font-weight: 600; color: #D1E4F5; margin-bottom: 3px; }
+    .stream-desc  { font-size: 11px; font-weight: 400; color: #6A90AB; line-height: 1.45; }
     .vendor-row .stream-name { color: #FDE68A; }
-    .vendor-row .stream-price { color: #78694A; }
+    .vendor-row .stream-desc { color: #8A7440; }
 
+    /* Number cells */
     td.num {
       text-align: right;
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 700;
       font-variant-numeric: tabular-nums;
+      letter-spacing: -0.3px;
     }
-    td.dim   { color: #4A7090; }
-    td.low   { color: #6A90AB; }
-    td.mid   { color: #9DB8D0; }
-    td.high  { color: #DBEAFE; }
-    td.peak  { color: #60A5FA; font-weight: 700; }
+    td.c-dim  { color: #4A7090; }
+    td.c-low  { color: #6A90AB; }
+    td.c-mid  { color: #9DB8D0; }
+    td.c-high { color: #D1E4F5; }
+    td.c-peak { color: #60A5FA; }
 
-    .vendor-row td.dim  { color: #6A5830; }
-    .vendor-row td.low  { color: #78694A; }
-    .vendor-row td.mid  { color: #A08840; }
-    .vendor-row td.high { color: #D4A830; }
-    .vendor-row td.peak { color: #FCD34D; font-weight: 700; }
+    /* Vendor row number overrides */
+    .vendor-row td.c-dim  { color: #6A5830; }
+    .vendor-row td.c-low  { color: #8A7440; }
+    .vendor-row td.c-mid  { color: #B09040; }
+    .vendor-row td.c-high { color: #D4B030; }
+    .vendor-row td.c-peak { color: #FCD34D; }
 
     /* Total row */
-    .total-row { background: rgba(59,130,246,0.08) !important; border-top: 1px solid rgba(59,130,246,0.25) !important; }
-    .total-row td { padding: 12px 20px; }
-    .total-label { font-size: 12px; font-weight: 800; color: #FFFFFF; }
-    .total-row td.num { font-size: 13px; font-weight: 800; }
-    .total-row td.dim   { color: #6A90AB; }
-    .total-row td.low   { color: #9DB8D0; }
-    .total-row td.mid   { color: #DBEAFE; }
-    .total-row td.high  { color: #BFDBFE; }
-    .total-row td.peak  { color: #FFFFFF; font-size: 15px; }
+    .total-row {
+      background: rgba(59,130,246,0.1) !important;
+      border-top: 2px solid rgba(59,130,246,0.3) !important;
+    }
+    .total-row td { padding: 13px 22px; }
+    .total-label  { font-size: 14px; font-weight: 800; color: #FFFFFF; }
 
-    /* Vendor design callout bar */
+    .total-row td.num     { font-size: 15px; font-weight: 800; }
+    .total-row td.c-dim   { color: #6A90AB; }
+    .total-row td.c-low   { color: #9DB8D0; }
+    .total-row td.c-mid   { color: #D1E4F5; }
+    .total-row td.c-high  { color: #DBEAFE; }
+    .total-row td.c-peak  { color: #FFFFFF; font-size: 18px; }
+
+    /* Vendor callout */
     .vendor-callout {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 20px;
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 9px 22px;
       background: rgba(251,191,36,0.06);
       border-top: 1px solid rgba(251,191,36,0.15);
       flex-shrink: 0;
     }
-    .callout-icon { font-size: 13px; }
-    .callout-text {
-      font-size: 10px; font-weight: 500; color: #B89A40;
-      line-height: 1.4;
-    }
+    .callout-icon { font-size: 13px; margin-top: 1px; }
+    .callout-text { font-size: 11px; font-weight: 400; color: #9DB8D0; line-height: 1.5; }
     .callout-text strong { color: #FCD34D; font-weight: 700; }
 
     /* Footer */
     .slide-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 12px;
-      flex-shrink: 0;
-      position: relative;
-      z-index: 2;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 10px; flex-shrink: 0; position: relative; z-index: 2;
     }
-    .total-market {
-      font-size: 11px; font-weight: 500; color: #4A7090;
-    }
-    .total-market strong { color: #9DB8D0; font-weight: 700; }
-
-    .footer-source {
-      font-size: 9.5px; font-weight: 400; color: #2A4060;
-    }
+    .footer-market { font-size: 11px; font-weight: 400; color: #6A90AB; }
+    .footer-market strong { color: #9DB8D0; font-weight: 700; }
+    .footer-source { font-size: 10px; font-weight: 400; color: #3A5A78; }
   </style>
 </head>
 <body>
@@ -290,9 +239,9 @@
   <div class="slide-header">
     <div>
       <div class="slide-title">Market &amp; Revenue Opportunity</div>
-      <div class="slide-subtitle">U.S. healthcare organizations with EHR — multi-site systems counted as one</div>
+      <div class="slide-subtitle">U.S. healthcare organizations with EHR — multi-site systems counted as one entity</div>
     </div>
-    <div class="source-note">Source: AHA Fast Facts 2026 · ONC Health IT Data · Definitive HC</div>
+    <div class="source-note">AHA Fast Facts 2026 &nbsp;·&nbsp; ONC Health IT &nbsp;·&nbsp; Definitive HC &nbsp;·&nbsp; NACHC</div>
   </div>
 
   <div class="body">
@@ -300,13 +249,12 @@
     <!-- MARKET SEGMENTS -->
     <div class="market-row">
 
-      <!-- Enterprise -->
       <div class="seg-card seg-enterprise">
         <div class="seg-label">Corporate Enterprise</div>
         <div class="seg-total">~8,400 <span>orgs</span></div>
         <div class="seg-lines">
           <div class="seg-line">
-            <span class="seg-line-name">Health systems (multi-hospital, as one)</span>
+            <span class="seg-line-name">Health systems (multi-hospital, counted as one)</span>
             <span class="seg-line-count">397</span>
           </div>
           <div class="seg-line">
@@ -316,7 +264,6 @@
         </div>
       </div>
 
-      <!-- SME -->
       <div class="seg-card seg-sme">
         <div class="seg-label">SME — Mid-Market</div>
         <div class="seg-total">~45,000 <span>orgs</span></div>
@@ -336,7 +283,6 @@
         </div>
       </div>
 
-      <!-- SMB -->
       <div class="seg-card seg-smb">
         <div class="seg-label">SMB — Small Practice</div>
         <div class="seg-total">~115,000 <span>orgs</span></div>
@@ -352,19 +298,19 @@
         </div>
       </div>
 
-    </div><!-- /market-row -->
+    </div>
 
     <!-- REVENUE TABLE -->
     <div class="revenue-section">
       <div class="rev-header">
         <div class="rev-header-title">Revenue Model</div>
-        <div class="rev-header-note">Health system validation first · Vendor designs unlocked after audience &amp; stories established</div>
+        <div class="rev-header-note">Vendor designs unlocked after health system adoption &amp; client stories are established</div>
       </div>
 
       <table>
         <thead>
           <tr>
-            <th style="width:38%">Revenue Stream</th>
+            <th class="col-stream" style="width:42%">Revenue Stream</th>
             <th class="num y1">Year 1</th>
             <th class="num y2">Year 2</th>
             <th class="num y3">Year 3</th>
@@ -376,42 +322,42 @@
           <tr>
             <td>
               <div class="stream-name">MCP Kit — One-Time Purchase</div>
-              <div class="stream-price">$499 · Entry point · discounts &amp; promo codes to drive trial</div>
+              <div class="stream-desc">$499 · Entry-point trial · discounts, promo codes, conference giveaways</div>
             </td>
-            <td class="num dim">$25K</td>
-            <td class="num low">$100K</td>
-            <td class="num mid">$250K</td>
-            <td class="num high">$500K</td>
+            <td class="num c-dim">$25K</td>
+            <td class="num c-low">$100K</td>
+            <td class="num c-mid">$250K</td>
+            <td class="num c-high">$500K</td>
           </tr>
 
           <tr>
             <td>
               <div class="stream-name">Annual Subscription</div>
-              <div class="stream-price">$1,999/yr · Includes Kit refreshed quarterly, newsletter, webinars · flat across all tiers</div>
+              <div class="stream-desc">$1,999/yr · Kit refreshed quarterly, newsletter, webinars · flat rate all tiers</div>
             </td>
-            <td class="num dim">$40K</td>
-            <td class="num low">$160K</td>
-            <td class="num mid">$600K</td>
-            <td class="num peak">$3.0M</td>
+            <td class="num c-dim">$40K</td>
+            <td class="num c-low">$160K</td>
+            <td class="num c-mid">$600K</td>
+            <td class="num c-peak">$3.0M</td>
           </tr>
 
           <tr class="vendor-row">
             <td>
               <div class="stream-name">Vendor Reference Designs ✦</div>
-              <div class="stream-price">$9,999/design/yr · Unlocked after health system adoption &amp; documented stories</div>
+              <div class="stream-desc">$9,999/design/yr · Per design per vendor · sequenced after client adoption</div>
             </td>
-            <td class="num dim">—</td>
-            <td class="num low">$80K</td>
-            <td class="num mid">$200K</td>
-            <td class="num peak">$500K</td>
+            <td class="num c-dim">—</td>
+            <td class="num c-low">$80K</td>
+            <td class="num c-mid">$200K</td>
+            <td class="num c-peak">$500K</td>
           </tr>
 
           <tr class="total-row">
             <td><div class="total-label">Total Revenue</div></td>
-            <td class="num dim">$65K</td>
-            <td class="num low">$340K</td>
-            <td class="num mid">$1.05M</td>
-            <td class="num peak">$4.0M</td>
+            <td class="num c-dim">$65K</td>
+            <td class="num c-low">$340K</td>
+            <td class="num c-mid">$1.05M</td>
+            <td class="num c-peak">$4.0M</td>
           </tr>
 
         </tbody>
@@ -420,18 +366,17 @@
       <div class="vendor-callout">
         <span class="callout-icon">✦</span>
         <div class="callout-text">
-          <strong>Vendor design upside:</strong> 100+ healthcare AI vendors (Epic, Microsoft, Oracle Cerner, Nuance, Viz.ai, Health Catalyst) are potential buyers.
-          50 designs × $9,999 = <strong>$500K/yr from one stream</strong> — no health system subscription required.
-          Sequenced after Year 2 adoption to lead with client proof.
+          <strong>Vendor design upside:</strong> 100+ healthcare AI vendors are potential buyers — Epic, Microsoft, Oracle Cerner, Nuance, Viz.ai, Health Catalyst and others.
+          50 designs × $9,999 = <strong>$500K/yr from this stream alone.</strong>
+          Sequenced after Year 2 so health system stories validate the audience before the vendor pitch.
         </div>
       </div>
-    </div><!-- /revenue-section -->
+    </div>
 
   </div><!-- /body -->
 
-  <!-- FOOTER -->
   <div class="slide-footer">
-    <div class="total-market">Total U.S. addressable market: <strong>~168,000 healthcare organizations with EHR</strong> · Year 5 subscription penetration: <strong>0.9%</strong></div>
+    <div class="footer-market">Total U.S. addressable market: <strong>~168,000 healthcare organizations with EHR</strong> &nbsp;·&nbsp; Year 5 subscription penetration: <strong>0.9% of total market</strong></div>
     <div class="footer-source">AHA Fast Facts 2026 · ONC Health IT · Definitive HC · NACHC</div>
   </div>
 
