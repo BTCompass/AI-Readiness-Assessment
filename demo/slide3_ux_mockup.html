@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1400">
+  <title>BT Compass · Slide 3 UX Mock-up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /*
+      TEXT COLOR SYSTEM — dark background rules:
+      #FFFFFF  → primary   (titles, questions, key labels)
+      #D1E4F5  → high      (option text, domain names, body content)
+      #9DB8D0  → medium    (metadata, counters, secondary labels)
+      #6A90AB  → low       (completed/done states, muted info)
+      #4A7090  → dim       (pending states, fine print — still legible)
+    */
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #020810;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Slide shell ── */
+    .slide {
+      width: 1400px;
+      height: 787px;
+      background: linear-gradient(150deg, #071120 0%, #0C1A2E 55%, #071018 100%);
+      padding: 32px 44px 24px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .slide::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 1px 1px, rgba(96,165,250,0.045) 1px, transparent 0);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+    .glow  { position: absolute; top: -100px; left: -60px;   width: 460px; height: 460px; background: radial-gradient(circle, rgba(59,130,246,0.11) 0%, transparent 65%); pointer-events: none; }
+    .glow2 { position: absolute; bottom: -80px; right: -40px; width: 360px; height: 360px; background: radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 65%); pointer-events: none; }
+
+    /* ── Slide header ── */
+    .slide-header {
+      position: relative; z-index: 2;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .slide-title    { font-size: 26px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px; }
+    .slide-subtitle { font-size: 13px; font-weight: 400; color: #6A90AB; margin-top: 4px; }
+
+    .header-badge {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.22);
+      border-radius: 8px; padding: 8px 16px;
+    }
+    .badge-dot  { width: 7px; height: 7px; border-radius: 50%; background: #3B82F6; box-shadow: 0 0 6px #3B82F6; }
+    .badge-text { font-size: 11px; font-weight: 600; color: #93C5FD; letter-spacing: 0.3px; }
+
+    /* ── Panel grid ── */
+    .panels {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;
+      position: relative; z-index: 2; height: 676px;
+    }
+    .panel-wrapper { display: flex; flex-direction: column; }
+
+    .panel-label {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      margin-bottom: 7px;
+    }
+    .label-num {
+      width: 18px; height: 18px; border-radius: 50%; background: #3B82F6;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 800; color: #fff;
+    }
+    .label-text { font-size: 10px; font-weight: 700; color: #93C5FD; letter-spacing: 1.2px; text-transform: uppercase; }
+
+    /* Panel card — slightly lighter bg for better contrast */
+    .panel {
+      background: #102030;
+      border: 1px solid #1E3A58;
+      border-radius: 14px; overflow: hidden;
+      flex: 1; display: flex; flex-direction: column;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, 0 12px 40px rgba(0,0,0,0.5);
+    }
+
+    /* Browser chrome */
+    .panel-chrome {
+      background: #091828;
+      padding: 9px 14px; display: flex; align-items: center; gap: 6px;
+      border-bottom: 1px solid #162E48; flex-shrink: 0;
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; }
+    .dot-r { background: #FF5F57; }
+    .dot-y { background: #FEBC2E; }
+    .dot-g { background: #28C840; }
+    .chrome-bar {
+      flex: 1; background: #0D2035; border-radius: 4px;
+      padding: 3px 10px; font-size: 9px;
+      color: #4A7090;   /* dim but legible */
+      margin-left: 6px; font-family: 'Inter', monospace;
+      overflow: hidden; white-space: nowrap;
+    }
+
+    .panel-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+
+    /* ══════════════════════════════════
+       PANEL 1 — Assessment Hub
+    ══════════════════════════════════ */
+    .hub-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+
+    .brand { display: flex; align-items: center; gap: 8px; }
+    .brand-mark {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, #3B82F6, #1E40AF);
+      border-radius: 7px; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: #fff;
+      box-shadow: 0 3px 10px rgba(59,130,246,0.4);
+    }
+    .brand-name { font-size: 13px; font-weight: 700; color: #FFFFFF; }
+
+    .hs-chip {
+      font-size: 9.5px; font-weight: 500; color: #9DB8D0;
+      background: #0D2035; border: 1px solid #1E3A58; border-radius: 5px; padding: 3px 9px;
+    }
+
+    .mode-tag {
+      display: inline-block; font-size: 10px; font-weight: 600;
+      color: #60A5FA; background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.22); border-radius: 4px;
+      padding: 4px 10px; margin-bottom: 12px;
+    }
+
+    .prog-label-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .prog-label-row span   { font-size: 10px; font-weight: 500; color: #9DB8D0; }
+    .prog-label-row strong { font-size: 10px; font-weight: 700; color: #DBEAFE; }
+
+    .prog-track { height: 6px; background: #1A3550; border-radius: 3px; overflow: hidden; margin-bottom: 14px; }
+    .prog-fill  { height: 100%; width: 62.5%; background: linear-gradient(90deg, #1D4ED8, #60A5FA); border-radius: 3px; }
+
+    .domain-list { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+
+    .di {
+      display: flex; align-items: center; gap: 9px;
+      padding: 7px 10px; border-radius: 7px; border: 1px solid transparent;
+      font-size: 11px; font-weight: 400;
+    }
+    /* done — clearly readable, just not the star */
+    .di.done   { color: #9DB8D0; }
+    /* active — bright and highlighted */
+    .di.active {
+      background: rgba(59,130,246,0.13); border-color: rgba(59,130,246,0.32);
+      border-left: 3px solid #3B82F6;
+      color: #BFDBFE; font-weight: 600;
+    }
+    /* todo — dim but still readable */
+    .di.todo   { color: #6A90AB; }
+
+    .di-icon { font-size: 12px; flex-shrink: 0; }
+    .di-here {
+      margin-left: auto; font-size: 8.5px; font-weight: 700; color: #60A5FA;
+      background: rgba(59,130,246,0.15); padding: 2px 7px; border-radius: 10px; white-space: nowrap;
+    }
+
+    .hub-footer {
+      margin-top: 12px; padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .hub-meta { font-size: 9.5px; font-weight: 400; color: #6A90AB; margin-bottom: 9px; }
+
+    /* ══════════════════════════════════
+       PANEL 2 — Domain Question
+    ══════════════════════════════════ */
+    .q-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .domain-label { font-size: 9.5px; font-weight: 700; color: #9DB8D0; text-transform: uppercase; letter-spacing: 0.7px; }
+    .q-counter    { font-size: 9.5px; font-weight: 600; color: #6A90AB; }
+
+    .gate-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 9.5px; font-weight: 600; color: #FCA5A5;
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);
+      padding: 3px 9px; border-radius: 4px; margin-bottom: 12px;
+    }
+
+    .q-text {
+      font-size: 13px; font-weight: 600; color: #FFFFFF;
+      line-height: 1.55; margin-bottom: 14px;
+    }
+
+    .options { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+
+    .opt {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 11px; border-radius: 7px; border: 1px solid transparent;
+    }
+    .opt.sel {
+      background: rgba(59,130,246,0.13); border-color: rgba(59,130,246,0.35);
+    }
+
+    .radio {
+      width: 14px; height: 14px; border-radius: 50%; border: 2px solid #2A4A68;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    }
+    .radio.on { border-color: #3B82F6; background: #3B82F6; }
+    .radio.on::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #fff; }
+
+    /* ALL option labels readable — hierarchy via color shift, not invisibility */
+    .opt-label { font-size: 11px; font-weight: 400; color: #D1E4F5; line-height: 1.4; }
+    .opt.sel .opt-label { color: #93C5FD; font-weight: 700; }
+
+    .ev-box {
+      background: #091828; border: 1px dashed #1E3A58; border-radius: 8px;
+      padding: 10px 12px; margin-bottom: 12px;
+    }
+    .ev-title {
+      font-size: 10px; font-weight: 600; color: #9DB8D0;
+      margin-bottom: 7px; display: flex; align-items: center; gap: 5px;
+    }
+    .ev-attached {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(16,185,129,0.09); border: 1px solid rgba(16,185,129,0.22);
+      border-radius: 5px; padding: 6px 10px;
+    }
+    .ev-filename { font-size: 10px; font-weight: 500; color: #6EE7B7; flex: 1; }
+    .ev-badge    { font-size: 8.5px; font-weight: 700; color: #34D399; background: rgba(16,185,129,0.15); padding: 2px 7px; border-radius: 3px; }
+
+    .q-nav { display: flex; gap: 7px; margin-top: auto; }
+
+    /* ══════════════════════════════════
+       PANEL 3 — Saved & Return
+    ══════════════════════════════════ */
+    .saved-hero {
+      text-align: center; padding: 10px 0 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 14px;
+    }
+    .check-circle {
+      width: 50px; height: 50px; margin: 0 auto 10px;
+      background: rgba(16,185,129,0.12); border: 2px solid rgba(16,185,129,0.32); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: #34D399; box-shadow: 0 0 20px rgba(16,185,129,0.15);
+    }
+    .saved-title { font-size: 17px; font-weight: 800; color: #FFFFFF; margin-bottom: 5px; }
+    .saved-desc  { font-size: 11px; font-weight: 400; color: #9DB8D0; line-height: 1.55; }
+    .saved-desc strong { color: #60A5FA; font-weight: 700; }
+
+    .return-box {
+      background: #091828; border: 1px solid #1E3A58; border-radius: 8px;
+      padding: 12px; margin-bottom: 13px;
+    }
+    .return-lbl { font-size: 9px; font-weight: 700; color: #6A90AB; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 7px; }
+    .url-row {
+      display: flex; align-items: center; gap: 7px;
+      background: #0B1E32; border: 1px solid #1E3A58; border-radius: 5px; padding: 7px 10px;
+    }
+    .url-val  { font-size: 9.5px; font-weight: 500; color: #60A5FA; flex: 1; overflow: hidden; white-space: nowrap; }
+    .copy-btn { font-size: 8.5px; font-weight: 600; color: #9DB8D0; background: #162840; border: 1px solid #1E3A58; border-radius: 3px; padding: 2px 8px; }
+    .expiry   { font-size: 9.5px; font-weight: 400; color: #6A90AB; margin-top: 6px; }
+
+    .snap-title { font-size: 9px; font-weight: 700; color: #6A90AB; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+    .snap-list  { display: flex; flex-direction: column; gap: 5px; }
+    .snap-row   { display: flex; align-items: center; gap: 8px; }
+
+    .snap-dot   { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .snap-dot.d { background: #22C55E; box-shadow: 0 0 5px rgba(34,197,94,0.5); }
+    .snap-dot.a { background: #3B82F6; box-shadow: 0 0 5px rgba(59,130,246,0.5); }
+    .snap-dot.p { background: #2A4A68; }
+
+    .snap-name   { flex: 1; font-size: 10.5px; font-weight: 400; }
+    .snap-name.d { color: #9DB8D0; }          /* done — readable medium */
+    .snap-name.a { color: #BFDBFE; font-weight: 600; } /* active — bright */
+    .snap-name.p { color: #6A90AB; }          /* pending — dim but legible */
+
+    .snap-status   { font-size: 9px; font-weight: 600; }
+    .snap-status.d { color: #22C55E; }
+    .snap-status.a { color: #60A5FA; }
+    .snap-status.p { color: #4A7090; }        /* pending — dim but legible */
+
+    .saved-cta { margin-top: 13px; }
+    .no-acct   { text-align: center; font-size: 9.5px; font-weight: 400; color: #4A7090; margin-top: 6px; }
+
+    /* ── Shared buttons ── */
+    .btn-primary {
+      display: block; width: 100%;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #FFFFFF; border: none; padding: 10px 16px; border-radius: 8px;
+      font-size: 11.5px; font-weight: 700; cursor: pointer; text-align: center;
+      letter-spacing: 0.3px; box-shadow: 0 4px 14px rgba(59,130,246,0.35);
+    }
+    .btn-outline {
+      padding: 8px 11px; border-radius: 6px;
+      font-size: 10.5px; font-weight: 600;
+      color: #9DB8D0;            /* was #5A7A95 — now clearly readable */
+      background: transparent; border: 1px solid #2A4A68; cursor: pointer; white-space: nowrap; text-align: center;
+    }
+    .btn-muted {
+      padding: 8px 11px; border-radius: 6px;
+      font-size: 10.5px; font-weight: 600;
+      color: #9DB8D0;            /* was #5A7A95 — now clearly readable */
+      background: #0D2035; border: 1px solid #2A4A68; cursor: pointer;
+      flex: 1; text-align: center; white-space: nowrap;
+    }
+    .btn-cta {
+      padding: 8px 14px; border-radius: 6px;
+      font-size: 10.5px; font-weight: 700; color: #FFFFFF;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      border: none; cursor: pointer; flex: 1; text-align: center; white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(59,130,246,0.3);
+    }
+
+    /* ── Caption ── */
+    .caption {
+      position: absolute; bottom: 16px; left: 0; right: 0;
+      text-align: center; font-size: 11px; font-weight: 500;
+      color: #4A7090; letter-spacing: 0.5px; z-index: 2;
+    }
+    .caption span { color: #3B82F6; padding: 0 10px; font-weight: 700; }
+  </style>
+</head>
+<body>
+<div class="slide">
+  <div class="glow"></div>
+  <div class="glow2"></div>
+
+  <!-- HEADER -->
+  <div class="slide-header">
+    <div>
+      <div class="slide-title">The Assessment Experience</div>
+      <div class="slide-subtitle">Designed for how health system teams actually work</div>
+    </div>
+    <div class="header-badge">
+      <div class="badge-dot"></div>
+      <div class="badge-text">BT Compass &nbsp;·&nbsp; AI Infrastructure Assessment</div>
+    </div>
+  </div>
+
+  <!-- PANELS -->
+  <div class="panels">
+
+    <!-- ══ PANEL 1: Assessment Hub ══ -->
+    <div class="panel-wrapper">
+      <div class="panel-label">
+        <div class="label-num">1</div>
+        <div class="label-text">Assessment Hub</div>
+      </div>
+      <div class="panel">
+        <div class="panel-chrome">
+          <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <div class="chrome-bar">btcompass.io/assess/ridgeline-2026</div>
+        </div>
+        <div class="panel-body">
+          <div class="hub-top">
+            <div class="brand">
+              <div class="brand-mark">BT</div>
+              <div class="brand-name">BT Compass</div>
+            </div>
+            <div class="hs-chip">🏥 Ridgeline Health System</div>
+          </div>
+          <div class="mode-tag">Enterprise Foundation Assessment &nbsp;·&nbsp; Mode 2</div>
+          <div class="prog-label-row">
+            <span>Assessment Progress</span>
+            <strong>5 of 8 domains complete</strong>
+          </div>
+          <div class="prog-track"><div class="prog-fill"></div></div>
+          <div class="domain-list">
+            <div class="di done"><span class="di-icon">✅</span>Strategic Intent &amp; Use Case Scope</div>
+            <div class="di done"><span class="di-icon">✅</span>Data Readiness &amp; Governance</div>
+            <div class="di done"><span class="di-icon">✅</span>Infrastructure &amp; Architecture</div>
+            <div class="di done"><span class="di-icon">✅</span>Security, Privacy &amp; Compliance</div>
+            <div class="di active">
+              <span class="di-icon">🔵</span>
+              AI Governance &amp; Operating Model
+              <span class="di-here">← You are here</span>
+            </div>
+            <div class="di todo"><span class="di-icon">○</span>Workflow &amp; Adoption Readiness</div>
+            <div class="di todo"><span class="di-icon">○</span>Procurement &amp; Vendor Readiness</div>
+            <div class="di todo"><span class="di-icon">○</span>Budget &amp; Investment Readiness</div>
+          </div>
+          <div class="hub-footer">
+            <div class="hub-meta">Last session: June 16, 2026 &nbsp;·&nbsp; 2:34 PM &nbsp;&nbsp;|&nbsp;&nbsp; Est. 25 min remaining</div>
+            <div class="btn-primary">Continue Assessment →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PANEL 2: Domain Question ══ -->
+    <div class="panel-wrapper">
+      <div class="panel-label">
+        <div class="label-num">2</div>
+        <div class="label-text">Domain Question</div>
+      </div>
+      <div class="panel">
+        <div class="panel-chrome">
+          <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <div class="chrome-bar">btcompass.io/assess/ridgeline-2026/domain-5</div>
+        </div>
+        <div class="panel-body">
+          <div class="q-top-row">
+            <div class="domain-label">Domain 5 · AI Governance &amp; Operating Model</div>
+            <div class="q-counter">Q 1 of 4</div>
+          </div>
+          <div class="gate-pill">⚠ Critical Gating Domain</div>
+          <div class="q-text">"Does your organization have a named body responsible for reviewing and approving AI tools before deployment?"</div>
+          <div class="options">
+            <div class="opt"><div class="radio"></div><div class="opt-label">None — no governance structure exists</div></div>
+            <div class="opt"><div class="radio"></div><div class="opt-label">Vague — informally discussed, not formalized</div></div>
+            <div class="opt"><div class="radio"></div><div class="opt-label">Partial — committee exists, no formal process</div></div>
+            <div class="opt"><div class="radio"></div><div class="opt-label">Defined — committee with documented criteria</div></div>
+            <div class="opt sel"><div class="radio on"></div><div class="opt-label">Specific — committee + criteria + audit trail</div></div>
+          </div>
+          <div class="ev-box">
+            <div class="ev-title">📎 &nbsp;Support your answer — attach a policy, charter, or committee document</div>
+            <div class="ev-attached">
+              <span style="font-size:12px">📄</span>
+              <span class="ev-filename">AI_Governance_Charter_2025.pdf</span>
+              <span class="ev-badge">Level 3 ✓</span>
+            </div>
+          </div>
+          <div class="q-nav">
+            <div class="btn-outline">← Back</div>
+            <div class="btn-muted">Save &amp; Exit</div>
+            <div class="btn-cta">Save &amp; Continue →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PANEL 3: Saved & Return ══ -->
+    <div class="panel-wrapper">
+      <div class="panel-label">
+        <div class="label-num">3</div>
+        <div class="label-text">Save &amp; Return</div>
+      </div>
+      <div class="panel">
+        <div class="panel-chrome">
+          <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <div class="chrome-bar">btcompass.io/assess/ridgeline-2026/saved</div>
+        </div>
+        <div class="panel-body">
+          <div class="saved-hero">
+            <div class="check-circle">✓</div>
+            <div class="saved-title">Progress Saved</div>
+            <div class="saved-desc">Completed <strong>3 of 4 questions</strong> in Domain 5.<br>Your answers and evidence are saved securely.</div>
+          </div>
+          <div class="return-box">
+            <div class="return-lbl">Your return link</div>
+            <div class="url-row">
+              <span class="url-val">btcompass.io/assess/ridgeline-2026</span>
+              <span class="copy-btn">Copy</span>
+            </div>
+            <div class="expiry">Assessment open until July 16, 2026</div>
+          </div>
+          <div class="snap-title">Assessment Snapshot</div>
+          <div class="snap-list">
+            <div class="snap-row"><div class="snap-dot d"></div><span class="snap-name d">Strategic Intent</span><span class="snap-status d">Complete</span></div>
+            <div class="snap-row"><div class="snap-dot d"></div><span class="snap-name d">Data Readiness</span><span class="snap-status d">Complete</span></div>
+            <div class="snap-row"><div class="snap-dot d"></div><span class="snap-name d">Infrastructure</span><span class="snap-status d">Complete</span></div>
+            <div class="snap-row"><div class="snap-dot d"></div><span class="snap-name d">Security &amp; Compliance</span><span class="snap-status d">Complete</span></div>
+            <div class="snap-row"><div class="snap-dot a"></div><span class="snap-name a">AI Governance</span><span class="snap-status a">In Progress</span></div>
+            <div class="snap-row"><div class="snap-dot p"></div><span class="snap-name p">Workflow &amp; Adoption</span><span class="snap-status p">Not started</span></div>
+            <div class="snap-row"><div class="snap-dot p"></div><span class="snap-name p">Procurement</span><span class="snap-status p">Not started</span></div>
+            <div class="snap-row"><div class="snap-dot p"></div><span class="snap-name p">Budget &amp; Investment</span><span class="snap-status p">Not started</span></div>
+          </div>
+          <div class="saved-cta">
+            <div class="btn-primary">Return to Assessment →</div>
+            <div class="no-acct">No account required to resume</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panels -->
+
+  <div class="caption">
+    Domain-by-domain intake <span>·</span> Evidence-gated scoring <span>·</span> Save and return at any time
+  </div>
+
+</div>
+</body>
+</html>
