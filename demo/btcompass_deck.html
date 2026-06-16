@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BT Compass · AI Infrastructure Assessment · Demo Deck</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/*
+  TEXT COLOR SYSTEM (consistent across all slides):
+  #FFFFFF  → primary   (titles, headlines, key numbers)
+  #D1E4F5  → high      (body content, option text, stream names)
+  #9DB8D0  → medium    (sub-labels, descriptions, metadata)
+  #6A90AB  → low       (muted info, counters, source notes)
+  #4A7090  → dim       (fine print — still legible)
+*/
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#000;
+  font-family:'Inter',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+/* ── Deck wrapper ── */
+.deck { position:relative; width:1400px; height:787px; flex-shrink:0; }
+
+.slide {
+  position:absolute; inset:0;
+  width:1400px; height:787px;
+  background:linear-gradient(150deg,#071120 0%,#0C1A2E 55%,#071018 100%);
+  padding:36px 52px 28px;
+  display:none;
+  flex-direction:column;
+  overflow:hidden;
+}
+.slide.active { display:flex; }
+
+.slide::before {
+  content:'';
+  position:absolute; inset:0;
+  background-image:radial-gradient(circle at 1px 1px,rgba(96,165,250,0.04) 1px,transparent 0);
+  background-size:32px 32px;
+  pointer-events:none;
+}
+.glow  { position:absolute;top:-80px;left:-60px;width:420px;height:420px;background:radial-gradient(circle,rgba(59,130,246,0.11)0%,transparent 65%);pointer-events:none; }
+.glow2 { position:absolute;bottom:-60px;right:-40px;width:340px;height:340px;background:radial-gradient(circle,rgba(16,185,129,0.08)0%,transparent 65%);pointer-events:none; }
+
+/* ── Shared header ── */
+.slide-header { position:relative;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-shrink:0; }
+.slide-title    { font-size:26px;font-weight:800;color:#FFFFFF;letter-spacing:-0.5px; }
+.slide-subtitle { font-size:13px;font-weight:400;color:#6A90AB;margin-top:4px; }
+.header-badge {
+  display:flex;align-items:center;gap:8px;
+  background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.22);
+  border-radius:8px;padding:8px 16px;white-space:nowrap;
+}
+.badge-dot  { width:7px;height:7px;border-radius:50%;background:#3B82F6;box-shadow:0 0 6px #3B82F6; }
+.badge-text { font-size:11px;font-weight:600;color:#93C5FD;letter-spacing:0.3px; }
+
+/* ── Navigation ── */
+.nav {
+  display:flex;align-items:center;gap:16px;
+  margin-top:10px;flex-shrink:0;
+}
+.nav-btn {
+  background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);
+  color:#93C5FD;padding:8px 20px;border-radius:8px;font-size:14px;font-weight:700;
+  cursor:pointer;transition:background 0.15s;font-family:'Inter',sans-serif;
+}
+.nav-btn:hover { background:rgba(59,130,246,0.28); }
+.nav-btn:disabled { opacity:0.3;cursor:default; }
+.nav-counter { font-size:12px;font-weight:600;color:#6A90AB;min-width:60px;text-align:center; }
+.nav-dots { display:flex;gap:6px;align-items:center; }
+.nav-dot {
+  width:8px;height:8px;border-radius:50%;background:#1E3A58;
+  cursor:pointer;transition:background 0.15s;
+}
+.nav-dot.on { background:#3B82F6; }
+
+/* ── Shared buttons ── */
+.btn-primary {
+  display:inline-block;background:linear-gradient(135deg,#3B82F6,#2563EB);
+  color:#fff;border:none;padding:12px 28px;border-radius:9px;
+  font-size:13px;font-weight:700;cursor:pointer;text-align:center;
+  box-shadow:0 4px 14px rgba(59,130,246,0.35);letter-spacing:0.3px;
+}
+
+/* ════════════════════════════════════════════════════
+   SLIDE 1 — The CIO's World
+════════════════════════════════════════════════════ */
+.s1-body {
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;
+  flex:1;position:relative;z-index:2;
+}
+.s1-panel {
+  border-radius:14px;border:1px solid;padding:24px;
+  display:flex;flex-direction:column;
+}
+.s1-left {
+  background:rgba(59,130,246,0.07);border-color:rgba(59,130,246,0.22);
+}
+.s1-right {
+  background:rgba(239,68,68,0.05);border-color:rgba(239,68,68,0.18);
+}
+.s1-panel-label {
+  font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:14px;
+}
+.s1-left .s1-panel-label  { color:#60A5FA; }
+.s1-right .s1-panel-label { color:#F87171; }
+
+.cio-profile {
+  display:flex;align-items:center;gap:14px;margin-bottom:18px;
+  padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.cio-avatar {
+  width:52px;height:52px;border-radius:12px;
+  background:linear-gradient(135deg,#1D4ED8,#3B82F6);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+  box-shadow:0 4px 14px rgba(59,130,246,0.3);
+}
+.cio-name  { font-size:14px;font-weight:700;color:#FFFFFF; }
+.cio-title { font-size:11px;font-weight:400;color:#6A90AB;margin-top:2px; }
+.cio-org   { font-size:11px;font-weight:500;color:#60A5FA;margin-top:2px; }
+
+.priority-list { display:flex;flex-direction:column;gap:8px;flex:1; }
+.priority-item {
+  display:flex;align-items:center;gap:12px;
+  padding:10px 14px;border-radius:8px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+}
+.priority-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.p-red    { background:#EF4444;box-shadow:0 0 6px rgba(239,68,68,0.5); }
+.p-amber  { background:#F59E0B;box-shadow:0 0 6px rgba(245,158,11,0.4); }
+.p-blue   { background:#3B82F6;box-shadow:0 0 6px rgba(59,130,246,0.4); }
+.priority-text  { font-size:12px;font-weight:500;color:#D1E4F5;flex:1; }
+.priority-badge { font-size:10px;font-weight:600;color:#9DB8D0;white-space:nowrap; }
+
+.info-list { display:flex;flex-direction:column;gap:8px;flex:1; }
+.info-item {
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 14px;border-radius:8px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+}
+.info-icon { font-size:18px;flex-shrink:0; }
+.info-name { font-size:12px;font-weight:600;color:#D1E4F5; }
+.info-desc { font-size:11px;font-weight:400;color:#6A90AB;margin-top:2px; }
+
+.s1-question {
+  text-align:center;margin-top:20px;padding-top:16px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  position:relative;z-index:2;
+}
+.s1-question-text {
+  font-size:16px;font-weight:700;color:#DBEAFE;font-style:italic;
+}
+.s1-question-sub { font-size:12px;font-weight:400;color:#4A7090;margin-top:5px; }
+
+/* ════════════════════════════════════════════════════
+   SLIDE 2 — The Methodology
+════════════════════════════════════════════════════ */
+.s2-body { display:flex;flex-direction:column;gap:18px;flex:1;position:relative;z-index:2; }
+.s2-principles { display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;flex:1; }
+.principle-card {
+  background:#102030;border:1px solid #1E3A58;border-radius:14px;
+  padding:24px;display:flex;flex-direction:column;position:relative;overflow:hidden;
+}
+.principle-card::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;
+}
+.pc-1::before { background:linear-gradient(90deg,#1D4ED8,#60A5FA); }
+.pc-2::before { background:linear-gradient(90deg,#059669,#34D399); }
+.pc-3::before { background:linear-gradient(90deg,#6D28D9,#A78BFA); }
+
+.principle-num {
+  font-size:11px;font-weight:800;letter-spacing:1.2px;
+  text-transform:uppercase;margin-bottom:12px;
+}
+.pc-1 .principle-num { color:#60A5FA; }
+.pc-2 .principle-num { color:#34D399; }
+.pc-3 .principle-num { color:#A78BFA; }
+
+.principle-icon { font-size:32px;margin-bottom:14px; }
+.principle-title { font-size:17px;font-weight:800;color:#FFFFFF;margin-bottom:10px;line-height:1.2; }
+.principle-desc  { font-size:12px;font-weight:400;color:#9DB8D0;line-height:1.6;flex:1; }
+.principle-result {
+  margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);
+  font-size:11px;font-weight:600;
+}
+.pc-1 .principle-result { color:#93C5FD; }
+.pc-2 .principle-result { color:#6EE7B7; }
+.pc-3 .principle-result { color:#C4B5FD; }
+
+.s2-footer {
+  text-align:center;padding:14px;border-top:1px solid rgba(255,255,255,0.06);
+  font-size:16px;font-weight:700;color:#DBEAFE;font-style:italic;
+}
+
+/* ════════════════════════════════════════════════════
+   SLIDE 3 — Assessment UX (reused from slide3 file)
+════════════════════════════════════════════════════ */
+.s3-panels { display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;flex:1;position:relative;z-index:2; }
+.s3-panel-wrapper { display:flex;flex-direction:column; }
+.s3-panel-label { display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:7px; }
+.label-num { width:18px;height:18px;border-radius:50%;background:#3B82F6;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff; }
+.label-text { font-size:10px;font-weight:700;color:#93C5FD;letter-spacing:1.2px;text-transform:uppercase; }
+.s3-panel { background:#102030;border:1px solid #1E3A58;border-radius:14px;overflow:hidden;flex:1;display:flex;flex-direction:column;box-shadow:0 0 0 1px rgba(255,255,255,0.04) inset,0 12px 40px rgba(0,0,0,0.5); }
+.panel-chrome { background:#07111C;padding:9px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #162840;flex-shrink:0; }
+.dot { width:9px;height:9px;border-radius:50%; }
+.dot-r{background:#FF5F57;} .dot-y{background:#FEBC2E;} .dot-g{background:#28C840;}
+.chrome-bar { flex:1;background:#0D2035;border-radius:4px;padding:3px 10px;font-size:9px;color:#4A7090;margin-left:6px;font-family:'Inter',monospace;overflow:hidden;white-space:nowrap; }
+.panel-body { padding:16px;flex:1;display:flex;flex-direction:column; }
+.hub-top { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px; }
+.brand { display:flex;align-items:center;gap:8px; }
+.brand-mark { width:30px;height:30px;background:linear-gradient(135deg,#3B82F6,#1E40AF);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;box-shadow:0 3px 10px rgba(59,130,246,0.4); }
+.brand-name { font-size:13px;font-weight:700;color:#FFFFFF; }
+.hs-chip { font-size:9.5px;font-weight:500;color:#9DB8D0;background:#0D2035;border:1px solid #1E3A58;border-radius:5px;padding:3px 9px; }
+.mode-tag { display:inline-block;font-size:10px;font-weight:600;color:#60A5FA;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.22);border-radius:4px;padding:4px 10px;margin-bottom:12px; }
+.prog-label-row { display:flex;justify-content:space-between;margin-bottom:5px; }
+.prog-label-row span { font-size:10px;font-weight:500;color:#9DB8D0; }
+.prog-label-row strong { font-size:10px;font-weight:700;color:#DBEAFE; }
+.prog-track { height:6px;background:#1A3550;border-radius:3px;overflow:hidden;margin-bottom:14px; }
+.prog-fill  { height:100%;width:62.5%;background:linear-gradient(90deg,#1D4ED8,#60A5FA);border-radius:3px; }
+.domain-list { display:flex;flex-direction:column;gap:4px;flex:1; }
+.di { display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:7px;border:1px solid transparent;font-size:10.5px;font-weight:400; }
+.di.done   { color:#9DB8D0; }
+.di.active { background:rgba(59,130,246,0.12);border-color:rgba(59,130,246,0.3);border-left:3px solid #3B82F6;color:#BFDBFE;font-weight:600; }
+.di.todo   { color:#6A90AB; }
+.di-icon { font-size:12px;flex-shrink:0; }
+.di-here { margin-left:auto;font-size:8.5px;font-weight:700;color:#60A5FA;background:rgba(59,130,246,0.15);padding:2px 7px;border-radius:10px;white-space:nowrap; }
+.hub-footer { margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06); }
+.hub-meta { font-size:9.5px;font-weight:400;color:#6A90AB;margin-bottom:9px; }
+.q-top-row { display:flex;justify-content:space-between;align-items:center;margin-bottom:5px; }
+.domain-label { font-size:9.5px;font-weight:700;color:#9DB8D0;text-transform:uppercase;letter-spacing:0.7px; }
+.q-counter { font-size:9.5px;font-weight:600;color:#6A90AB; }
+.gate-pill { display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:600;color:#FCA5A5;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);padding:3px 9px;border-radius:4px;margin-bottom:12px; }
+.q-text { font-size:13px;font-weight:600;color:#FFFFFF;line-height:1.55;margin-bottom:14px; }
+.options { display:flex;flex-direction:column;gap:6px;margin-bottom:12px; }
+.opt { display:flex;align-items:center;gap:10px;padding:7px 11px;border-radius:7px;border:1px solid transparent; }
+.opt.sel { background:rgba(59,130,246,0.12);border-color:rgba(59,130,246,0.32); }
+.radio { width:14px;height:14px;border-radius:50%;border:2px solid #2A4A68;flex-shrink:0;display:flex;align-items:center;justify-content:center; }
+.radio.on { border-color:#3B82F6;background:#3B82F6; }
+.radio.on::after { content:'';width:5px;height:5px;border-radius:50%;background:#fff; }
+.opt-label { font-size:11px;font-weight:400;color:#D1E4F5;line-height:1.4; }
+.opt.sel .opt-label { color:#93C5FD;font-weight:700; }
+.ev-box { background:#071018;border:1px dashed #1E3A58;border-radius:8px;padding:10px 12px;margin-bottom:12px; }
+.ev-title { font-size:10px;font-weight:600;color:#9DB8D0;margin-bottom:7px;display:flex;align-items:center;gap:5px; }
+.ev-attached { display:flex;align-items:center;gap:8px;background:rgba(16,185,129,0.09);border:1px solid rgba(16,185,129,0.22);border-radius:5px;padding:6px 10px; }
+.ev-filename { font-size:9.5px;font-weight:500;color:#6EE7B7;flex:1; }
+.ev-badge { font-size:8.5px;font-weight:700;color:#34D399;background:rgba(16,185,129,0.15);padding:2px 7px;border-radius:3px; }
+.q-nav { display:flex;gap:7px;margin-top:auto; }
+.saved-hero { text-align:center;padding:10px 0 14px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:14px; }
+.check-circle { width:50px;height:50px;margin:0 auto 10px;background:rgba(16,185,129,0.12);border:2px solid rgba(16,185,129,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;color:#34D399;box-shadow:0 0 20px rgba(16,185,129,0.15); }
+.saved-title { font-size:17px;font-weight:800;color:#FFFFFF;margin-bottom:5px; }
+.saved-desc  { font-size:10.5px;font-weight:400;color:#9DB8D0;line-height:1.55; }
+.saved-desc strong { color:#60A5FA;font-weight:700; }
+.return-box { background:#071018;border:1px solid #1E3A58;border-radius:8px;padding:12px;margin-bottom:13px; }
+.return-lbl { font-size:9px;font-weight:700;color:#6A90AB;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px; }
+.url-row { display:flex;align-items:center;gap:7px;background:#0B1E32;border:1px solid #1E3A58;border-radius:5px;padding:7px 10px; }
+.url-val  { font-size:9.5px;font-weight:500;color:#60A5FA;flex:1;overflow:hidden;white-space:nowrap; }
+.copy-btn { font-size:8.5px;font-weight:600;color:#9DB8D0;background:#162840;border:1px solid #1E3A58;border-radius:3px;padding:2px 8px; }
+.expiry { font-size:9.5px;font-weight:400;color:#6A90AB;margin-top:6px; }
+.snap-title { font-size:9px;font-weight:700;color:#6A90AB;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px; }
+.snap-list { display:flex;flex-direction:column;gap:5px; }
+.snap-row  { display:flex;align-items:center;gap:8px; }
+.snap-dot  { width:7px;height:7px;border-radius:50%;flex-shrink:0; }
+.snap-dot.d { background:#22C55E;box-shadow:0 0 5px rgba(34,197,94,0.5); }
+.snap-dot.a { background:#3B82F6;box-shadow:0 0 5px rgba(59,130,246,0.5); }
+.snap-dot.p { background:#2A4A68; }
+.snap-name { flex:1;font-size:10.5px;font-weight:400; }
+.snap-name.d { color:#9DB8D0; } .snap-name.a { color:#BFDBFE;font-weight:600; } .snap-name.p { color:#6A90AB; }
+.snap-status { font-size:9px;font-weight:600; }
+.snap-status.d { color:#22C55E; } .snap-status.a { color:#60A5FA; } .snap-status.p { color:#4A7090; }
+.saved-cta { margin-top:13px; }
+.no-acct { text-align:center;font-size:9.5px;font-weight:400;color:#4A7090;margin-top:6px; }
+.btn-outline { padding:8px 11px;border-radius:6px;font-size:10.5px;font-weight:600;color:#9DB8D0;background:transparent;border:1px solid #2A4A68;cursor:pointer;white-space:nowrap;text-align:center; }
+.btn-muted   { padding:8px 11px;border-radius:6px;font-size:10.5px;font-weight:600;color:#9DB8D0;background:#0D2035;border:1px solid #2A4A68;cursor:pointer;flex:1;text-align:center;white-space:nowrap; }
+.btn-cta     { padding:8px 14px;border-radius:6px;font-size:10.5px;font-weight:700;color:#FFFFFF;background:linear-gradient(135deg,#3B82F6,#2563EB);border:none;cursor:pointer;flex:1;text-align:center;white-space:nowrap;box-shadow:0 3px 10px rgba(59,130,246,0.3); }
+.btn-p       { display:block;width:100%;background:linear-gradient(135deg,#3B82F6,#2563EB);color:#FFFFFF;border:none;padding:10px 16px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;text-align:center;letter-spacing:0.3px;box-shadow:0 4px 14px rgba(59,130,246,0.35); }
+.s3-caption { position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:11px;font-weight:500;color:#1E3048;letter-spacing:0.5px;z-index:2; }
+.s3-caption span { color:#3B82F6;padding:0 10px;font-weight:700; }
+
+/* ════════════════════════════════════════════════════
+   SLIDE 4 — Scoring Output
+════════════════════════════════════════════════════ */
+.s4-body { display:grid;grid-template-columns:1fr auto;gap:24px;flex:1;position:relative;z-index:2;align-items:start; }
+.s4-scorecard { display:flex;flex-direction:column;gap:7px; }
+.sc-row {
+  display:grid;grid-template-columns:2fr 80px 90px 100px 1fr;
+  align-items:center;gap:12px;
+  padding:9px 16px;border-radius:9px;border:1px solid rgba(255,255,255,0.05);
+  background:rgba(255,255,255,0.02);
+}
+.sc-row.gate-crit { background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.22); }
+.sc-row.gate-sec  { background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.18); }
+.sc-row.header    { background:#091828;border-color:#1E3A58;padding:7px 16px; }
+.sc-domain { font-size:11.5px;font-weight:500;color:#D1E4F5; }
+.sc-row.gate-crit .sc-domain { color:#FCA5A5;font-weight:600; }
+.sc-row.gate-sec  .sc-domain { color:#FDE68A;font-weight:600; }
+.sc-score  { font-size:13px;font-weight:700;text-align:center; }
+.sc-red    { color:#F87171; }
+.sc-yellow { color:#FCD34D; }
+.sc-color  { font-size:13px;text-align:center; }
+.sc-ev     { font-size:10.5px;font-weight:500;color:#6A90AB;text-align:center; }
+.sc-gap    { font-size:10.5px;font-weight:500;color:#9DB8D0; }
+.sc-hdr    { font-size:9.5px;font-weight:700;color:#4A7090;text-transform:uppercase;letter-spacing:0.7px; }
+.sc-hdr.center { text-align:center; }
+.gate-tag {
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;
+  padding:2px 7px;border-radius:4px;margin-left:6px;vertical-align:middle;
+}
+.gt-crit { color:#FCA5A5;background:rgba(239,68,68,0.15); }
+.gt-sec  { color:#FDE68A;background:rgba(245,158,11,0.12); }
+
+.s4-verdict {
+  background:#102030;border:1px solid #1E3A58;border-radius:14px;
+  padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:220px;text-align:center;gap:12px;
+}
+.verdict-label { font-size:9px;font-weight:800;color:#6A90AB;text-transform:uppercase;letter-spacing:1.2px; }
+.verdict-status {
+  font-size:22px;font-weight:800;color:#F87171;
+  background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);
+  border-radius:10px;padding:10px 20px;line-height:1.2;
+}
+.verdict-sub { font-size:11px;font-weight:400;color:#9DB8D0;line-height:1.55; }
+.verdict-gates { width:100%;margin-top:6px; }
+.v-gate {
+  display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:7px;margin-bottom:6px;
+  font-size:10.5px;font-weight:500;
+}
+.v-gate-crit { background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.22);color:#FCA5A5; }
+.v-gate-sec  { background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);color:#FDE68A; }
+.verdict-insight {
+  font-size:11px;font-weight:500;color:#6A90AB;
+  border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;line-height:1.55;
+}
+.verdict-insight strong { color:#93C5FD; }
+
+/* ════════════════════════════════════════════════════
+   SLIDE 5 — Scenario Brief
+════════════════════════════════════════════════════ */
+.s5-body { display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;flex:1;position:relative;z-index:2; }
+.scenario-card {
+  background:#102030;border:1px solid #1E3A58;border-radius:14px;
+  padding:20px;display:flex;flex-direction:column;position:relative;overflow:hidden;
+}
+.scenario-card::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0; }
+.sc-a::before { background:linear-gradient(90deg,#059669,#34D399); }
+.sc-b::before { background:linear-gradient(90deg,#1D4ED8,#60A5FA); }
+.sc-c::before { background:linear-gradient(90deg,#4C1D95,#A78BFA); }
+.sc-a { background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.22); }
+.sc-b { background:rgba(59,130,246,0.06);border-color:rgba(59,130,246,0.22); }
+.sc-c { background:rgba(139,92,246,0.06);border-color:rgba(139,92,246,0.22); }
+
+.scen-tag { font-size:9px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px; }
+.sc-a .scen-tag { color:#34D399; }
+.sc-b .scen-tag { color:#60A5FA; }
+.sc-c .scen-tag { color:#A78BFA; }
+
+.scen-name { font-size:16px;font-weight:800;color:#FFFFFF;margin-bottom:4px;line-height:1.2; }
+.scen-sub  { font-size:11px;font-weight:400;color:#6A90AB;margin-bottom:14px; }
+
+.scen-what { font-size:11.5px;font-weight:400;color:#9DB8D0;line-height:1.6;margin-bottom:14px;flex:1; }
+
+.scen-meta { display:flex;flex-direction:column;gap:6px;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px; }
+.scen-meta-row { display:flex;justify-content:space-between;font-size:11px; }
+.meta-label { color:#6A90AB;font-weight:500; }
+.meta-value { font-weight:700; }
+.sc-a .meta-value { color:#6EE7B7; }
+.sc-b .meta-value { color:#93C5FD; }
+.sc-c .meta-value { color:#C4B5FD; }
+
+.scen-rec {
+  margin-top:10px;padding:9px 12px;border-radius:7px;
+  background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.28);
+  font-size:11px;font-weight:700;color:#4ADE80;text-align:center;
+}
+
+.s5-footer {
+  position:absolute;bottom:28px;left:52px;right:52px;
+  text-align:center;font-size:13px;font-weight:700;color:#DBEAFE;font-style:italic;
+  z-index:2;
+}
+
+/* ════════════════════════════════════════════════════
+   SLIDE 6 — Active Tool
+════════════════════════════════════════════════════ */
+.s6-body { display:flex;flex-direction:column;gap:20px;flex:1;position:relative;z-index:2; }
+.s6-contrast {
+  background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);
+  border-radius:12px;padding:16px 24px;display:flex;align-items:center;gap:16px;
+}
+.contrast-old { flex:1;text-align:center; }
+.contrast-vs  { font-size:22px;font-weight:800;color:#334155;padding:0 16px; }
+.contrast-new { flex:1;text-align:center; }
+.contrast-label { font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px; }
+.contrast-old .contrast-label { color:#F87171; }
+.contrast-new .contrast-label { color:#34D399; }
+.contrast-text { font-size:13px;font-weight:600; }
+.contrast-old .contrast-text { color:#9DB8D0; }
+.contrast-new .contrast-text { color:#FFFFFF; }
+.contrast-sub { font-size:11px;font-weight:400;color:#6A90AB;margin-top:3px; }
+
+.s6-modes { display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:center;flex:1; }
+.mode-arrow { font-size:28px;color:#1E3A58;text-align:center;padding:0 8px; }
+.mode-card {
+  background:#102030;border:1px solid #1E3A58;border-radius:14px;
+  padding:24px;display:flex;flex-direction:column;height:100%;
+}
+.mode-num  { font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:10px; }
+.mode-1 .mode-num { color:#60A5FA; }
+.mode-2 .mode-num { color:#34D399; }
+.mode-3 .mode-num { color:#A78BFA; }
+.mode-icon  { font-size:28px;margin-bottom:12px; }
+.mode-name  { font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:8px; }
+.mode-desc  { font-size:12px;font-weight:400;color:#9DB8D0;line-height:1.6;flex:1; }
+.mode-scope {
+  margin-top:12px;padding:8px 12px;border-radius:7px;
+  font-size:11px;font-weight:600;
+}
+.mode-1 .mode-scope { background:rgba(59,130,246,0.1);color:#93C5FD; }
+.mode-2 .mode-scope { background:rgba(16,185,129,0.1);color:#6EE7B7; }
+.mode-3 .mode-scope { background:rgba(139,92,246,0.1);color:#C4B5FD; }
+
+.s6-footer { text-align:center;font-size:15px;font-weight:700;color:#DBEAFE;font-style:italic; }
+
+/* ════════════════════════════════════════════════════
+   SLIDE 7 — Market & Revenue (inline)
+════════════════════════════════════════════════════ */
+.s7-body { display:flex;flex-direction:column;gap:14px;flex:1;position:relative;z-index:2;min-height:0; }
+.market-row { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;flex-shrink:0; }
+.seg-card { border-radius:12px;border:1px solid;padding:14px 18px;position:relative;overflow:hidden; }
+.seg-card::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0; }
+.seg-enterprise { background:rgba(59,130,246,0.08);border-color:rgba(59,130,246,0.25); }
+.seg-enterprise::before { background:linear-gradient(90deg,#1D4ED8,#60A5FA); }
+.seg-sme { background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.25); }
+.seg-sme::before { background:linear-gradient(90deg,#059669,#34D399); }
+.seg-smb { background:rgba(139,92,246,0.08);border-color:rgba(139,92,246,0.25); }
+.seg-smb::before { background:linear-gradient(90deg,#6D28D9,#A78BFA); }
+.seg-label { font-size:9.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:6px; }
+.seg-enterprise .seg-label { color:#60A5FA; } .seg-sme .seg-label { color:#34D399; } .seg-smb .seg-label { color:#A78BFA; }
+.seg-total { font-size:30px;font-weight:800;color:#FFFFFF;letter-spacing:-1px;line-height:1.1;margin-bottom:10px; }
+.seg-total span { font-size:14px;font-weight:600;margin-left:4px;color:#9DB8D0; }
+.seg-lines { display:flex;flex-direction:column;gap:5px; }
+.seg-line { display:flex;justify-content:space-between;align-items:baseline;font-size:11px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,0.05); }
+.seg-line:last-child { border-bottom:none;padding-bottom:0; }
+.seg-line-name  { color:#9DB8D0;font-weight:400;padding-right:12px;line-height:1.4; }
+.seg-line-count { font-size:12px;font-weight:700;white-space:nowrap; }
+.seg-enterprise .seg-line-count { color:#93C5FD; } .seg-sme .seg-line-count { color:#6EE7B7; } .seg-smb .seg-line-count { color:#C4B5FD; }
+.revenue-section { background:#102030;border:1px solid #1E3A58;border-radius:12px;overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:0; }
+.rev-header { display:flex;align-items:center;justify-content:space-between;padding:11px 22px;background:#091828;border-bottom:1px solid #1E3A58;flex-shrink:0; }
+.rev-header-title { font-size:11px;font-weight:700;color:#FFFFFF;text-transform:uppercase;letter-spacing:1px; }
+.rev-header-note  { font-size:10.5px;font-weight:400;color:#6A90AB; }
+table { width:100%;border-collapse:collapse; }
+thead tr { background:#091828;border-bottom:2px solid #1E3A58; }
+thead th { padding:10px 22px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;text-align:left; }
+thead th.num { text-align:right; }
+.col-stream { color:#6A90AB; } .y1c { color:#4A7090; } .y2c { color:#6A90AB; } .y3c { color:#9DB8D0; } .y5c { color:#60A5FA; }
+tbody tr { border-bottom:1px solid rgba(255,255,255,0.05); }
+tbody tr.vendor-row { background:rgba(251,191,36,0.05); }
+td { padding:12px 22px;vertical-align:middle; }
+.stream-name { font-size:13px;font-weight:600;color:#D1E4F5;margin-bottom:3px; }
+.stream-desc { font-size:11px;font-weight:400;color:#6A90AB;line-height:1.45; }
+.vendor-row .stream-name { color:#FDE68A; } .vendor-row .stream-desc { color:#8A7440; }
+td.num { text-align:right;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.3px; }
+td.c-dim  { color:#4A7090; } td.c-low { color:#6A90AB; } td.c-mid { color:#9DB8D0; } td.c-high { color:#D1E4F5; } td.c-peak { color:#60A5FA; }
+.vendor-row td.c-dim { color:#6A5830; } .vendor-row td.c-low { color:#8A7440; } .vendor-row td.c-mid { color:#B09040; } .vendor-row td.c-peak { color:#FCD34D; }
+.total-row { background:rgba(59,130,246,0.1) !important;border-top:2px solid rgba(59,130,246,0.3) !important; }
+.total-row td { padding:13px 22px; }
+.total-label { font-size:14px;font-weight:800;color:#FFFFFF; }
+.total-row td.num { font-size:15px;font-weight:800; }
+.total-row td.c-dim { color:#6A90AB; } .total-row td.c-low { color:#9DB8D0; } .total-row td.c-mid { color:#D1E4F5; } .total-row td.c-peak { color:#FFFFFF;font-size:18px; }
+.vendor-callout { display:flex;align-items:flex-start;gap:10px;padding:9px 22px;background:rgba(251,191,36,0.06);border-top:1px solid rgba(251,191,36,0.15);flex-shrink:0; }
+.callout-icon { font-size:13px;margin-top:1px; }
+.callout-text { font-size:11px;font-weight:400;color:#9DB8D0;line-height:1.5; }
+.callout-text strong { color:#FCD34D;font-weight:700; }
+.slide-footer { display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-shrink:0;position:relative;z-index:2; }
+.footer-market { font-size:11px;font-weight:400;color:#6A90AB; }
+.footer-market strong { color:#9DB8D0;font-weight:700; }
+.footer-source { font-size:10px;font-weight:400;color:#3A5A78; }
+
+/* ════════════════════════════════════════════════════
+   SLIDE 8 — How to Engage
+════════════════════════════════════════════════════ */
+.s8-body { display:flex;flex-direction:column;gap:20px;flex:1;position:relative;z-index:2; }
+.s8-cards { display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1; }
+.engage-card {
+  background:#102030;border-radius:16px;border:1px solid;
+  padding:28px;display:flex;flex-direction:column;
+}
+.engage-card-a { border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.05); }
+.engage-card-b { border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.05); }
+.engage-tag { font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:10px; }
+.engage-card-a .engage-tag { color:#34D399; }
+.engage-card-b .engage-tag { color:#60A5FA; }
+.engage-icon  { font-size:36px;margin-bottom:12px; }
+.engage-title { font-size:22px;font-weight:800;color:#FFFFFF;margin-bottom:6px; }
+.engage-sub   { font-size:13px;font-weight:400;color:#6A90AB;margin-bottom:18px; }
+.engage-list  { display:flex;flex-direction:column;gap:9px;flex:1; }
+.engage-item  { display:flex;align-items:flex-start;gap:10px;font-size:12.5px;font-weight:400;color:#D1E4F5;line-height:1.5; }
+.engage-bullet { font-size:14px;flex-shrink:0;margin-top:1px; }
+.engage-cta {
+  margin-top:18px;padding:12px 20px;border-radius:10px;
+  font-size:13px;font-weight:700;text-align:center;
+}
+.engage-card-a .engage-cta { background:rgba(16,185,129,0.15);color:#34D399;border:1px solid rgba(16,185,129,0.3); }
+.engage-card-b .engage-cta { background:rgba(59,130,246,0.15);color:#60A5FA;border:1px solid rgba(59,130,246,0.3); }
+
+.s8-closing {
+  text-align:center;padding:18px;
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;
+}
+.s8-tagline { font-size:20px;font-weight:800;color:#FFFFFF;letter-spacing:-0.3px; }
+.s8-tagline em { color:#60A5FA;font-style:italic; }
+.s8-contact { font-size:12px;font-weight:400;color:#6A90AB;margin-top:6px; }
+.s8-contact strong { color:#9DB8D0;font-weight:600; }
+</style>
+</head>
+<body>
+
+<div class="deck">
+
+  <!-- ══════════ SLIDE 1 — The CIO's World ══════════ -->
+  <div class="slide active" id="s1">
+    <div class="glow"></div><div class="glow2"></div>
+    <div class="slide-header">
+      <div>
+        <div class="slide-title">Every CIO in Healthcare is Asking the Same Question</div>
+        <div class="slide-subtitle">The AI ambition is there. The honest answer is missing.</div>
+      </div>
+      <div class="header-badge"><div class="badge-dot"></div><div class="badge-text">BT Compass · AI Infrastructure Assessment</div></div>
+    </div>
+    <div class="s1-body">
+      <div class="s1-panel s1-left">
+        <div class="s1-panel-label">What He's Managing Right Now</div>
+        <div class="cio-profile">
+          <div class="cio-avatar">👤</div>
+          <div>
+            <div class="cio-name">Chief Information Officer</div>
+            <div class="cio-title">Regional Health System · 3 Hospitals · 5,800 Employees</div>
+            <div class="cio-org">Active AI pilot underway · Board presentation: September</div>
+          </div>
+        </div>
+        <div class="priority-list">
+          <div class="priority-item"><div class="priority-dot p-red"></div><div class="priority-text">No formal AI governance structure in place</div><div class="priority-badge">🔴 Blocker</div></div>
+          <div class="priority-item"><div class="priority-dot p-red"></div><div class="priority-text">CFO transition — capital above $500K frozen</div><div class="priority-badge">🔴 Blocker</div></div>
+          <div class="priority-item"><div class="priority-dot p-amber"></div><div class="priority-text">Epic renegotiation due December 2026</div><div class="priority-badge">🟡 Constraint</div></div>
+          <div class="priority-item"><div class="priority-dot p-amber"></div><div class="priority-text">Nursing shortage — CNO moratorium on new workflow changes</div><div class="priority-badge">🟡 Constraint</div></div>
+          <div class="priority-item"><div class="priority-dot p-blue"></div><div class="priority-text">DAX Copilot pilot live — expansion decision due September</div><div class="priority-badge">🔵 Decision</div></div>
+          <div class="priority-item"><div class="priority-dot p-blue"></div><div class="priority-text">Board AI strategy presentation — 90 days</div><div class="priority-badge">🔵 Deadline</div></div>
+        </div>
+      </div>
+      <div class="s1-panel s1-right">
+        <div class="s1-panel-label">What He's Using to Make Million-Dollar Decisions</div>
+        <div class="info-list">
+          <div class="info-item"><div class="info-icon">📊</div><div><div class="info-name">Maturity Models</div><div class="info-desc">Tells him where he ranks. Does not tell him what to do Monday morning.</div></div></div>
+          <div class="info-item"><div class="info-icon">🤝</div><div><div class="info-name">Vendor Pitches</div><div class="info-desc">Every vendor says he's ready. Every vendor has something to sell.</div></div></div>
+          <div class="info-item"><div class="info-icon">📋</div><div><div class="info-name">Analyst Reports</div><div class="info-desc">Industry benchmarks. Not his specific constraints, budget, or clinical context.</div></div></div>
+          <div class="info-item"><div class="info-icon">💭</div><div><div class="info-name">Instinct</div><div class="info-desc">Built from experience. Not documentable. Not boardroom-ready.</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="s1-question">
+      <div class="s1-question-text">"Are we actually ready to invest in AI — or are we about to make a very expensive mistake?"</div>
+      <div class="s1-question-sub">Nobody is giving him an honest, evidence-based answer. Until now.</div>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 2 — The Methodology ══════════ -->
+  <div class="slide" id="s2">
+    <div class="glow"></div><div class="glow2"></div>
+    <div class="slide-header">
+      <div>
+        <div class="slide-title">Built to Find What Other Assessments Miss</div>
+        <div class="slide-subtitle">Three design principles — each one closing a known gap in how health systems evaluate AI readiness</div>
+      </div>
+      <div class="header-badge"><div class="badge-dot"></div><div class="badge-text">BT Compass · Methodology</div></div>
+    </div>
+    <div class="s2-body">
+      <div class="s2-principles">
+        <div class="principle-card pc-1">
+          <div class="principle-num">Principle 01</div>
+          <div class="principle-icon">🔍</div>
+          <div class="principle-title">Evidence-Gated Scoring</div>
+          <div class="principle-desc">Self-reported confidence does not equal readiness. Every score is weighted against documentation — policies, contracts, operating artifacts, audit reports. What a health system says about itself and what their documents show are often two different numbers. BT Compass names that gap explicitly.</div>
+          <div class="principle-result">→ Credibility gap calculated for every domain</div>
+        </div>
+        <div class="principle-card pc-2">
+          <div class="principle-num">Principle 02</div>
+          <div class="principle-icon">⚖️</div>
+          <div class="principle-title">Non-Leading Question Design</div>
+          <div class="principle-desc">Most assessments telegraph the "right" answer. Leading questions produce flattering results. Every BT Compass question is designed to surface what's real — not what sounds good. No question implies a preferred response. Answers are calibrated on a five-level confidence scale, not yes/no.</div>
+          <div class="principle-result">→ Unbiased signal regardless of how respondent wants to score</div>
+        </div>
+        <div class="principle-card pc-3">
+          <div class="principle-num">Principle 03</div>
+          <div class="principle-icon">🏗️</div>
+          <div class="principle-title">Domain-Neutral Reference Designs</div>
+          <div class="principle-desc">Vendor-specific frameworks reward platform loyalty, not capability. BT Compass reference designs are built around domains — data readiness, security posture, governance maturity — not around any vendor's product roadmap. No tool earns a recommendation just by showing up.</div>
+          <div class="principle-result">→ Vendor recommendations based on fit, not affiliation</div>
+        </div>
+      </div>
+      <div class="s2-footer">"Maturity models provide insight. BT Compass turns insight into action."</div>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 3 — Assessment UX ══════════ -->
+  <div class="slide" id="s3">
+    <div class="glow"></div><div class="glow2"></div>
+    <div class="slide-header">
+      <div>
+        <div class="slide-title">The Assessment Experience</div>
+        <div class="slide-subtitle">Designed for how health system teams actually work</div>
+      </div>
+      <div class="header-badge"><div class="badge-dot"></div><div class="badge-text">BT Compass · AI Infrastructure Assessment</div></div>
+    </div>
+    <div class="s3-panels">
+      <div class="s3-panel-wrapper">
+        <div class="s3-panel-label"><div class="label-num">1</div><div class="label-text">Assessment Hub</div></div>
+        <div class="s3-panel">
+          <div class="panel-chrome"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><div class="chrome-bar">btcompass.io/assess/ridgeline-2026</div></div>
+          <div class="panel-body">
+            <div class="hub-top"><div class="brand"><div class="brand-mark">BT</div><div class="brand-name">BT Compass</div></div><div class="hs-chip">🏥 Ridgeline Health System</div></div>
+            <div class="mode-tag">Enterprise Foundation Assessment &nbsp;·&nbsp; Mode 2</div>
+            <div class="prog-label-row"><span>Assessment Progress</span><strong>5 of 8 domains complete</strong></div>
+            <div class="prog-track"><div class="prog-fill"></div></div>
+            <div class="domain-list">
+              <div class="di done"><span class="di-icon">✅</span>Strategic Intent &amp; Use Case Scope</div>
+              <div class="di done"><span class="di-icon">✅</span>Data Readiness &amp; Governance</div>
+              <div class="di done"><span class="di-icon">✅</span>Infrastructure &amp; Architecture</div>
+              <div class="di done"><span class="di-icon">✅</span>Security, Privacy &amp; Compliance</div>
+              <div class="di active"><span class="di-icon">🔵</span>AI Governance &amp; Operating Model<span class="di-here">← You are here</span></div>
+              <div class="di todo"><span class="di-icon">○</span>Workflow &amp; Adoption Readiness</div>
+              <div class="di todo"><span class="di-icon">○</span>Procurement &amp; Vendor Readiness</div>
+              <div class="di todo"><span class="di-icon">○</span>Budget &amp; Investment Readiness</div>
+            </div>
+            <div class="hub-footer"><div class="hub-meta">Last session: June 16, 2026 &nbsp;·&nbsp; 2:34 PM &nbsp;|&nbsp; Est. 25 min remaining</div><div class="btn-p">Continue Assessment →</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="s3-panel-wrapper">
+        <div class="s3-panel-label"><div class="label-num">2</div><div class="label-text">Domain Question</div></div>
+        <div class="s3-panel">
+          <div class="panel-chrome"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><div class="chrome-bar">btcompass.io/assess/ridgeline-2026/domain-5</div></div>
+          <div class="panel-body">
+            <div class="q-top-row"><div class="domain-label">Domain 5 · AI Governance &amp; Operating Model</div><div class="q-counter">Q 1 of 4</div></div>
+            <div class="gate-pill">⚠ Critical Gating Domain</div>
+            <div class="q-text">"Does your organization have a named body responsible for reviewing and approving AI tools before deployment?"</div>
+            <div class="options">
+              <div class="opt"><div class="radio"></div><div class="opt-label">None — no governance structure exists</div></div>
+              <div class="opt"><div class="radio"></div><div class="opt-label">Vague — informally discussed, not formalized</div></div>
+              <div class="opt"><div class="radio"></div><div class="opt-label">Partial — committee exists, no formal process</div></div>
+              <div class="opt"><div class="radio"></div><div class="opt-label">Defined — committee with documented criteria</div></div>
+              <div class="opt sel"><div class="radio on"></div><div class="opt-label">Specific — committee + criteria + audit trail</div></div>
+            </div>
+            <div class="ev-box">
+              <div class="ev-title">📎 &nbsp;Support your answer — attach a policy, charter, or committee document</div>
+              <div class="ev-attached"><span style="font-size:12px">📄</span><span class="ev-filename">AI_Governance_Charter_2025.pdf</span><span class="ev-badge">Level 3 ✓</span></div>
+            </div>
+            <div class="q-nav"><div class="btn-outline">← Back</div><div class="btn-muted">Save &amp; Exit</div><div class="btn-cta">Save &amp; Continue →</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="s3-panel-wrapper">
+        <div class="s3-panel-label"><div class="label-num">3</div><div class="label-text">Save &amp; Return</div></div>
+        <div class="s3-panel">
+          <div class="panel-chrome"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><div class="chrome-bar">btcompass.io/assess/ridgeline-2026/saved</div></div>
+          <div class="panel-body">
+            <div class="saved-hero"><div class="check-circle">✓</div><div class="saved-title">Progress Saved</div><div class="saved-desc">Completed <strong>3 of 4 questions</strong> in Domain 5.<br>Your answers and evidence are saved securely.</div></div>
+            <div class="return-box"><div class="return-lbl">Your return link</div><div class="url-row"><span class="url-val">btcompass.io/assess/ridgeline-2026</span><span class="copy-btn">Copy</span></div><div class="expiry">Assessment open until July 16, 2026</div></div>
+            <div class="snap-title">Assessment Snapshot</div>
+            <div class="snap-list">
+              <div class="snap-row"><div class="snap-dot d"></div><span class="snap-name d">Strategic Intent</span><span class="snap-status d">Complete</span></div>
+              <div class="snap-row"><div class="snap-dot d"></div><span class="snap-name d">Data Readiness</span><span class="snap-status d">Complete</span></div>
+              <div class="snap-row"><div class="snap-dot d"></div><span class="snap-name d">Infrastructure</span><span class="snap-status d">Complete</span></div>
+              <div class="snap-row"><div class="snap-dot d"></div><span class="snap-name d">Security &amp; Compliance</span><span class="snap-status d">Complete</span></div>
+              <div class="snap-row"><div class="snap-dot a"></div><span class="snap-name a">AI Governance</span><span class="snap-status a">In Progress</span></div>
+              <div class="snap-row"><div class="snap-dot p"></div><span class="snap-name p">Workflow &amp; Adoption</span><span class="snap-status p">Not started</span></div>
+              <div class="snap-row"><div class="snap-dot p"></div><span class="snap-name p">Procurement</span><span class="snap-status p">Not started</span></div>
+              <div class="snap-row"><div class="snap-dot p"></div><span class="snap-name p">Budget &amp; Investment</span><span class="snap-status p">Not started</span></div>
+            </div>
+            <div class="saved-cta"><div class="btn-p">Return to Assessment →</div><div class="no-acct">No account required to resume</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="s3-caption">Domain-by-domain intake <span>·</span> Evidence-gated scoring <span>·</span> Save and return at any time</div>
+  </div>
+
+  <!-- ══════════ SLIDE 4 — Scoring Output ══════════ -->
+  <div class="slide" id="s4">
+    <div class="glow"></div><div class="glow2"></div>
+    <div class="slide-header">
+      <div>
+        <div class="slide-title">An Honest Verdict — Not a Flattering One</div>
+        <div class="slide-subtitle">Ridgeline Health System · Enterprise Foundation Assessment · June 2026</div>
+      </div>
+      <div class="header-badge"><div class="badge-dot"></div><div class="badge-text">BT Compass · Scoring Output</div></div>
+    </div>
+    <div class="s4-body">
+      <div class="s4-scorecard">
+        <div class="sc-row header">
+          <div class="sc-hdr">Domain</div>
+          <div class="sc-hdr center">Score</div>
+          <div class="sc-hdr center">Status</div>
+          <div class="sc-hdr center">Evidence</div>
+          <div class="sc-hdr">Credibility</div>
+        </div>
+        <div class="sc-row"><div class="sc-domain">Strategic Intent &amp; Use Case Scope</div><div class="sc-score sc-yellow">2.90</div><div class="sc-color">🟡</div><div class="sc-ev">Medium</div><div class="sc-gap" style="color:#9DB8D0">Some validation needed</div></div>
+        <div class="sc-row"><div class="sc-domain">Data Readiness &amp; Governance</div><div class="sc-score sc-yellow">2.42</div><div class="sc-color">🟡</div><div class="sc-ev">Low</div><div class="sc-gap" style="color:#FCD34D">Material evidence gap</div></div>
+        <div class="sc-row"><div class="sc-domain">Infrastructure &amp; Architecture</div><div class="sc-score sc-yellow">2.50</div><div class="sc-color">🟡</div><div class="sc-ev">Medium</div><div class="sc-gap" style="color:#9DB8D0">Well supported</div></div>
+        <div class="sc-row"><div class="sc-domain">Security, Privacy &amp; Compliance <span style="font-size:9px;color:#FCA5A5;background:rgba(239,68,68,0.15);padding:2px 6px;border-radius:3px;margin-left:6px;">⚠ Contradiction</span></div><div class="sc-score sc-yellow">2.83</div><div class="sc-color">🟡</div><div class="sc-ev">Medium</div><div class="sc-gap" style="color:#9DB8D0">Some validation needed</div></div>
+        <div class="sc-row gate-crit"><div class="sc-domain">AI Governance &amp; Operating Model <span class="gate-tag gt-crit">Critical Gate</span></div><div class="sc-score sc-red">1.58</div><div class="sc-color">🔴</div><div class="sc-ev" style="color:#F87171">Low</div><div class="sc-gap" style="color:#F87171">High self-report risk</div></div>
+        <div class="sc-row"><div class="sc-domain">Workflow &amp; Adoption Readiness</div><div class="sc-score sc-yellow">2.90</div><div class="sc-color">🟡</div><div class="sc-ev" style="color:#34D399">High</div><div class="sc-gap" style="color:#34D399">Well supported ✓</div></div>
+        <div class="sc-row"><div class="sc-domain">Procurement &amp; Vendor Readiness</div><div class="sc-score sc-yellow">2.60</div><div class="sc-color">🟡</div><div class="sc-ev">Low</div><div class="sc-gap" style="color:#FCD34D">Material evidence gap</div></div>
+        <div class="sc-row gate-sec"><div class="sc-domain">Budget &amp; Investment Readiness <span class="gate-tag gt-sec">Secondary Gate</span></div><div class="sc-score sc-red">1.90</div><div class="sc-color">🔴</div><div class="sc-ev" style="color:#F87171">Low</div><div class="sc-gap" style="color:#FCD34D">Material evidence gap</div></div>
+      </div>
+      <div class="s4-verdict">
+        <div class="verdict-label">Decision Readiness</div>
+        <div class="verdict-status">NOT READY</div>
+        <div class="verdict-sub">Foundational gaps must be resolved before vendor engagement or capital commitment</div>
+        <div class="verdict-gates">
+          <div class="v-gate v-gate-crit">🔴 AI Governance — Critical gate triggered</div>
+          <div class="v-gate v-gate-sec">🟡 Budget Authority — Secondary gate triggered</div>
+        </div>
+        <div class="verdict-insight">This is not a verdict on ambition. It is an honest account of prerequisites. <strong>Both gaps are resolvable in 90 days.</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 5 — Scenario Brief ══════════ -->
+  <div class="slide" id="s5">
+    <div class="glow"></div><div class="glow2"></div>
+    <div class="slide-header">
+      <div>
+        <div class="slide-title">The Score Doesn't Stop There — It Becomes a Decision</div>
+        <div class="slide-subtitle">Board-ready Scenario Brief · Ridgeline Health System · Three investment paths, one recommended direction</div>
+      </div>
+      <div class="header-badge"><div class="badge-dot"></div><div class="badge-text">BT Compass · Scenario Brief Output</div></div>
+    </div>
+    <div class="s5-body">
+      <div class="scenario-card sc-a">
+        <div class="scen-tag">Scenario A · Recommended</div>
+        <div class="scen-name">Controlled Pilot Acceleration</div>
+        <div class="scen-sub">The path we can execute now</div>
+        <div class="scen-what">Form AI Governance Committee within 60 days. Make the September DAX expansion decision using pilot outcomes data. Activate Epic's native sepsis tool — already licensed, no new vendor. Deliver the Q3 board AI strategy with realistic budget scenarios. Resolve both Red-gate blockers without waiting on CFO appointment.</div>
+        <div class="scen-meta">
+          <div class="scen-meta-row"><span class="meta-label">Budget</span><span class="meta-value">Within $500K CIO authority</span></div>
+          <div class="scen-meta-row"><span class="meta-label">Timeline</span><span class="meta-value">6–12 months</span></div>
+          <div class="scen-meta-row"><span class="meta-label">Risk</span><span class="meta-value">Low — no capital committed</span></div>
+        </div>
+        <div class="scen-rec">✓ Recommended — governance formation as Step 1</div>
+      </div>
+      <div class="scenario-card sc-b">
+        <div class="scen-tag">Scenario B · After FY2026 Budget</div>
+        <div class="scen-name">Department or Service-Line Scale</div>
+        <div class="scen-sub">Ridgeline Heart Institute expansion</div>
+        <div class="scen-what">Full DAX Copilot coverage for the Heart Institute. Cardiac imaging AI through Epic App Orchard. Revenue cycle AI for prior auth and coding. Establishes the service-line AI operating model: named owners, monitoring protocols, escalation path. Requires governance established and FY2026 budget confirmed.</div>
+        <div class="scen-meta">
+          <div class="scen-meta-row"><span class="meta-label">Budget</span><span class="meta-value">$750K – $1.5M</span></div>
+          <div class="scen-meta-row"><span class="meta-label">Timeline</span><span class="meta-value">12–24 months post FY2026</span></div>
+          <div class="scen-meta-row"><span class="meta-label">Risk</span><span class="meta-value">Medium — vendor contracts</span></div>
+        </div>
+      </div>
+      <div class="scenario-card sc-c">
+        <div class="scen-tag">Scenario C · 3–5 Year Horizon</div>
+        <div class="scen-name">Enterprise AI Foundation</div>
+        <div class="scen-sub">The right destination — not the right next step</div>
+        <div class="scen-what">Multiyear commitment to enterprise AI infrastructure across all three hospitals: functioning data platform, cloud AI strategy, enterprise governance, multi-vendor AI architecture. Requires permanent CFO, resolved nursing shortage, Epic renegotiation concluded, and 12–18 months of mature governance operating history.</div>
+        <div class="scen-meta">
+          <div class="scen-meta-row"><span class="meta-label">Budget</span><span class="meta-value">$3M – $6M over 3–5 years</span></div>
+          <div class="scen-meta-row"><span class="meta-label">Timeline</span><span class="meta-value">3–5 years</span></div>
+          <div class="scen-meta-row"><span class="meta-label">Risk</span><span class="meta-value">High if pursued prematurely</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="s5-footer">"Maturity models provide insight. BT Compass turns insight into action."</div>
+  </div>
+
+  <!-- ══════════ SLIDE 6 — Active Tool ══════════ -->
+  <div class="slide" id="s6">
+    <div class="glow"></div><div class="glow2"></div>
+    <div class="slide-header">
+      <div>
+        <div class="slide-title">Not a Report. An Active Tool.</div>
+        <div class="slide-subtitle">BT Compass travels with the organization as its AI readiness evolves</div>
+      </div>
+      <div class="header-badge"><div class="badge-dot"></div><div class="badge-text">BT Compass · Reusability</div></div>
+    </div>
+    <div class="s6-body">
+      <div class="s6-contrast">
+        <div class="contrast-old">
+          <div class="contrast-label">Traditional Maturity Assessment</div>
+          <div class="contrast-text">$5,000 report · revisit in 3 years</div>
+          <div class="contrast-sub">Static. Snapshot in time. No action path. Returns once improvements are self-reported.</div>
+        </div>
+        <div class="contrast-vs">vs</div>
+        <div class="contrast-new">
+          <div class="contrast-label">BT Compass</div>
+          <div class="contrast-text">Active tool · runs at any scope · any time</div>
+          <div class="contrast-sub">Evidence-gated. Produces action plans. Re-run as the organization evolves — pilot to enterprise.</div>
+        </div>
+      </div>
+      <div class="s6-modes">
+        <div class="mode-card mode-1">
+          <div class="mode-num">Mode 01</div>
+          <div class="mode-icon">🧪</div>
+          <div class="mode-name">Pilot Readiness</div>
+          <div class="mode-desc">Is this specific AI tool ready to deploy in this specific department? Targeted assessment: one use case, one domain focus, one decision. Fast. Focused. Repeatable for each new pilot.</div>
+          <div class="mode-scope">Single use case · Department scope · Days to complete</div>
+        </div>
+        <div class="mode-arrow">→</div>
+        <div class="mode-card mode-2">
+          <div class="mode-num">Mode 02</div>
+          <div class="mode-icon">🏢</div>
+          <div class="mode-name">Department or Service-Line</div>
+          <div class="mode-desc">Is this service line ready to scale AI across its workflows? Full 8-domain assessment scoped to a department or care line. Produces IT report and board-ready scenario brief.</div>
+          <div class="mode-scope">Service-line scope · Full 8 domains · Weeks to complete</div>
+        </div>
+        <div class="mode-arrow">→</div>
+        <div class="mode-card mode-3">
+          <div class="mode-num">Mode 03</div>
+          <div class="mode-icon">🏗️</div>
+          <div class="mode-name">Enterprise Foundation</div>
+          <div class="mode-desc">Is the organization ready to commit to enterprise AI infrastructure? Comprehensive assessment across all hospitals, all domains, all constraints. Full evidence audit. Multi-scenario investment planning.</div>
+          <div class="mode-scope">Enterprise scope · All sites · Multi-week engagement</div>
+        </div>
+      </div>
+      <div class="s6-footer">"The same methodology — applied at whatever scope the decision requires, as often as the situation changes."</div>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 7 — Market & Revenue ══════════ -->
+  <div class="slide" id="s7">
+    <div class="glow"></div><div class="glow2"></div>
+    <div class="slide-header">
+      <div>
+        <div class="slide-title">Market &amp; Revenue Opportunity</div>
+        <div class="slide-subtitle">U.S. healthcare organizations with EHR — multi-site systems counted as one entity</div>
+      </div>
+      <div class="source-note" style="font-size:10.5px;font-weight:400;color:#4A7090;text-align:right;margin-top:6px;">AHA Fast Facts 2026 &nbsp;·&nbsp; ONC Health IT &nbsp;·&nbsp; Definitive HC &nbsp;·&nbsp; NACHC</div>
+    </div>
+    <div class="s7-body">
+      <div class="market-row">
+        <div class="seg-card seg-enterprise">
+          <div class="seg-label">Corporate Enterprise</div>
+          <div class="seg-total">~8,400 <span>orgs</span></div>
+          <div class="seg-lines">
+            <div class="seg-line"><span class="seg-line-name">Health systems (multi-hospital, counted as one)</span><span class="seg-line-count">397</span></div>
+            <div class="seg-line"><span class="seg-line-name">Large physician &amp; specialty networks (100+ clinicians)</span><span class="seg-line-count">~8,000</span></div>
+          </div>
+        </div>
+        <div class="seg-card seg-sme">
+          <div class="seg-label">SME — Mid-Market</div>
+          <div class="seg-total">~45,000 <span>orgs</span></div>
+          <div class="seg-lines">
+            <div class="seg-line"><span class="seg-line-name">Independent community hospitals</span><span class="seg-line-count">~1,936</span></div>
+            <div class="seg-line"><span class="seg-line-name">Federally Qualified Health Centers</span><span class="seg-line-count">~1,400</span></div>
+            <div class="seg-line"><span class="seg-line-name">Mid-size physician groups (10–99 clinicians)</span><span class="seg-line-count">~42,000</span></div>
+          </div>
+        </div>
+        <div class="seg-card seg-smb">
+          <div class="seg-label">SMB — Small Practice</div>
+          <div class="seg-total">~115,000 <span>orgs</span></div>
+          <div class="seg-lines">
+            <div class="seg-line"><span class="seg-line-name">Small physician practices with EHR (2–9 clinicians)</span><span class="seg-line-count">~85,000</span></div>
+            <div class="seg-line"><span class="seg-line-name">Specialty clinics (ASC, imaging, behavioral health)</span><span class="seg-line-count">~30,000</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="revenue-section">
+        <div class="rev-header">
+          <div class="rev-header-title">Revenue Model</div>
+          <div class="rev-header-note">Vendor designs unlocked after health system adoption &amp; client stories established</div>
+        </div>
+        <table>
+          <thead><tr>
+            <th class="col-stream" style="width:42%">Revenue Stream</th>
+            <th class="num y1c">Year 1</th><th class="num y2c">Year 2</th><th class="num y3c">Year 3</th><th class="num y5c">Year 5</th>
+          </tr></thead>
+          <tbody>
+            <tr><td><div class="stream-name">MCP Kit — One-Time Purchase</div><div class="stream-desc">$499 · Entry-point trial · discounts, promo codes, conference giveaways</div></td><td class="num c-dim">$25K</td><td class="num c-low">$100K</td><td class="num c-mid">$250K</td><td class="num c-high">$500K</td></tr>
+            <tr><td><div class="stream-name">Annual Subscription</div><div class="stream-desc">$1,999/yr · Kit refreshed quarterly, newsletter, webinars · flat rate all tiers</div></td><td class="num c-dim">$40K</td><td class="num c-low">$160K</td><td class="num c-mid">$600K</td><td class="num c-peak">$3.0M</td></tr>
+            <tr class="vendor-row"><td><div class="stream-name">Vendor Reference Designs ✦</div><div class="stream-desc">$9,999/design/yr · Per design per vendor · sequenced after client adoption</div></td><td class="num c-dim">—</td><td class="num c-low">$80K</td><td class="num c-mid">$200K</td><td class="num c-peak">$500K</td></tr>
+            <tr class="total-row"><td><div class="total-label">Total Revenue</div></td><td class="num c-dim">$65K</td><td class="num c-low">$340K</td><td class="num c-mid">$1.05M</td><td class="num c-peak">$4.0M</td></tr>
+          </tbody>
+        </table>
+        <div class="vendor-callout">
+          <span class="callout-icon">✦</span>
+          <div class="callout-text"><strong>Vendor design upside:</strong> 100+ healthcare AI vendors are potential buyers — Epic, Microsoft, Oracle Cerner, Nuance, Viz.ai, Health Catalyst. 50 designs × $9,999 = <strong>$500K/yr from this stream alone.</strong> Sequenced after Year 2 so health system stories validate the audience first.</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <div class="footer-market">Total U.S. addressable market: <strong>~168,000 healthcare organizations with EHR</strong> &nbsp;·&nbsp; Year 5 subscription penetration: <strong>0.9% of total market</strong></div>
+      <div class="footer-source">AHA Fast Facts 2026 · ONC Health IT · Definitive HC · NACHC</div>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 8 — How to Engage ══════════ -->
+  <div class="slide" id="s8">
+    <div class="glow"></div><div class="glow2"></div>
+    <div class="slide-header">
+      <div>
+        <div class="slide-title">Two Ways to Move This Forward</div>
+        <div class="slide-subtitle">The product works. The methodology is sound. What comes next is validation and market reach.</div>
+      </div>
+      <div class="header-badge"><div class="badge-dot"></div><div class="badge-text">BT Compass · How to Engage</div></div>
+    </div>
+    <div class="s8-body">
+      <div class="s8-cards">
+        <div class="engage-card engage-card-a">
+          <div class="engage-tag">Path 1 · Healthcare Validators</div>
+          <div class="engage-icon">🏥</div>
+          <div class="engage-title">Test It in Your Environment</div>
+          <div class="engage-sub">For health system IT leaders, CIOs, VPs of IT, CMIOs</div>
+          <div class="engage-list">
+            <div class="engage-item"><span class="engage-bullet">→</span>Run a live BT Compass assessment against real health system data</div>
+            <div class="engage-item"><span class="engage-bullet">→</span>Stress-test the methodology — tell us where it misses your world</div>
+            <div class="engage-item"><span class="engage-bullet">→</span>Help refine the question bank and reference designs with domain authority</div>
+            <div class="engage-item"><span class="engage-bullet">→</span>Be among the first organizations whose AI readiness story shapes the product</div>
+          </div>
+          <div class="engage-cta">If you've sat in that CIO chair — I'd like to talk.</div>
+        </div>
+        <div class="engage-card engage-card-b">
+          <div class="engage-tag">Path 2 · Commercialization Partners</div>
+          <div class="engage-icon">🤝</div>
+          <div class="engage-title">Bring It to Market</div>
+          <div class="engage-sub">For consultants, advisors, health IT firms, strategic investors</div>
+          <div class="engage-list">
+            <div class="engage-item"><span class="engage-bullet">→</span>License BT Compass as a branded or white-label product</div>
+            <div class="engage-item"><span class="engage-bullet">→</span>Package it into your existing advisory or consulting practice</div>
+            <div class="engage-item"><span class="engage-bullet">→</span>Open doors with health system CIOs using a product that delivers immediate value</div>
+            <div class="engage-item"><span class="engage-bullet">→</span>Revenue share model — aligned incentives, scalable distribution</div>
+          </div>
+          <div class="engage-cta">If you see the market — let's talk about the partnership model.</div>
+        </div>
+      </div>
+      <div class="s8-closing">
+        <div class="s8-tagline">Maturity models provide insight. <em>BT Compass turns insight into action.</em></div>
+        <div class="s8-contact">Dana Castro &nbsp;·&nbsp; <strong>12.danacastro@gmail.com</strong> &nbsp;·&nbsp; BT Compass AI Infrastructure Assessment &nbsp;·&nbsp; June 2026</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <button class="nav-btn" id="prev-btn" onclick="go(-1)" disabled>← Prev</button>
+  <div class="nav-dots" id="dots"></div>
+  <span class="nav-counter" id="counter">1 / 8</span>
+  <button class="nav-btn" id="next-btn" onclick="go(1)">Next →</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total  = slides.length;
+  let   cur    = 0;
+
+  const dotsEl   = document.getElementById('dots');
+  const counterEl= document.getElementById('counter');
+  const prevBtn  = document.getElementById('prev-btn');
+  const nextBtn  = document.getElementById('next-btn');
+
+  // build dots
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i === 0 ? ' on' : '');
+    d.onclick = () => show(i);
+    dotsEl.appendChild(d);
+  }
+
+  function show(n) {
+    slides[cur].classList.remove('active');
+    dotsEl.children[cur].classList.remove('on');
+    cur = Math.max(0, Math.min(total - 1, n));
+    slides[cur].classList.add('active');
+    dotsEl.children[cur].classList.add('on');
+    counterEl.textContent = (cur + 1) + ' / ' + total;
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === total - 1;
+  }
+
+  function go(d) { show(cur + d); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  go(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    go(-1);
+  });
+</script>
+</body>
+</html>
