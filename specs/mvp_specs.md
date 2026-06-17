@@ -495,6 +495,7 @@ Draft requirement categories with sample specification language, organized by do
     scoring_prompt.md               # Prompt: signal extraction from intake + documents
     interpretation_prompt.md        # Prompt: domain interpretation, gaps, next actions
     scenario_brief_prompt.md        # Prompt: three-scenario Scenario Brief generation
+    gamma_prompt_generator.md       # Prompt: Gamma.app slide outline generation (IT Lead deck + Board deck)
 
   scoring/
     rubric.json                     # 8 domains × 5–8 signals, 0–4 scale definitions
@@ -513,6 +514,8 @@ Draft requirement categories with sample specification language, organized by do
     scorecard_template.md
     assumptions_template.md
     rfp_requirements_template.md
+    gamma_it_lead_template.md       # Gamma slide outline shell for IT Lead deck
+    gamma_board_template.md         # Gamma slide outline shell for Board/Executive deck
 
   sample_docs/
     README.md                       # Document types the tool can process; example formats
@@ -548,6 +551,9 @@ Draft requirement categories with sample specification language, organized by do
 - [ ] Three scenarios are meaningfully differentiated with specific procurement implications
 - [ ] Section 7 of Scenario Brief includes draft RFP requirement language per domain
 - [ ] Output is written to local /output/ directory as markdown
+- [ ] Gamma.app prompt is generated for IT Lead deck (domain-by-domain findings, 90-day roadmap, vendor matching)
+- [ ] Gamma.app prompt is generated for Board deck (scenario-focused, no domain scores, plain language)
+- [ ] Gamma prompts paste directly into Gamma.app and produce a usable deck without editing
 - [ ] A health system CIO or CISO receiving this output would say it is more credible and useful than a HIMSS INFRAM survey
 
 ---
@@ -556,7 +562,7 @@ Draft requirement categories with sample specification language, organized by do
 
 - June 14: scoring/rubric.json (full signal set, 5–8 per domain) + prompts/intake_system_prompt.md + prompts/public_data_lookup_prompt.md + workflow/assessment_workflow.md + workflow/document_prep_checklist.md
 - June 15: prompts/scoring_prompt.md + prompts/interpretation_prompt.md + reference_library/ (3 designs + index) + scoring/confidence_rules.md
-- June 16: prompts/scenario_brief_prompt.md + templates/ (all 4) + end-to-end run-through in one mode
+- June 16: prompts/scenario_brief_prompt.md + templates/ (all 4) + prompts/gamma_prompt_generator.md + end-to-end run-through in one mode
 - June 17: sample_docs/ + SOVEREIGN_ENVIRONMENT_NOTICE.md + full run-through across all 4 modes
 - June 18: Demo dry run, refinement, fallback preparation
 - June 19: Demo

@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# Environment
+.env
+*.env
+
+# Local dev
+temp/
+mcp-server/.venv/
+src/
