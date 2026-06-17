@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 from pathlib import Path
+from datetime import date
 
 BASE = Path(__file__).parent
 RUBRIC = json.loads((BASE / "specs/rubric.json").read_text())
@@ -115,6 +116,143 @@ def score_responses(responses, domain_evidence, phi_confirmed):
     return domain_scores, _decision_readiness_status(domain_scores)
 
 
+def generate_gamma_prompt(org_name, operator_role, ehr, cloud, domain_scores, decision, responses):
+    today = date.today().strftime("%B %Y")
+    CE = {"Red": "🔴", "Yellow": "🟡", "Green": "🟢"}
+
+    def gate_label(d):
+        if d in CRITICAL_GATING: return "Critical Gate"
+        if d in SECONDARY_GATING: return "Secondary Gate"
+        return "—"
+
+    def ev_label(d):
+        return "✅ Supported" if domain_scores[d].get("evidence_confidence_score", 0) >= 3 else "⚠️ Self-reported"
+
+    def answer_text(signal_id, level_key):
+        opts = SIGNAL_OPTIONS.get(signal_id, [])
+        idx = LEVEL_KEYS.index(level_key) if level_key in LEVEL_KEYS else 0
+        return opts[idx] if idx < len(opts) else level_key
+
+    def signal_emoji(level):
+        return "🟢" if level in ("defined", "specific_with_metrics") else ("🟡" if level == "partial" else "🔴")
+
+    L = []
+
+    def line(s=""): L.append(s)
+    def slide_break(): L.extend(["", "---", ""])
+
+    # Theme instruction
+    line("Create a professional presentation. Dark, modern theme. Healthcare enterprise aesthetic. Clean data visualization. Use icons, callout boxes, and color-coded indicators where appropriate. No clip art.")
+    slide_break()
+
+    # Slide 1 — Title
+    line(f"# {org_name}")
+    line("## AI Infrastructure Readiness Assessment")
+    line(f"### IT Lead Findings Brief · {today}")
+    if operator_role:
+        line(f"### Prepared for: {operator_role}")
+    slide_break()
+
+    # Slide 2 — Assessment Overview
+    label = decision["label"]
+    sorted_domains = sorted(domain_scores.items(), key=lambda x: x[1]["readiness_score"])
+    worst = DOMAINS[sorted_domains[0][0]]["name"]
+    best = DOMAINS[sorted_domains[-1][0]]["name"]
+    line("# Assessment Overview")
+    line("")
+    line(f"Scored {org_name}'s AI infrastructure readiness across 8 domains against NIST AI RMF, WHO Ethics, and CHAI Blueprint standards.")
+    line("")
+    line("| | |")
+    line("|---|---|")
+    line(f"| **Decision-Readiness Status** | **{label}** |")
+    line(f"| **EHR Platform** | {ehr} |")
+    line(f"| **Primary Cloud** | {cloud} |")
+    line(f"| **Biggest Strength** | {best} |")
+    line(f"| **Biggest Blocker** | {worst} |")
+    line("")
+    line(f"> {decision['guidance']}")
+    slide_break()
+
+    # Slide 3 — Domain Scorecard
+    line("# Domain Scorecard")
+    line("")
+    line("| Domain | Score | Status | Evidence | Gate |")
+    line("|---|---|---|---|---|")
+    for d in DOMAIN_IDS:
+        ds = domain_scores[d]
+        line(f"| {DOMAINS[d]['name']} | {ds['readiness_score']:.1f} / 5.0 | {CE[ds['color']]} {ds['color']} | {ev_label(d)} | {gate_label(d)} |")
+    slide_break()
+
+    # Conditional Slide A — Gating (if any critical gate is Red)
+    red_critical = [d for d in CRITICAL_GATING if domain_scores.get(d, {}).get("color") == "Red"]
+    red_secondary = [d for d in SECONDARY_GATING if domain_scores.get(d, {}).get("color") == "Red"]
+    if red_critical:
+        line("# Gating Rules — Action Required")
+        line("")
+        line("**These critical gate domains scored Red. No vendor engagement, RFP, or procurement is permitted until resolved.**")
+        line("")
+        for d in red_critical:
+            line(f"- 🔴 **{DOMAINS[d]['name']}** — Critical Gate · Score: {domain_scores[d]['readiness_score']:.1f} / 5.0")
+        for d in red_secondary:
+            line(f"- 🟡 **{DOMAINS[d]['name']}** — Secondary Gate · Score: {domain_scores[d]['readiness_score']:.1f} / 5.0")
+        line("")
+        for w in decision.get("gating_warnings", []):
+            line(f"> ⚠️ {w}")
+        slide_break()
+
+    # Slides 4–11 — One per domain
+    for i, domain_id in enumerate(DOMAIN_IDS):
+        ds = domain_scores[domain_id]
+        dom = DOMAINS[domain_id]
+        line(f"# Domain {i + 1}: {dom['name']}")
+        line(f"## {gate_label(domain_id)} · {CE[ds['color']]} {ds['color']} · {ds['readiness_score']:.1f} / 5.0 · {ev_label(domain_id)}")
+        line("")
+        for q in dom["questions"]:
+            level = responses.get(domain_id, {}).get(q["signal_id"], "none")
+            text = answer_text(q["signal_id"], level)
+            line(f"- {signal_emoji(level)} **{q['signal_name']}:** {text}")
+        slide_break()
+
+    # Slide 12 — Credibility Gap
+    line("# Credibility Gap & Evidence Priorities")
+    line("")
+    line("| Domain | Readiness | Evidence | Gap | Interpretation |")
+    line("|---|---|---|---|---|")
+    for d in DOMAIN_IDS:
+        ds = domain_scores[d]
+        gap = ds["readiness_score"] - ds["evidence_confidence_score"]
+        if gap > 2.0: interp = "High Self-Report Risk"
+        elif gap > 1.2: interp = "Material Evidence Gap"
+        elif gap > 0.5: interp = "Some Validation Needed"
+        else: interp = "Well-Supported"
+        line(f"| {DOMAINS[d]['name']} | {ds['readiness_score']:.1f} | {ds['evidence_confidence_score']:.1f} | {gap:.1f} | {interp} |")
+    slide_break()
+
+    # Slide 13 — Recommended Path
+    line("# Recommended Path")
+    line(f"## Decision-Readiness Status: {label}")
+    line("")
+    line(decision["guidance"])
+    line("")
+    line("**Allowed next steps:**")
+    for step in decision.get("allowed_next_steps", []):
+        line(f"- {step}")
+    slide_break()
+
+    # Slide 14 — Disclaimer
+    line("# Scope & Disclaimer")
+    line("")
+    line("**What this assessment cannot determine:**")
+    line("- Legal or regulatory compliance status")
+    line("- Clinical safety or efficacy of any AI tool")
+    line("- Vendor pricing or availability")
+    line("")
+    line(f"*{org_name} · BT Compass AI Infrastructure Assessment · {today}*")
+    line("*For internal planning purposes only. Not legal, clinical, compliance, or procurement advice.*")
+
+    return "\n".join(L)
+
+
 # ── UI ──────────────────────────────────────────────────────────────────────
 
 st.set_page_config(page_title="BT Compass Assessment", page_icon="🧭", layout="wide")
@@ -212,6 +350,10 @@ if st.button("🧭 Run Assessment", type="primary", use_container_width=True):
         st.warning("Please enter your Health System Name in the sidebar before running.")
     else:
         domain_scores, decision = score_responses(responses, domain_evidence, phi_confirmed)
+        st.session_state["results"] = {
+            "org_name": org_name, "operator_role": operator_role, "ehr": ehr, "cloud": cloud,
+            "domain_scores": domain_scores, "decision": decision, "responses": responses,
+        }
 
         st.markdown(f"## Results — {org_name}")
         if operator_role:
@@ -278,3 +420,17 @@ if st.button("🧭 Run Assessment", type="primary", use_container_width=True):
             "Scored by BT Compass deterministic rubric engine · "
             "NIST AI RMF · WHO Ethics · CHAI Blueprint · breakthroughcompass.com"
         )
+
+# ── Gamma Button — shown after any completed assessment ──────────────────────
+if "results" in st.session_state:
+    r = st.session_state["results"]
+    st.markdown("---")
+    st.markdown("### Generate Board Presentation")
+    st.markdown("Paste the output below directly into **[Gamma.app](https://gamma.app)** to generate a slide deck from your assessment results.")
+    if st.button("📊 Generate Gamma Presentation Outline", use_container_width=True):
+        gamma_text = generate_gamma_prompt(
+            r["org_name"], r["operator_role"], r["ehr"], r["cloud"],
+            r["domain_scores"], r["decision"], r["responses"],
+        )
+        st.text_area("Gamma-ready outline — copy and paste into Gamma.app", gamma_text, height=400)
+        st.caption("In Gamma.app: click 'Create new' → 'Paste in text' → paste this outline → Generate.")
