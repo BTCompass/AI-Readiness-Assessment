@@ -14,11 +14,23 @@ FORM_HINTS = {
     "s1_2": "Rate the formality and authority of executive sponsorship for this AI initiative",
     "s1_3": "Rate how well your stated AI ambition matches your organization's actual capacity, budget, and capabilities",
     "s1_4": "Rate whether measurable success metrics are defined for your AI initiative",
+    "s1_5": "How defined is the implementation timeline and urgency drivers for this AI initiative?",
     "s2_2": "Rate the quality of your data for the domains required by your AI use cases",
     "s2_3": "Rate your interoperability maturity — FHIR/HL7 standards, API capabilities, and cross-system data exchange",
+    "s3_3": "Rate your network infrastructure's readiness for AI workloads — bandwidth, latency for real-time inference, and security segmentation",
+    "s3_5": "Rate your infrastructure's readiness for scalable AI workload growth AND disaster recovery / business continuity coverage of AI-dependent clinical workflows",
+    "s4_3": "Rate the maturity of your AI-specific incident response readiness and cybersecurity posture",
+    "s4_4": "Rate how thoroughly your regulatory compliance requirements have been assessed for AI workloads — including cloud-based AI processing, third-party model training restrictions, and FDA AI/ML guidance (this is an assessment of readiness, not a compliance certification)",
+    "s4_5": "Rate your requirements around how AI vendors may USE, store, and share your data — training restrictions, retention limits, residency, and subprocessor controls",
+    "s4_6": "Rate your vendor contract requirements around security controls, SLAs, penetration testing rights, and breach notification — distinct from data-use restrictions",
     "s7_2": "Rate how well-defined your AI infrastructure requirements are before vendor conversations begin",
+    "s7_3": "Rate your organization's competency to evaluate AI vendors — including formal scoring criteria, reference checks, and ability to design and run vendor proof-of-concepts",
+    "s8_1": "Rate whether a realistic budget is allocated, approved, or fundable — covering licensing, implementation, integration, training, and ongoing operations",
     "s8_2": "Rate how well your available budget matches your stated AI ambition",
+    "s8_3": "Rate how comprehensively your budget model accounts for total cost of ownership — licensing, implementation, integration, training, ongoing operations, support, and technology refresh",
 }
+
+NA_OPTION = "Not applicable — this area has not been assessed or does not apply to our organization"
 
 STATED_LEVEL_SCORES = {
     "none": 1.0, "vague": 1.5, "partial": 2.5, "defined": 3.5, "specific_with_metrics": 4.5,
@@ -331,14 +343,14 @@ for domain_id in DOMAIN_IDS:
                 "Partially in place — some elements exist",
                 "Formally defined and documented",
                 "Formally defined with measurable targets or metrics",
-            ])
+            ]) + [NA_OPTION]
             choice_idx = st.selectbox(
                 f"**{q['signal_name']}**  \n*{q['hint']}*",
                 range(len(options)),
                 format_func=lambda i, opts=options: opts[i],
                 key=f"{domain_id}_{q['signal_id']}",
             )
-            responses[domain_id][q["signal_id"]] = LEVEL_KEYS[choice_idx]
+            responses[domain_id][q["signal_id"]] = LEVEL_KEYS[choice_idx] if choice_idx < len(LEVEL_KEYS) else "none"
 
         # Evidence upload for this domain
         st.markdown("---")
