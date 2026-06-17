@@ -5,17 +5,12 @@ from pathlib import Path
 BASE = Path(__file__).parent
 RUBRIC = json.loads((BASE / "specs/rubric.json").read_text())
 QUESTION_BANK = json.loads((BASE / "scoring/question_bank.json").read_text())
+SIGNAL_OPTIONS = json.loads((BASE / "scoring/signal_options.json").read_text())
 
 STATED_LEVEL_SCORES = {
     "none": 1.0, "vague": 1.5, "partial": 2.5, "defined": 3.5, "specific_with_metrics": 4.5,
 }
-DISPLAY_OPTIONS = {
-    "Not in place": "none",
-    "Informal — discussed but not documented": "vague",
-    "Partially in place — some elements exist": "partial",
-    "Formally defined and documented": "defined",
-    "Formally defined with measurable targets or metrics": "specific_with_metrics",
-}
+LEVEL_KEYS = ["none", "vague", "partial", "defined", "specific_with_metrics"]
 DOMAIN_IDS = [
     "strategic_intent_use_case_scope",
     "data_readiness_governance",
@@ -105,7 +100,7 @@ def score_responses(responses, domain_evidence, phi_confirmed):
         if not signals:
             domain_scores[domain_id] = {"readiness_score": 1.0, "evidence_confidence_score": 0.0, "color": "Red"}
             continue
-        readiness_scores = [STATED_LEVEL_SCORES.get(level, 1.0) for level in signals.values()]
+        readiness_scores = [STATED_LEVEL_SCORES.get(str(level), 1.0) for level in signals.values()]
         readiness_avg = sum(readiness_scores) / len(readiness_scores)
         evidence_avg = 3.0 if has_evidence else 0.0
         gap = readiness_avg - evidence_avg
@@ -140,7 +135,6 @@ with st.sidebar:
     )
 
 DOMAINS = _build_domain_questions()
-SCALE_OPTIONS = list(DISPLAY_OPTIONS.keys())
 COLOR_EMOJI = {"Red": "🔴", "Yellow": "🟡", "Green": "🟢"}
 
 st.markdown("### Complete each section, then click **Run Assessment** at the bottom.")
@@ -175,12 +169,20 @@ for domain_id in DOMAIN_IDS:
         responses[domain_id] = {}
 
         for q in dom["questions"]:
-            choice = st.selectbox(
+            options = SIGNAL_OPTIONS.get(q["signal_id"], [
+                "Not in place",
+                "Informal — discussed but not documented",
+                "Partially in place — some elements exist",
+                "Formally defined and documented",
+                "Formally defined with measurable targets or metrics",
+            ])
+            choice_idx = st.selectbox(
                 f"**{q['signal_name']}**  \n*{q['hint']}*",
-                SCALE_OPTIONS,
+                range(len(options)),
+                format_func=lambda i, opts=options: opts[i],
                 key=f"{domain_id}_{q['signal_id']}",
             )
-            responses[domain_id][q["signal_id"]] = DISPLAY_OPTIONS[choice]
+            responses[domain_id][q["signal_id"]] = LEVEL_KEYS[choice_idx]
 
         # Evidence upload for this domain
         st.markdown("---")
