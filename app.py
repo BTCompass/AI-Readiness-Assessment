@@ -8,6 +8,18 @@ RUBRIC = json.loads((BASE / "specs/rubric.json").read_text())
 QUESTION_BANK = json.loads((BASE / "scoring/question_bank.json").read_text())
 SIGNAL_OPTIONS = json.loads((BASE / "scoring/signal_options.json").read_text())
 
+# Overrides for signals where the interview question doesn't describe what's being rated
+FORM_HINTS = {
+    "s1_1": "Rate how specifically your target AI use cases are defined, scoped, and prioritized",
+    "s1_2": "Rate the formality and authority of executive sponsorship for this AI initiative",
+    "s1_3": "Rate how well your stated AI ambition matches your organization's actual capacity, budget, and capabilities",
+    "s1_4": "Rate whether measurable success metrics are defined for your AI initiative",
+    "s2_2": "Rate the quality of your data for the domains required by your AI use cases",
+    "s2_3": "Rate your interoperability maturity — FHIR/HL7 standards, API capabilities, and cross-system data exchange",
+    "s7_2": "Rate how well-defined your AI infrastructure requirements are before vendor conversations begin",
+    "s8_2": "Rate how well your available budget matches your stated AI ambition",
+}
+
 STATED_LEVEL_SCORES = {
     "none": 1.0, "vague": 1.5, "partial": 2.5, "defined": 3.5, "specific_with_metrics": 4.5,
 }
@@ -27,6 +39,12 @@ SECONDARY_GATING = {"infrastructure_architecture_readiness", "procurement_vendor
 PHI_ATTESTATION_TEXT = QUESTION_BANK["metadata"]["safety_attestation_text"]
 
 
+def _truncate(text, max_chars):
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars].rsplit(" ", 1)[0] + "…"
+
+
 def _build_domain_questions():
     qb_domains = QUESTION_BANK["domains"]
     result = {}
@@ -39,7 +57,7 @@ def _build_domain_questions():
                 {
                     "signal_id": q["signal_id"],
                     "signal_name": q["signal_name"],
-                    "hint": q["question"].split("?")[0].split(".")[0][:120],
+                    "hint": FORM_HINTS.get(q["signal_id"]) or _truncate(q["question"].split("?")[0], 160),
                     "evidence_types": q.get("evidenceValidation", {}).get("acceptedEvidenceTypes", []),
                 }
                 for q in qs.values()
