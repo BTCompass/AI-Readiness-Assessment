@@ -43,7 +43,7 @@ def _build_domain_questions():
                 {
                     "signal_id": q["signal_id"],
                     "signal_name": q["signal_name"],
-                    "question": q["question"],
+                    "hint": q["question"].split("?")[0].split(".")[0][:120],
                     "evidence_types": q.get("evidenceValidation", {}).get("acceptedEvidenceTypes", []),
                 }
                 for q in qs.values()
@@ -176,7 +176,7 @@ for domain_id in DOMAIN_IDS:
 
         for q in dom["questions"]:
             choice = st.selectbox(
-                f"**{q['signal_name']}**  \n{q['question']}",
+                f"**{q['signal_name']}**  \n*{q['hint']}*",
                 SCALE_OPTIONS,
                 key=f"{domain_id}_{q['signal_id']}",
             )
