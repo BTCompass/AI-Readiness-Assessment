@@ -18,7 +18,7 @@ FORM_HINTS = {
     "s2_2": "Rate the quality of your data for the domains required by your AI use cases",
     "s2_3": "Rate your interoperability maturity — FHIR/HL7 standards, API capabilities, and cross-system data exchange",
     "s3_3": "Rate your network infrastructure's readiness for AI workloads — bandwidth, latency for real-time inference, and security segmentation",
-    "s3_5": "Rate your infrastructure's readiness for scalable AI workload growth AND disaster recovery / business continuity coverage of AI-dependent clinical workflows",
+    "s3_5": "Can your infrastructure scale with AI workload growth, and do your disaster recovery and business continuity plans explicitly cover AI-dependent clinical and operational workflows?",
     "s4_3": "Rate the maturity of your AI-specific incident response readiness and cybersecurity posture",
     "s4_4": "Rate how thoroughly your regulatory compliance requirements have been assessed for AI workloads — including cloud-based AI processing, third-party model training restrictions, and FDA AI/ML guidance (this is an assessment of readiness, not a compliance certification)",
     "s4_5": "Rate your requirements around how AI vendors may USE, store, and share your data — training restrictions, retention limits, residency, and subprocessor controls",
@@ -323,6 +323,20 @@ st.markdown("---")
 
 responses = {}
 domain_evidence = {}
+context_responses = {}
+
+CONTEXT_QUESTIONS = {
+    "s4_incident_history": {
+        "stem": "For context only (not scored): Has your organization experienced a significant cybersecurity incident in the past 24 months?",
+        "options": [
+            "No significant incident in the past 24 months.",
+            "Yes — a significant incident occurred and has been remediated.",
+            "Yes — a significant incident occurred and remediation is ongoing.",
+            "Prefer not to disclose.",
+        ],
+        "domain": "security_privacy_compliance",
+    },
+}
 
 for domain_id in DOMAIN_IDS:
     dom = DOMAINS[domain_id]
@@ -351,6 +365,19 @@ for domain_id in DOMAIN_IDS:
                 key=f"{domain_id}_{q['signal_id']}",
             )
             responses[domain_id][q["signal_id"]] = LEVEL_KEYS[choice_idx] if choice_idx < len(LEVEL_KEYS) else "none"
+
+        # Context-only questions for this domain (not scored, not gated)
+        for cid, cq in CONTEXT_QUESTIONS.items():
+            if cq["domain"] == domain_id:
+                st.markdown("---")
+                st.caption("ℹ️ Context question — recorded for reviewer use only. Does not affect your score or readiness status.")
+                ctx_idx = st.selectbox(
+                    f"*{cq['stem']}*",
+                    range(len(cq["options"])),
+                    format_func=lambda i, opts=cq["options"]: opts[i],
+                    key=f"ctx_{cid}",
+                )
+                context_responses[cid] = cq["options"][ctx_idx]
 
         # Evidence upload for this domain
         st.markdown("---")
@@ -383,6 +410,7 @@ if st.button("🧭 Run Assessment", type="primary", use_container_width=True):
         st.session_state["results"] = {
             "org_name": org_name, "operator_role": operator_role, "ehr": ehr, "cloud": cloud,
             "domain_scores": domain_scores, "decision": decision, "responses": responses,
+            "context_responses": context_responses,
         }
 
         st.markdown(f"## Results — {org_name}")
@@ -450,6 +478,14 @@ if st.button("🧭 Run Assessment", type="primary", use_container_width=True):
             "Scored by BT Compass deterministic rubric engine · "
             "NIST AI RMF · WHO Ethics · CHAI Blueprint · breakthroughcompass.com"
         )
+
+        # Reviewer context — not scored, not gated
+        if context_responses:
+            st.markdown("---")
+            st.markdown("#### Reviewer Context *(not scored)*")
+            for cid, answer in context_responses.items():
+                cq = CONTEXT_QUESTIONS[cid]
+                st.info(f"**{cq['stem']}**\n\n{answer}")
 
 # ── Gamma Button — shown after any completed assessment ──────────────────────
 if "results" in st.session_state:
