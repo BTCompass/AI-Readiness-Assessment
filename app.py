@@ -146,7 +146,7 @@ def score_responses(responses, domain_evidence, phi_confirmed):
     return domain_scores, _decision_readiness_status(domain_scores)
 
 
-def generate_gamma_prompt(org_name, operator_role, ehr, cloud, domain_scores, decision, responses):
+def generate_gamma_prompt(org_name, operator_role, ehr, cloud, domain_scores, decision, responses, context_responses=None):
     today = date.today().strftime("%B %Y")
     CE = {"Red": "🔴", "Yellow": "🟡", "Green": "🟢"}
 
@@ -241,6 +241,12 @@ def generate_gamma_prompt(org_name, operator_role, ehr, cloud, domain_scores, de
             level = responses.get(domain_id, {}).get(q["signal_id"], "none")
             text = answer_text(q["signal_id"], level)
             line(f"- {signal_emoji(level)} **{q['signal_name']}:** {text}")
+        # Inject any context-only responses for this domain as a reviewer note
+        if context_responses:
+            for cid, cq in CONTEXT_QUESTIONS.items():
+                if cq["domain"] == domain_id and cid in context_responses:
+                    line("")
+                    line(f"> 📋 **Reviewer context (not scored):** {cq['stem'].replace('For context only (not scored): ', '')} — *{context_responses[cid]}*")
         slide_break()
 
     # Slide 12 — Credibility Gap
@@ -497,6 +503,7 @@ if "results" in st.session_state:
         gamma_text = generate_gamma_prompt(
             r["org_name"], r["operator_role"], r["ehr"], r["cloud"],
             r["domain_scores"], r["decision"], r["responses"],
+            r.get("context_responses", {}),
         )
         st.text_area("Gamma-ready outline — copy and paste into Gamma.app", gamma_text, height=400)
         st.caption("In Gamma.app: click 'Create new' → 'Paste in text' → paste this outline → Generate.")
