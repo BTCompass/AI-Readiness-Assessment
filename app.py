@@ -1,5 +1,7 @@
 import streamlit as st
 import json
+import re
+import io
 from pathlib import Path
 from datetime import date
 
@@ -123,17 +125,24 @@ def _decision_readiness_status(domain_scores):
     }
 
 
-def score_responses(responses, domain_evidence, phi_confirmed):
+def score_responses(responses, domain_evidence, phi_confirmed, evidence_analysis=None):
     domain_scores = {}
     for domain_id in DOMAIN_IDS:
         signals = responses.get(domain_id, {})
-        has_evidence = domain_evidence.get(domain_id, False) and phi_confirmed
+        has_file = (domain_evidence.get(domain_id) is not None) and phi_confirmed
         if not signals:
             domain_scores[domain_id] = {"readiness_score": 1.0, "evidence_confidence_score": 0.0, "color": "Red"}
             continue
         readiness_scores = [STATED_LEVEL_SCORES.get(str(level), 1.0) for level in signals.values()]
         readiness_avg = sum(readiness_scores) / len(readiness_scores)
-        evidence_avg = 3.0 if has_evidence else 0.0
+
+        if evidence_analysis and domain_id in evidence_analysis and not evidence_analysis[domain_id].get("error"):
+            sig_analyses = evidence_analysis[domain_id].get("signals", {})
+            ev_levels = [float(sig_analyses[s]["evidence_level"]) for s in signals if s in sig_analyses]
+            evidence_avg = sum(ev_levels) / len(ev_levels) if ev_levels else (3.0 if has_file else 0.0)
+        else:
+            evidence_avg = 3.0 if has_file else 0.0
+
         gap = readiness_avg - evidence_avg
         color = _color(readiness_avg)
         if color == "Green" and gap > 2.0:
@@ -146,7 +155,99 @@ def score_responses(responses, domain_evidence, phi_confirmed):
     return domain_scores, _decision_readiness_status(domain_scores)
 
 
-def generate_gamma_prompt(org_name, operator_role, ehr, cloud, domain_scores, decision, responses, context_responses=None):
+def get_anthropic_client():
+    try:
+        import anthropic
+        key = st.secrets.get("ANTHROPIC_API_KEY") or st.secrets.get("anthropic_api_key")
+        if key:
+            return anthropic.Anthropic(api_key=key)
+    except Exception:
+        pass
+    return None
+
+
+def extract_file_text(uploaded_file) -> str:
+    if uploaded_file is None:
+        return ""
+    content = uploaded_file.read()
+    name = uploaded_file.name.lower()
+    try:
+        if name.endswith(".pdf"):
+            from pypdf import PdfReader
+            reader = PdfReader(io.BytesIO(content))
+            return "\n".join(p.extract_text() or "" for p in reader.pages)[:12000]
+        elif name.endswith(".docx"):
+            from docx import Document
+            doc = Document(io.BytesIO(content))
+            return "\n".join(p.text for p in doc.paragraphs if p.text.strip())[:12000]
+        else:
+            return content.decode("utf-8", errors="replace")[:12000]
+    except Exception as e:
+        return f"[Could not read file: {e}]"
+
+
+def analyze_evidence(client, domain_id, domain_name, gate_type, questions, domain_responses, document_text, filename):
+    signal_lines = []
+    for q in questions:
+        sig_id = q["signal_id"]
+        level = domain_responses.get(sig_id, "none")
+        opts = SIGNAL_OPTIONS.get(sig_id, [])
+        idx = LEVEL_KEYS.index(level) if level in LEVEL_KEYS else 0
+        answer = opts[idx] if idx < len(opts) else level
+        signal_lines.append(f"- {q['signal_name']} ({sig_id}): \"{answer}\"")
+
+    prompt = f"""You are reviewing a document uploaded to validate self-reported answers in a health system AI readiness assessment.
+
+DOMAIN: {domain_name} ({gate_type})
+
+SELF-REPORTED ANSWERS:
+{chr(10).join(signal_lines)}
+
+UPLOADED DOCUMENT (filename: {filename}):
+---
+{document_text}
+---
+
+For each signal listed above, analyze the document and return ONLY a JSON object with this exact structure:
+
+{{
+  "domain_id": "{domain_id}",
+  "document_filename": "{filename}",
+  "document_relevance": "high|medium|low",
+  "overall_evidence_quality": <0.0-5.0>,
+  "additional_context": "<AI-readiness context from the document not captured in the questionnaire, max 120 words>",
+  "signals": {{
+    "<signal_id>": {{
+      "evidence_level": <0.0-5.0>,
+      "corroborates": <true|false>,
+      "contradicts": <true|false>,
+      "key_quote": "<most relevant quote, max 80 words, or null>",
+      "evidence_note": "<one sentence: what the document shows for this signal>"
+    }}
+  }}
+}}
+
+EVIDENCE LEVEL SCALE: 0=no relevant content, 1=tangential, 2=related but weak, 3=relevant and supportive, 4=strong direct evidence, 5=explicit confirmation with metrics or named owners.
+
+Do not make compliance certification claims. Flag contradictions honestly. Return ONLY the JSON object."""
+
+    try:
+        import anthropic
+        message = client.messages.create(
+            model="claude-opus-4-8",
+            max_tokens=1500,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        text = message.content[0].text.strip()
+        match = re.search(r'\{.*\}', text, re.DOTALL)
+        if match:
+            return json.loads(match.group())
+        return json.loads(text)
+    except Exception as e:
+        return {"error": str(e), "domain_id": domain_id}
+
+
+def generate_gamma_prompt(org_name, operator_role, ehr, cloud, domain_scores, decision, responses, context_responses=None, evidence_analysis=None):
     today = date.today().strftime("%B %Y")
     CE = {"Red": "🔴", "Yellow": "🟡", "Green": "🟢"}
 
@@ -237,10 +338,31 @@ def generate_gamma_prompt(org_name, operator_role, ehr, cloud, domain_scores, de
         line(f"# Domain {i + 1}: {dom['name']}")
         line(f"## {gate_label(domain_id)} · {CE[ds['color']]} {ds['color']} · {ds['readiness_score']:.1f} / 5.0 · {ev_label(domain_id)}")
         line("")
+        ea = (evidence_analysis or {}).get(domain_id, {})
+        ea_signals = ea.get("signals", {})
         for q in dom["questions"]:
-            level = responses.get(domain_id, {}).get(q["signal_id"], "none")
-            text = answer_text(q["signal_id"], level)
-            line(f"- {signal_emoji(level)} **{q['signal_name']}:** {text}")
+            sig_id = q["signal_id"]
+            level = responses.get(domain_id, {}).get(sig_id, "none")
+            text = answer_text(sig_id, level)
+            sig_ea = ea_signals.get(sig_id, {})
+            if sig_ea:
+                ev_icon = "✅" if sig_ea.get("corroborates") else ("⚠️" if sig_ea.get("contradicts") else "📄")
+                line(f"- {signal_emoji(level)} **{q['signal_name']}:** {text}")
+                if sig_ea.get("key_quote"):
+                    line(f"  - {ev_icon} *Evidence:* \"{sig_ea['key_quote']}\"")
+                elif sig_ea.get("evidence_note"):
+                    line(f"  - {ev_icon} *{sig_ea['evidence_note']}*")
+            else:
+                line(f"- {signal_emoji(level)} **{q['signal_name']}:** {text}")
+
+        if ea.get("additional_context"):
+            line("")
+            line(f"> 🔍 **Document insight:** {ea['additional_context']}")
+
+        if any(ea_signals.get(q["signal_id"], {}).get("contradicts") for q in dom["questions"]):
+            line("")
+            line("> ⚠️ **Contradiction detected** — one or more signals are contradicted by the uploaded document. Review before using in procurement decisions.")
+
         # Inject any context-only responses for this domain as a reviewer note
         if context_responses:
             for cid, cq in CONTEXT_QUESTIONS.items():
@@ -399,12 +521,12 @@ for domain_id in DOMAIN_IDS:
                 accept_multiple_files=False,
                 help="Accepted: " + " · ".join(unique_types[:4]),
             )
-            domain_evidence[domain_id] = uploaded is not None
+            domain_evidence[domain_id] = uploaded
             if unique_types:
                 st.caption("Accepted evidence: " + "  ·  ".join(unique_types))
         else:
             st.caption("*Enable evidence uploads by confirming the attestation above.*")
-            domain_evidence[domain_id] = False
+            domain_evidence[domain_id] = None
 
 st.markdown("---")
 
@@ -412,11 +534,30 @@ if st.button("🧭 Run Assessment", type="primary", use_container_width=True):
     if not org_name:
         st.warning("Please enter your Health System Name in the sidebar before running.")
     else:
-        domain_scores, decision = score_responses(responses, domain_evidence, phi_confirmed)
+        # Analyze uploaded documents with Claude before scoring
+        evidence_analysis = {}
+        uploads = {d: f for d, f in domain_evidence.items() if f is not None}
+        if uploads and phi_confirmed:
+            client = get_anthropic_client()
+            if client:
+                with st.spinner(f"Analyzing {len(uploads)} uploaded document(s) with Claude…"):
+                    for domain_id, uploaded_file in uploads.items():
+                        dom = DOMAINS[domain_id]
+                        gate = "Critical Gate" if domain_id in CRITICAL_GATING else ("Secondary Gate" if domain_id in SECONDARY_GATING else "Standard")
+                        text = extract_file_text(uploaded_file)
+                        evidence_analysis[domain_id] = analyze_evidence(
+                            client, domain_id, dom["name"], gate,
+                            dom["questions"], responses.get(domain_id, {}),
+                            text, uploaded_file.name,
+                        )
+            else:
+                st.info("ℹ️ Add your Anthropic API key to Streamlit secrets to enable AI document analysis. Documents registered as uploaded — evidence confidence set to default.")
+
+        domain_scores, decision = score_responses(responses, domain_evidence, phi_confirmed, evidence_analysis)
         st.session_state["results"] = {
             "org_name": org_name, "operator_role": operator_role, "ehr": ehr, "cloud": cloud,
             "domain_scores": domain_scores, "decision": decision, "responses": responses,
-            "context_responses": context_responses,
+            "context_responses": context_responses, "evidence_analysis": evidence_analysis,
         }
 
         st.markdown(f"## Results — {org_name}")
@@ -485,6 +626,26 @@ if st.button("🧭 Run Assessment", type="primary", use_container_width=True):
             "NIST AI RMF · WHO Ethics · CHAI Blueprint · breakthroughcompass.com"
         )
 
+        # Evidence analysis results — shown per domain when Claude analyzed a document
+        if evidence_analysis:
+            st.markdown("---")
+            st.markdown("#### Evidence Analysis *(Claude-reviewed documents)*")
+            for domain_id, ea in evidence_analysis.items():
+                if ea.get("error"):
+                    st.warning(f"**{DOMAINS[domain_id]['name']}:** Analysis failed — {ea['error']}")
+                    continue
+                dom_name = DOMAINS[domain_id]["name"]
+                relevance = ea.get("document_relevance", "unknown")
+                quality = ea.get("overall_evidence_quality", 0)
+                filename = ea.get("document_filename", "uploaded file")
+                contradictions = [sid for sid, s in ea.get("signals", {}).items() if s.get("contradicts")]
+                if contradictions:
+                    st.error(f"**{dom_name}** — `{filename}` · Quality: {quality:.1f}/5.0 · Relevance: {relevance} · ⚠️ Contradictions detected")
+                else:
+                    st.success(f"**{dom_name}** — `{filename}` · Quality: {quality:.1f}/5.0 · Relevance: {relevance}")
+                if ea.get("additional_context"):
+                    st.caption(f"📌 {ea['additional_context']}")
+
         # Reviewer context — not scored, not gated
         if context_responses:
             st.markdown("---")
@@ -503,7 +664,7 @@ if "results" in st.session_state:
         gamma_text = generate_gamma_prompt(
             r["org_name"], r["operator_role"], r["ehr"], r["cloud"],
             r["domain_scores"], r["decision"], r["responses"],
-            r.get("context_responses", {}),
+            r.get("context_responses", {}), r.get("evidence_analysis", {}),
         )
         st.text_area("Gamma-ready outline — copy and paste into Gamma.app", gamma_text, height=400)
         st.caption("In Gamma.app: click 'Create new' → 'Paste in text' → paste this outline → Generate.")

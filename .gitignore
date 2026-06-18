@@ -7,6 +7,7 @@ __pycache__/
 # Environment
 .env
 *.env
+.streamlit/secrets.toml
 
 # Local dev
 temp/
