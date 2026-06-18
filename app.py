@@ -248,165 +248,140 @@ Do not make compliance certification claims. Flag contradictions honestly. Retur
 
 
 def generate_gamma_prompt(org_name, operator_role, ehr, cloud, domain_scores, decision, responses, context_responses=None, evidence_analysis=None):
+    # Target: ≤13 slides (14 with gating) — optimized for Gamma free-plan credit efficiency
     today = date.today().strftime("%B %Y")
     CE = {"Red": "🔴", "Yellow": "🟡", "Green": "🟢"}
 
     def gate_label(d):
-        if d in CRITICAL_GATING: return "Critical Gate"
-        if d in SECONDARY_GATING: return "Secondary Gate"
+        if d in CRITICAL_GATING: return "Critical"
+        if d in SECONDARY_GATING: return "Secondary"
         return "—"
 
     def ev_label(d):
-        return "✅ Supported" if domain_scores[d].get("evidence_confidence_score", 0) >= 3 else "⚠️ Self-reported"
+        return "✅" if domain_scores[d].get("evidence_confidence_score", 0) >= 3 else "⚠️"
 
-    def answer_text(signal_id, level_key):
+    def answer_short(signal_id, level_key):
         opts = SIGNAL_OPTIONS.get(signal_id, [])
         idx = LEVEL_KEYS.index(level_key) if level_key in LEVEL_KEYS else 0
-        return opts[idx] if idx < len(opts) else level_key
+        text = opts[idx] if idx < len(opts) else level_key
+        return text[:55] + "…" if len(text) > 55 else text
 
-    def signal_emoji(level):
+    def sig_emoji(level):
         return "🟢" if level in ("defined", "specific_with_metrics") else ("🟡" if level == "partial" else "🔴")
 
+    def trunc(text, n):
+        return (text[:n] + "…") if text and len(text) > n else (text or "")
+
     L = []
-
     def line(s=""): L.append(s)
-    def slide_break(): L.extend(["", "---", ""])
+    def sep(): L.extend(["", "---", ""])
 
-    # Theme instruction
-    line("Create a professional presentation. Dark, modern theme. Healthcare enterprise aesthetic. Clean data visualization. Use icons, callout boxes, and color-coded indicators where appropriate. No clip art.")
-    slide_break()
+    # ── Theme ──
+    line("Create a professional presentation. Dark modern theme. Healthcare enterprise aesthetic. Color-coded indicators. No clip art. Keep each slide concise.")
+    sep()
 
-    # Slide 1 — Title
+    # ── Slide 1: Title ──
     line(f"# {org_name}")
     line("## AI Infrastructure Readiness Assessment")
-    line(f"### IT Lead Findings Brief · {today}")
-    if operator_role:
-        line(f"### Prepared for: {operator_role}")
-    slide_break()
+    line(f"### {today}" + (f" · {operator_role}" if operator_role else ""))
+    sep()
 
-    # Slide 2 — Assessment Overview
+    # ── Slide 2: Overview ──
     label = decision["label"]
-    sorted_domains = sorted(domain_scores.items(), key=lambda x: x[1]["readiness_score"])
-    worst = DOMAINS[sorted_domains[0][0]]["name"]
-    best = DOMAINS[sorted_domains[-1][0]]["name"]
+    sorted_d = sorted(domain_scores.items(), key=lambda x: x[1]["readiness_score"])
+    worst = DOMAINS[sorted_d[0][0]]["name"]
+    best  = DOMAINS[sorted_d[-1][0]]["name"]
     line("# Assessment Overview")
     line("")
-    line(f"Scored {org_name}'s AI infrastructure readiness across 8 domains against NIST AI RMF, WHO Ethics, and CHAI Blueprint standards.")
-    line("")
-    line("| | |")
+    line(f"| | |")
     line("|---|---|")
-    line(f"| **Decision-Readiness Status** | **{label}** |")
-    line(f"| **EHR Platform** | {ehr} |")
-    line(f"| **Primary Cloud** | {cloud} |")
-    line(f"| **Biggest Strength** | {best} |")
-    line(f"| **Biggest Blocker** | {worst} |")
+    line(f"| **Status** | **{label}** |")
+    line(f"| **EHR** | {ehr} |")
+    line(f"| **Cloud** | {cloud} |")
+    line(f"| **Strongest domain** | {best} |")
+    line(f"| **Weakest domain** | {worst} |")
     line("")
-    line(f"> {decision['guidance']}")
-    slide_break()
+    line(f"> {trunc(decision['guidance'], 160)}")
+    sep()
 
-    # Slide 3 — Domain Scorecard
-    line("# Domain Scorecard")
+    # ── Slide 3: Scorecard + Credibility Gap (merged to save one slide) ──
+    line("# Domain Scorecard & Evidence Confidence")
     line("")
-    line("| Domain | Score | Status | Evidence | Gate |")
-    line("|---|---|---|---|---|")
-    for d in DOMAIN_IDS:
-        ds = domain_scores[d]
-        line(f"| {DOMAINS[d]['name']} | {ds['readiness_score']:.1f} / 5.0 | {CE[ds['color']]} {ds['color']} | {ev_label(d)} | {gate_label(d)} |")
-    slide_break()
-
-    # Conditional Slide A — Gating (if any critical gate is Red)
-    red_critical = [d for d in CRITICAL_GATING if domain_scores.get(d, {}).get("color") == "Red"]
-    red_secondary = [d for d in SECONDARY_GATING if domain_scores.get(d, {}).get("color") == "Red"]
-    if red_critical:
-        line("# Gating Rules — Action Required")
-        line("")
-        line("**These critical gate domains scored Red. No vendor engagement, RFP, or procurement is permitted until resolved.**")
-        line("")
-        for d in red_critical:
-            line(f"- 🔴 **{DOMAINS[d]['name']}** — Critical Gate · Score: {domain_scores[d]['readiness_score']:.1f} / 5.0")
-        for d in red_secondary:
-            line(f"- 🟡 **{DOMAINS[d]['name']}** — Secondary Gate · Score: {domain_scores[d]['readiness_score']:.1f} / 5.0")
-        line("")
-        for w in decision.get("gating_warnings", []):
-            line(f"> ⚠️ {w}")
-        slide_break()
-
-    # Slides 4–11 — One per domain
-    for i, domain_id in enumerate(DOMAIN_IDS):
-        ds = domain_scores[domain_id]
-        dom = DOMAINS[domain_id]
-        line(f"# Domain {i + 1}: {dom['name']}")
-        line(f"## {gate_label(domain_id)} · {CE[ds['color']]} {ds['color']} · {ds['readiness_score']:.1f} / 5.0 · {ev_label(domain_id)}")
-        line("")
-        ea = (evidence_analysis or {}).get(domain_id, {})
-        ea_signals = ea.get("signals", {})
-        for q in dom["questions"]:
-            sig_id = q["signal_id"]
-            level = responses.get(domain_id, {}).get(sig_id, "none")
-            text = answer_text(sig_id, level)
-            sig_ea = ea_signals.get(sig_id, {})
-            if sig_ea:
-                ev_icon = "✅" if sig_ea.get("corroborates") else ("⚠️" if sig_ea.get("contradicts") else "📄")
-                line(f"- {signal_emoji(level)} **{q['signal_name']}:** {text}")
-                if sig_ea.get("key_quote"):
-                    line(f"  - {ev_icon} *Evidence:* \"{sig_ea['key_quote']}\"")
-                elif sig_ea.get("evidence_note"):
-                    line(f"  - {ev_icon} *{sig_ea['evidence_note']}*")
-            else:
-                line(f"- {signal_emoji(level)} **{q['signal_name']}:** {text}")
-
-        if ea.get("additional_context"):
-            line("")
-            line(f"> 🔍 **Document insight:** {ea['additional_context']}")
-
-        if any(ea_signals.get(q["signal_id"], {}).get("contradicts") for q in dom["questions"]):
-            line("")
-            line("> ⚠️ **Contradiction detected** — one or more signals are contradicted by the uploaded document. Review before using in procurement decisions.")
-
-        # Inject any context-only responses for this domain as a reviewer note
-        if context_responses:
-            for cid, cq in CONTEXT_QUESTIONS.items():
-                if cq["domain"] == domain_id and cid in context_responses:
-                    line("")
-                    line(f"> 📋 **Reviewer context (not scored):** {cq['stem'].replace('For context only (not scored): ', '')} — *{context_responses[cid]}*")
-        slide_break()
-
-    # Slide 12 — Credibility Gap
-    line("# Credibility Gap & Evidence Priorities")
-    line("")
-    line("| Domain | Readiness | Evidence | Gap | Interpretation |")
-    line("|---|---|---|---|---|")
+    line("| Domain | Score | Status | Evidence | Gap | Gate |")
+    line("|---|---|---|---|---|---|")
     for d in DOMAIN_IDS:
         ds = domain_scores[d]
         gap = ds["readiness_score"] - ds["evidence_confidence_score"]
-        if gap > 2.0: interp = "High Self-Report Risk"
-        elif gap > 1.2: interp = "Material Evidence Gap"
-        elif gap > 0.5: interp = "Some Validation Needed"
-        else: interp = "Well-Supported"
-        line(f"| {DOMAINS[d]['name']} | {ds['readiness_score']:.1f} | {ds['evidence_confidence_score']:.1f} | {gap:.1f} | {interp} |")
-    slide_break()
+        if gap > 2.0: interp = "High risk"
+        elif gap > 1.2: interp = "Gap"
+        elif gap > 0.5: interp = "Validate"
+        else: interp = "Supported"
+        line(f"| {DOMAINS[d]['name']} | {ds['readiness_score']:.1f} | {CE[ds['color']]} {ds['color']} | {ev_label(d)} {ds['evidence_confidence_score']:.1f} | {interp} | {gate_label(d)} |")
+    sep()
 
-    # Slide 13 — Recommended Path
+    # ── Conditional Slide A: Gating (only if critical Red) ──
+    red_crit = [d for d in CRITICAL_GATING if domain_scores.get(d, {}).get("color") == "Red"]
+    red_sec  = [d for d in SECONDARY_GATING if domain_scores.get(d, {}).get("color") == "Red"]
+    if red_crit:
+        line("# ⛔ Gating Warnings — Action Required")
+        line("")
+        line("No vendor engagement, RFP, or procurement until resolved.")
+        line("")
+        for d in red_crit:
+            line(f"- 🔴 **{DOMAINS[d]['name']}** — Critical Gate · {domain_scores[d]['readiness_score']:.1f}/5.0")
+        for d in red_sec:
+            line(f"- 🟡 **{DOMAINS[d]['name']}** — Secondary Gate · {domain_scores[d]['readiness_score']:.1f}/5.0")
+        for w in decision.get("gating_warnings", []):
+            line(f"> ⚠️ {trunc(w, 120)}")
+        sep()
+
+    # ── Slides 4–11: One compact slide per domain (table format) ──
+    for i, domain_id in enumerate(DOMAIN_IDS):
+        ds  = domain_scores[domain_id]
+        dom = DOMAINS[domain_id]
+        ea  = (evidence_analysis or {}).get(domain_id, {})
+        ea_sigs = ea.get("signals", {})
+        has_contradiction = any(ea_sigs.get(q["signal_id"], {}).get("contradicts") for q in dom["questions"])
+
+        line(f"# D{i+1}: {dom['name']}")
+        line(f"## {gate_label(domain_id)} · {CE[ds['color']]} {ds['color']} · {ds['readiness_score']:.1f}/5 · {ev_label(domain_id)}")
+        line("")
+        line("| Signal | Rating | Evidence note |")
+        line("|---|---|---|")
+        for q in dom["questions"]:
+            sid   = q["signal_id"]
+            level = responses.get(domain_id, {}).get(sid, "none")
+            ans   = answer_short(sid, level)
+            sig_e = ea_sigs.get(sid, {})
+            if sig_e:
+                ev_icon = "✅" if sig_e.get("corroborates") else ("⚠️" if sig_e.get("contradicts") else "📄")
+                note = trunc(sig_e.get("key_quote") or sig_e.get("evidence_note") or "", 60)
+                line(f"| {q['signal_name']} | {sig_emoji(level)} {ans} | {ev_icon} {note} |")
+            else:
+                line(f"| {q['signal_name']} | {sig_emoji(level)} {ans} | — |")
+
+        if ea.get("additional_context"):
+            line(f"> 🔍 {trunc(ea['additional_context'], 100)}")
+        if has_contradiction:
+            line("> ⚠️ Contradiction detected — verify before procurement use.")
+        if context_responses:
+            for cid, cq in CONTEXT_QUESTIONS.items():
+                if cq["domain"] == domain_id and cid in context_responses:
+                    line(f"> 📋 {cq['stem'].replace('For context only (not scored): ', '')} — *{context_responses[cid]}*")
+        sep()
+
+    # ── Slide 12: Recommended Path + Disclaimer (merged to save one slide) ──
     line("# Recommended Path")
-    line(f"## Decision-Readiness Status: {label}")
+    line(f"## {label}")
     line("")
-    line(decision["guidance"])
+    line(trunc(decision["guidance"], 200))
     line("")
     line("**Allowed next steps:**")
     for step in decision.get("allowed_next_steps", []):
         line(f"- {step}")
-    slide_break()
-
-    # Slide 14 — Disclaimer
-    line("# Scope & Disclaimer")
     line("")
-    line("**What this assessment cannot determine:**")
-    line("- Legal or regulatory compliance status")
-    line("- Clinical safety or efficacy of any AI tool")
-    line("- Vendor pricing or availability")
-    line("")
-    line(f"*{org_name} · BT Compass AI Infrastructure Assessment · {today}*")
-    line("*For internal planning purposes only. Not legal, clinical, compliance, or procurement advice.*")
+    line("---")
+    line(f"*{org_name} · BT Compass · {today} · For internal planning only. Not legal, clinical, or procurement advice.*")
 
     return "\n".join(L)
 
